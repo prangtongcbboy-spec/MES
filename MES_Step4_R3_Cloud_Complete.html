@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MES Webapp Production_R2 Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1222;--card:#162032;--card2:#1a2840;--accent:#2d7ff9;--accent2:#5b9cff;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#e8edf5;--dim:#7b8ca8;--border:#253350;--inp:#0e1729;--r:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;padding-bottom:70px}
+.topbar{background:var(--card);padding:10px 14px;border-bottom:2px solid var(--accent);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:15px;font-weight:800;color:var(--accent2)}
+.topbar-sub{font-size:10px;color:var(--dim)}
+.nav{display:flex;overflow-x:auto;gap:4px;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:50px;z-index:99;-webkit-overflow-scrolling:touch}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:7px 11px;border:none;border-radius:8px;background:transparent;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;pointer-events:auto}
+.nav-btn.active{background:var(--accent);color:#fff;font-weight:700}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin:8px;border:1px solid var(--border)}
+.card-title{font-size:16px;font-weight:800;color:var(--accent2);margin-bottom:10px}
+.card-sub{font-size:11px;color:var(--dim);margin-bottom:10px}
+label.fl{font-size:11px;color:var(--dim);display:block;margin-bottom:3px;font-weight:600}
+.f{margin-bottom:8px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--inp);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+input:focus,select:focus{border-color:var(--accent)}
+input[type="number"]{text-align:center}
+select{appearance:auto}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.btn{width:100%;padding:12px;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;color:#fff}
+.btn-a{background:var(--accent)}.btn-g{background:var(--green)}.btn-r{background:var(--red)}.btn-y{background:var(--yellow);color:#111}.btn-d{background:var(--border)}
+.btn:active{transform:scale(.97);opacity:.9}
+.kpi{border-radius:var(--r);padding:12px;text-align:center}
+.kpi-l{font-size:10px;color:var(--dim)}.kpi-v{font-size:24px;font-weight:900}.kpi-t{font-size:9px;color:var(--dim)}
+.kpi-g{background:#10b98115;border:1px solid #10b98140}.kpi-r{background:#ef444415;border:1px solid #ef444440}.kpi-y{background:#f59e0b15;border:1px solid #f59e0b40}.kpi-b{background:#2d7ff915;border:1px solid #2d7ff940}
+.ht{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}.ht th{padding:4px 2px;text-align:center;font-weight:700;font-size:9px;color:var(--dim);background:rgba(45,127,249,.1)}.ht td{padding:1px}.ht tr{border-bottom:1px solid var(--border)}.ht .hc{text-align:center;font-weight:700;color:var(--accent2);font-size:10px;width:44px}.ht input{padding:5px 1px;font-size:12px;border-radius:5px;width:100%;min-width:0}.ht .gi{background:rgba(16,185,129,.06)}.ht .di{background:rgba(239,68,68,.06)}.ht tfoot td{padding:6px 2px;font-weight:800;text-align:center;background:rgba(45,127,249,.08);font-size:11px}
+.ht col.c-hr{width:44px}.ht col.c-plan{width:13%}.ht col.c-act{width:13%}.ht col.c-gl{width:12%}.ht col.c-gr{width:12%}.ht col.c-dl{width:12%}.ht col.c-dr{width:12%}
+.ic{background:var(--inp);border-radius:var(--r);padding:10px;margin-bottom:6px;border:1px solid var(--border)}.ih{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.rb{background:rgba(239,68,68,.2);border:none;color:var(--red);border-radius:6px;padding:3px 8px;font-size:12px;cursor:pointer;font-family:inherit}
+.sr{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.bn{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:8px 10px;display:flex;gap:6px;z-index:99}
+.tc{display:none}.tc.active{display:block}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 24px;border-radius:10px;font-weight:700;font-size:14px;z-index:100;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}.toast.show{display:block;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.mp-r{display:grid;grid-template-columns:85px 1fr 55px 55px;gap:4px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)}.mp-r .pos{font-size:11px;font-weight:700;color:var(--accent2)}.mp-r input{padding:7px 4px;font-size:12px}
+.auto-info{background:rgba(45,127,249,.1);border:1px solid rgba(45,127,249,.3);border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px;color:var(--accent2)}
+@media(max-width:400px){.g3{grid-template-columns:1fr 1fr}.card{padding:10px;margin:6px}}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">✅ บันทึกสำเร็จ!</div>
+
+<div class="topbar">
+<div><div class="topbar-title">🏭 MES Webapp Production_R2 Cloud</div><div class="topbar-sub">Vandapac Co., Ltd. — ☁️ Google Sheets Sync</div></div>
+<div style="text-align:right"><div id="dd" style="font-weight:700;font-size:12px"></div><div id="di" style="font-size:11px;color:var(--dim)"></div></div>
+</div>
+
+<div class="nav" id="nav">
+<button class="nav-btn active" onclick="showTab(1)" data-tab="1">📋 ข้อมูลผลิต</button>
+<button class="nav-btn" onclick="showTab(2)" data-tab="2">🏭 ผลิต/ชม.</button>
+<button class="nav-btn" onclick="showTab(5)" data-tab="5">👷 กำลังคน</button>
+<button class="nav-btn" onclick="showTab(6)" data-tab="6">📦 วัตถุดิบ</button>
+<button class="nav-btn" onclick="showTab(7)" data-tab="7">📊 สรุป KPI</button>
+<button class="nav-btn" onclick="showTab(8)" data-tab="8" style="background:rgba(16,185,129,.2);color:#10b981">☁️ Cloud</button>
+</div>
+
+<!-- ==================== TAB 1: ข้อมูลผลิต ==================== -->
+<div class="tc active" id="tab1"><div class="card">
+<div class="card-title">📋 Production Daily Report</div>
+<div class="card-sub">Vandapac Co., Ltd. — R1</div>
+<div class="g2">
+<div class="f"><label class="fl">📅 Date วันที่</label><input type="date" id="hDate" onchange="updateDisplay()"></div>
+<div class="f"><label class="fl">🔄 Shift กะ</label><select id="hShift" onchange="updateDisplay();buildHourlyTable()"><option value="A">A — Day (08:00-20:00)</option><option value="B">B — Night (20:00-08:00)</option></select></div>
+</div>
+<div class="g2">
+<div class="f"><label class="fl">👤 Customer ลูกค้า</label><select id="hCust"><option value="">— เลือก —</option><option>IAST</option><option>TSAM</option><option>TOYOTA</option><option>TDEM</option><option>IMCT</option><option>SAAB</option><option>SAB</option><option>MMTH</option><option>MG</option><option>FORD</option><option>HONDA</option><option>TCD</option><option>VDP</option><option>ALJ</option><option>ICD-ASIA</option></select></div>
+<div class="f"><label class="fl">🚗 Model รุ่น</label><select id="hModel"><option value="">— เลือก —</option><option>RT93</option><option>RT50</option><option>640A</option><option>338B</option><option>581D</option><option>645B</option><option>RG21</option><option>RG14</option><option>RG01</option><option>RG05</option><option>RJ08</option><option>MY20</option><option>SK82</option><option>BT50</option><option>5F00</option><option>DBC 2020</option><option>LC300</option><option>LC70</option><option>GR17</option><option>RF35</option><option>FJ</option><option>703</option></select></div>
+</div>
+<div class="g2">
+<div class="f"><label class="fl">⚙️ Machine เครื่อง</label><select id="hMc" onchange="updateDisplay()"><option value="">— เลือก —</option><option>BM1/220K</option><option>BM2/120K</option><option>BM3/220K</option><option>BM4/220K</option><option>BM5/120K</option><option>BM6/120K</option><option>BM7/220K</option><option>BM8/220K</option><option>BM9/220K</option><option>BM10/220K</option><option>IJ01/110T</option><option>IJ02/420T</option><option>IJ03/850T</option><option>IJ04/2500T</option><option>IJ05/700T</option></select></div>
+<div class="f"><label class="fl">🔧 Process กระบวนการ</label><select id="hProc"><option>Injection</option><option>Blow Mold</option><option>Change Mold</option></select></div>
+</div>
+
+<div class="f"><label class="fl">🔩 Mold No. เลขแม่พิมพ์ — <span id="moldCount" style="color:var(--green)">381 แม่พิมพ์</span> | พิมพ์ค้นหาได้</label>
+<datalist id="moldList"></datalist>
+<input list="moldList" id="hMold" placeholder="พิมพ์ค้นหา เช่น BM-006, INJ-001, 640A..." oninput="moldChanged()" onchange="moldChanged()" autocomplete="off" style="font-size:13px">
+<div style="display:none"><!-- legacy options replaced by datalist -->
+<option value="BM-002-R-RT50-XXX">BM-002-R-RT50-XXX</option>
+<option value="BM-003-L-RT50-XXX">BM-003-L-RT50-XXX</option>
+<option value="BM-004-C-RT50-XXX">BM-004-C-RT50-XXX</option>
+<option value="BM-005-L-RT50-XXX">BM-005-L-RT50-XXX</option>
+<option value="BM-005-R-RT50-XXX">BM-005-R-RT50-XXX</option>
+<option value="BM-006-C-640A-XXX">BM-006-C-640A-XXX</option>
+<option value="BM-007-L-640A-XXX">BM-007-L-640A-XXX</option>
+<option value="BM-007-R-640A-XXX">BM-007-R-640A-XXX</option>
+<option value="BM-008-L-640A-XXX">BM-008-L-640A-XXX</option>
+<option value="BM-008-R-640A-XXX">BM-008-R-640A-XXX</option>
+<option value="BM-009-L-640A-XXX">BM-009-L-640A-XXX</option>
+<option value="BM-009-R-640A-XXX">BM-009-R-640A-XXX</option>
+<option value="BM-009.1-L-640A-XXX">BM-009.1-L-640A-XXX</option>
+<option value="BM-009.1-R-640A-XXX">BM-009.1-R-640A-XXX</option>
+<option value="BM-010-R-338B-XXX">BM-010-R-338B-XXX</option>
+<option value="BM-011-L-338B-XXX">BM-011-L-338B-XXX</option>
+<option value="BM-012-C-338B-XXX">BM-012-C-338B-XXX</option>
+<option value="BM-013-L-338B-XXX">BM-013-L-338B-XXX</option>
+<option value="BM-013-R-338B-XXX">BM-013-R-338B-XXX</option>
+<option value="BM-014-L-338B-XXX">BM-014-L-338B-XXX</option>
+<option value="BM-014-R-338B-XXX">BM-014-R-338B-XXX</option>
+<option value="BM-025-X-MY20-XXX">BM-025-X-MY20-XXX</option>
+<option value="BM-026-X-MY20-XXX">BM-026-X-MY20-XXX</option>
+<option value="BM-027-L-RG01-XXX">BM-027-L-RG01-XXX</option>
+<option value="BM-027-R-RG01-XXX">BM-027-R-RG01-XXX</option>
+<option value="BM-028-C-SK82-XXX">BM-028-C-SK82-XXX</option>
+<option value="BM-029-L-SK82-XXX">BM-029-L-SK82-XXX</option>
+<option value="BM-030-R-SK82-XXX">BM-030-R-SK82-XXX</option>
+<option value="BM-031-L-SK82-XXX">BM-031-L-SK82-XXX</option>
+<option value="BM-031-R-SK82-XXX">BM-031-R-SK82-XXX</option>
+<option value="BM-032-X-MY20-XXX">BM-032-X-MY20-XXX</option>
+<option value="BM-033-X-MY20-XXX">BM-033-X-MY20-XXX</option>
+<option value="BM-034-C-RG01-XXX">BM-034-C-RG01-XXX</option>
+<option value="BM-035-R-RG01-NNX">BM-035-R-RG01-NNX</option>
+<option value="BM-035-R-RG01-ONX">BM-035-R-RG01-ONX</option>
+<option value="BM-035-R-RG05-XXX">BM-035-R-RG05-XXX</option>
+<option value="BM-036-L-RG01-NNX">BM-036-L-RG01-NNX</option>
+<option value="BM-036-L-RG01-ONX">BM-036-L-RG01-ONX</option>
+<option value="BM-036-L-RG05-XXX">BM-036-L-RG05-XXX</option>
+<option value="BM-037-L-RG01-NNX">BM-037-L-RG01-NNX</option>
+<option value="BM-037-L-RG01-ONX">BM-037-L-RG01-ONX</option>
+<option value="BM-037-L-RG05-XXX">BM-037-L-RG05-XXX</option>
+<option value="BM-037-R-RG01-NNX">BM-037-R-RG01-NNX</option>
+<option value="BM-037-R-RG05-XXX">BM-037-R-RG05-XXX</option>
+<option value="BM-038-C-645B-XXX">BM-038-C-645B-XXX</option>
+<option value="BM-038.1-C-645B-XXX">BM-038.1-C-645B-XXX</option>
+<option value="BM-039-L-645B-XXX">BM-039-L-645B-XXX</option>
+<option value="BM-039-R-645B-XXX">BM-039-R-645B-XXX</option>
+<option value="BM-039.1-L-645B-XXX">BM-039.1-L-645B-XXX</option>
+<option value="BM-039.1-R-645B-XXX">BM-039.1-R-645B-XXX</option>
+<option value="BM-040-L-645B-XXX">BM-040-L-645B-XXX</option>
+<option value="BM-040-R-645B-XXX">BM-040-R-645B-XXX</option>
+<option value="BM-041-L-645B-XXX">BM-041-L-645B-XXX</option>
+<option value="BM-041.1-L-645B-XXX">BM-041.1-L-645B-XXX</option>
+<option value="BM-042-R-645B-XXX">BM-042-R-645B-XXX</option>
+<option value="BM-042.1-R-645B-XXX">BM-042.1-R-645B-XXX</option>
+<option value="BM-045-L-RG05-XXX">BM-045-L-RG05-XXX</option>
+<option value="BM-045-R-RG05-XXX">BM-045-R-RG05-XXX</option>
+<option value="BM-046-C-BT50-XXX">BM-046-C-BT50-XXX</option>
+<option value="BM-047-L-BT50-XXX">BM-047-L-BT50-XXX</option>
+<option value="BM-048-R-BT50-XXX">BM-048-R-BT50-XXX</option>
+<option value="BM-049-L-BT50-XXX">BM-049-L-BT50-XXX</option>
+<option value="BM-049-R-BT50-XXX">BM-049-R-BT50-XXX</option>
+<option value="BM-051-X-XXXX-XXX">BM-051-X-XXXX-XXX</option>
+<option value="BM-052-L-5F00-XXX">BM-052-L-5F00-XXX</option>
+<option value="BM-052-R-5F00-XXX">BM-052-R-5F00-XXX</option>
+<option value="BM-052.1-L-5F00-XXX">BM-052.1-L-5F00-XXX</option>
+<option value="BM-052.1-R-5F00-XXX">BM-052.1-R-5F00-XXX</option>
+<option value="BM-053-L-5F00-XXX">BM-053-L-5F00-XXX</option>
+<option value="BM-053-R-5F00-XXX">BM-053-R-5F00-XXX</option>
+<option value="BM-053.1-L-5F00-XXX">BM-053.1-L-5F00-XXX</option>
+<option value="BM-053.1-R-5F00-XXX">BM-053.1-R-5F00-XXX</option>
+<option value="BM-053.2-L-5F00-XXX">BM-053.2-L-5F00-XXX</option>
+<option value="BM-053.2-R-5F00-XXX">BM-053.2-R-5F00-XXX</option>
+<option value="BM-054-X-XXXX-XXX">BM-054-X-XXXX-XXX</option>
+<option value="BM-055-C-DBCX-XXX">BM-055-C-DBCX-XXX</option>
+<option value="BM-056-L-DBCX-XXX">BM-056-L-DBCX-XXX</option>
+<option value="BM-056-R-DBCX-XXX">BM-056-R-DBCX-XXX</option>
+<option value="BM-057-X-DBCX-XXX">BM-057-X-DBCX-XXX</option>
+<option value="BM-058-X-XXXX-XXX">BM-058-X-XXXX-XXX</option>
+<option value="BM-059-L-DBCX-XXX">BM-059-L-DBCX-XXX</option>
+<option value="BM-060-R-DBCX-XXX">BM-060-R-DBCX-XXX</option>
+<option value="BM-061-X-DBCX-XXX">BM-061-X-DBCX-XXX</option>
+<option value="BM-062-L-5F00-XXX">BM-062-L-5F00-XXX</option>
+<option value="BM-062-R-5F00-XXX">BM-062-R-5F00-XXX</option>
+<option value="BM-062.1-L-5F00-XXX">BM-062.1-L-5F00-XXX</option>
+<option value="BM-062.1-R-5F00-XXX">BM-062.1-R-5F00-XXX</option>
+<option value="BM-062.2-L-5F00-XXX">BM-062.2-L-5F00-XXX</option>
+<option value="BM-062.2-R-5F00-XXX">BM-062.2-R-5F00-XXX</option>
+<option value="BM-062.3-L-5F00-XXX">BM-062.3-L-5F00-XXX</option>
+<option value="BM-062.3-R-5F00-XXX">BM-062.3-R-5F00-XXX</option>
+<option value="BM-063-L-5F00-XXX">BM-063-L-5F00-XXX</option>
+<option value="BM-063-L-5F00CC-XXX">BM-063-L-5F00CC-XXX</option>
+<option value="BM-063-R-5F00-XXX">BM-063-R-5F00-XXX</option>
+<option value="BM-063-R-5F00CC-XXX">BM-063-R-5F00CC-XXX</option>
+<option value="BM-063.1-L-5F00-XXX">BM-063.1-L-5F00-XXX</option>
+<option value="BM-063.1-R-5F00-XXX">BM-063.1-R-5F00-XXX</option>
+<option value="BM-063.2-L-5F00-XXX">BM-063.2-L-5F00-XXX</option>
+<option value="BM-063.2-R-5F00-XXX">BM-063.2-R-5F00-XXX</option>
+<option value="BM-064-L-All-XXX">BM-064-L-All-XXX</option>
+<option value="BM-064-R-All-XXX">BM-064-R-All-XXX</option>
+<option value="BM-065-X-XXXX-XXX">BM-065-X-XXXX-XXX</option>
+<option value="BM-066-X-XXXX-XXX">BM-066-X-XXXX-XXX</option>
+<option value="BM-067-C-RG17-XXX">BM-067-C-RG17-XXX</option>
+<option value="BM-068-L-RG17-XXX">BM-068-L-RG17-XXX</option>
+<option value="BM-069-R-RG17-XXX">BM-069-R-RG17-XXX</option>
+<option value="BM-070-L-RG17-XXX">BM-070-L-RG17-XXX</option>
+<option value="BM-070-R-RG17-XXX">BM-070-R-RG17-XXX</option>
+<option value="BM-071-L-RG21-WITH">BM-071-L-RG21-WITH</option>
+<option value="BM-071-L-RG21-XXX">BM-071-L-RG21-XXX</option>
+<option value="BM-071-R-RG21-WITH">BM-071-R-RG21-WITH</option>
+<option value="BM-071-R-RG21-XXX">BM-071-R-RG21-XXX</option>
+<option value="BM-071.1-L-RG21-WITH">BM-071.1-L-RG21-WITH</option>
+<option value="BM-071.1-R-RG21-WITH">BM-071.1-R-RG21-WITH</option>
+<option value="BM-072-L-RG21-WITH">BM-072-L-RG21-WITH</option>
+<option value="BM-072-L-RG21-WITHOUT">BM-072-L-RG21-WITHOUT</option>
+<option value="BM-072-L-RG21-XXX">BM-072-L-RG21-XXX</option>
+<option value="BM-072-R-RG21-WITH">BM-072-R-RG21-WITH</option>
+<option value="BM-072-R-RG21-WITHOUT">BM-072-R-RG21-WITHOUT</option>
+<option value="BM-072-R-RG21-XXX">BM-072-R-RG21-XXX</option>
+<option value="BM-072.1-L-RG21-WITH">BM-072.1-L-RG21-WITH</option>
+<option value="BM-072.1-L-RG21-WITHOUT">BM-072.1-L-RG21-WITHOUT</option>
+<option value="BM-072.1-R-RG21-WITH">BM-072.1-R-RG21-WITH</option>
+<option value="BM-072.1-R-RG21-WITHOUT">BM-072.1-R-RG21-WITHOUT</option>
+<option value="BM-073-C-581D-XXX">BM-073-C-581D-XXX</option>
+<option value="BM-073.1-C-581D-XXX">BM-073.1-C-581D-XXX</option>
+<option value="BM-074-L-581D-XXX">BM-074-L-581D-XXX</option>
+<option value="BM-074.1-L-581D-XXX">BM-074.1-L-581D-XXX</option>
+<option value="BM-075-R-581D-XXX">BM-075-R-581D-XXX</option>
+<option value="BM-075.1-R-581D-XXX">BM-075.1-R-581D-XXX</option>
+<option value="BM-076-L-581D-XXX">BM-076-L-581D-XXX</option>
+<option value="BM-076-R-581D-XXX">BM-076-R-581D-XXX</option>
+<option value="BM-076.1-L-581D-XXX">BM-076.1-L-581D-XXX</option>
+<option value="BM-076.1-R-581D-XXX">BM-076.1-R-581D-XXX</option>
+<option value="BM-077-L-RG21-WITH">BM-077-L-RG21-WITH</option>
+<option value="BM-077-L-RG21-WITHOUT">BM-077-L-RG21-WITHOUT</option>
+<option value="BM-077-R-RG21-WITH">BM-077-R-RG21-WITH</option>
+<option value="BM-077-R-RG21-WITHOUT">BM-077-R-RG21-WITHOUT</option>
+<option value="BM-078-C-RG21-XXX">BM-078-C-RG21-XXX</option>
+<option value="BM-079-C-XXX-XXX">BM-079-C-XXX-XXX</option>
+<option value="BM-080-C-581D-TSAM-XXX">BM-080-C-581D-TSAM-XXX</option>
+<option value="BM-081-L-581D-TSAM-XXX">BM-081-L-581D-TSAM-XXX</option>
+<option value="BM-082-R-581D-TSAM-XXX">BM-082-R-581D-TSAM-XXX</option>
+<option value="BM-083-L-581D-TSAM-XXX">BM-083-L-581D-TSAM-XXX</option>
+<option value="BM-083-R-581D-TSAM-XXX">BM-083-R-581D-TSAM-XXX</option>
+<option value="INJ-001-L-RT50-XXX">INJ-001-L-RT50-XXX</option>
+<option value="INJ-001-R-RT50-XXX">INJ-001-R-RT50-XXX</option>
+<option value="INJ-002-X-XXXX-XXX">INJ-002-X-XXXX-XXX</option>
+<option value="INJ-003-L-RT50-XXX">INJ-003-L-RT50-XXX</option>
+<option value="INJ-003-R-RT50-XXX">INJ-003-R-RT50-XXX</option>
+<option value="INJ-004-L-RT50-XXX">INJ-004-L-RT50-XXX</option>
+<option value="INJ-004-R-RT50-XXX">INJ-004-R-RT50-XXX</option>
+<option value="INJ-005-L-640A-XXX">INJ-005-L-640A-XXX</option>
+<option value="INJ-005-R-640A-XXX">INJ-005-R-640A-XXX</option>
+<option value="INJ-006-L-640A-XXX">INJ-006-L-640A-XXX</option>
+<option value="INJ-006-R-640A-XXX">INJ-006-R-640A-XXX</option>
+<option value="INJ-008-X-640A-XXX">INJ-008-X-640A-XXX</option>
+<option value="INJ-010-X-XXXX-XXX">INJ-010-X-XXXX-XXX</option>
+<option value="INJ-012-L-17YM-XXX">INJ-012-L-17YM-XXX</option>
+<option value="INJ-012-R-17YM-XXX">INJ-012-R-17YM-XXX</option>
+<option value="INJ-025-L-18YM-XXX">INJ-025-L-18YM-XXX</option>
+<option value="INJ-025-R-18YM-XXX">INJ-025-R-18YM-XXX</option>
+<option value="INJ-026-L-18YM-XXX">INJ-026-L-18YM-XXX</option>
+<option value="INJ-026-R-18YM-XXX">INJ-026-R-18YM-XXX</option>
+<option value="INJ-027-X-18YM-XXX">INJ-027-X-18YM-XXX</option>
+<option value="INJ-028-L-338B-XXX">INJ-028-L-338B-XXX</option>
+<option value="INJ-028-R-338B-XXX">INJ-028-R-338B-XXX</option>
+<option value="INJ-029-L-338B-XXX">INJ-029-L-338B-XXX</option>
+<option value="INJ-029-R-338B-XXX">INJ-029-R-338B-XXX</option>
+<option value="INJ-030-X-338B-XXX">INJ-030-X-338B-XXX</option>
+<option value="INJ-030.1-X-338B-XXX">INJ-030.1-X-338B-XXX</option>
+<option value="INJ-047-X-SK82-XXX">INJ-047-X-SK82-XXX</option>
+<option value="INJ-048-L-RG01-XXX">INJ-048-L-RG01-XXX</option>
+<option value="INJ-048-R-RG01-XXX">INJ-048-R-RG01-XXX</option>
+<option value="INJ-049-L-645B-Rework">INJ-049-L-645B-Rework</option>
+<option value="INJ-049-L-645B-XXX">INJ-049-L-645B-XXX</option>
+<option value="INJ-049-R-645B-Rework">INJ-049-R-645B-Rework</option>
+<option value="INJ-049-R-645B-XXX">INJ-049-R-645B-XXX</option>
+<option value="INJ-049.1-L-645B-XXX">INJ-049.1-L-645B-XXX</option>
+<option value="INJ-049.1-R-645B-XXX">INJ-049.1-R-645B-XXX</option>
+<option value="INJ-050-L-645B-XXX">INJ-050-L-645B-XXX</option>
+<option value="INJ-050-R-645B-XXX">INJ-050-R-645B-XXX</option>
+<option value="INJ-051-L-645B-XXX">INJ-051-L-645B-XXX</option>
+<option value="INJ-051-R-645B-XXX">INJ-051-R-645B-XXX</option>
+<option value="INJ-052-X-645B-XXX">INJ-052-X-645B-XXX</option>
+<option value="INJ-053-L-2TGX-XXX">INJ-053-L-2TGX-XXX</option>
+<option value="INJ-053-R-2TGX-XXX">INJ-053-R-2TGX-XXX</option>
+<option value="INJ-055-L-LC300-XXX">INJ-055-L-LC300-XXX</option>
+<option value="INJ-055-R-LC300-XXX">INJ-055-R-LC300-XXX</option>
+<option value="INJ-056-L-LC300-XXX">INJ-056-L-LC300-XXX</option>
+<option value="INJ-056-R-LC300-XXX">INJ-056-R-LC300-XXX</option>
+<option value="INJ-057-X-23YM-XXX">INJ-057-X-23YM-XXX</option>
+<option value="INJ-058-L-22YM-XXX">INJ-058-L-22YM-XXX</option>
+<option value="INJ-058-R-22YM-XXX">INJ-058-R-22YM-XXX</option>
+<option value="INJ-059-L-22YM-XXX">INJ-059-L-22YM-XXX</option>
+<option value="INJ-059-R-22YM-XXX">INJ-059-R-22YM-XXX</option>
+<option value="INJ-060-X-23YM-XXX">INJ-060-X-23YM-XXX</option>
+<option value="INJ-061-L-23YM-XXX">INJ-061-L-23YM-XXX</option>
+<option value="INJ-061-R-23YM-XXX">INJ-061-R-23YM-XXX</option>
+<option value="INJ-062-L-23YM-XXX">INJ-062-L-23YM-XXX</option>
+<option value="INJ-062-R-23YM-XXX">INJ-062-R-23YM-XXX</option>
+<option value="INJ-063-L-23YM-XXX">INJ-063-L-23YM-XXX</option>
+<option value="INJ-063-R-23YM-XXX">INJ-063-R-23YM-XXX</option>
+<option value="INJ-064-L-XXXX-XXX">INJ-064-L-XXXX-XXX</option>
+<option value="INJ-064-R-XXXX-XXX">INJ-064-R-XXXX-XXX</option>
+<option value="INJ-065-L-3TXX-XXX">INJ-065-L-3TXX-XXX</option>
+<option value="INJ-065-R-3TXX-XXX">INJ-065-R-3TXX-XXX</option>
+<option value="INJ-065-X-RF35-XXX">INJ-065-X-RF35-XXX</option>
+<option value="INJ-066-X-RF35-XXX">INJ-066-X-RF35-XXX</option>
+<option value="INJ-067-X-RF35-XXX">INJ-067-X-RF35-XXX</option>
+<option value="INJ-068-X-RF35-XXX">INJ-068-X-RF35-XXX</option>
+<option value="INJ-069-C-RT93-Rework">INJ-069-C-RT93-Rework</option>
+<option value="INJ-069-C-RT93-XXX">INJ-069-C-RT93-XXX</option>
+<option value="INJ-070-L-XXXX-XXX">INJ-070-L-XXXX-XXX</option>
+<option value="INJ-070-R-XXXX-XXX">INJ-070-R-XXXX-XXX</option>
+<option value="INJ-071-L-DBCX-XXX">INJ-071-L-DBCX-XXX</option>
+<option value="INJ-071-R-DBCX-XXX">INJ-071-R-DBCX-XXX</option>
+<option value="INJ-072-L-XXXX-XXX">INJ-072-L-XXXX-XXX</option>
+<option value="INJ-072-R-XXXX-XXX">INJ-072-R-XXXX-XXX</option>
+<option value="INJ-073-L-XXXX-XXX">INJ-073-L-XXXX-XXX</option>
+<option value="INJ-073-R-XXXX-XXX">INJ-073-R-XXXX-XXX</option>
+<option value="INJ-074-L-XXXX-XXX">INJ-074-L-XXXX-XXX</option>
+<option value="INJ-074-R-XXXX-XXX">INJ-074-R-XXXX-XXX</option>
+<option value="INJ-075-X-YM15-XXX">INJ-075-X-YM15-XXX</option>
+<option value="INJ-076-L-DBCX-XXX">INJ-076-L-DBCX-XXX</option>
+<option value="INJ-076-R-DBCX-XXX">INJ-076-R-DBCX-XXX</option>
+<option value="INJ-077-L-FJ-XXX">INJ-077-L-FJ-XXX</option>
+<option value="INJ-077-R-FJ-XXX">INJ-077-R-FJ-XXX</option>
+<option value="INJ-078-L-CHRX-XXX">INJ-078-L-CHRX-XXX</option>
+<option value="INJ-078-R-CHRX-XXX">INJ-078-R-CHRX-XXX</option>
+<option value="INJ-079-L-CHRX-XXX">INJ-079-L-CHRX-XXX</option>
+<option value="INJ-079-R-CHRX-XXX">INJ-079-R-CHRX-XXX</option>
+<option value="INJ-080-L-16YM-XXX">INJ-080-L-16YM-XXX</option>
+<option value="INJ-080-R-16YM-XXX">INJ-080-R-16YM-XXX</option>
+<option value="INJ-081-C-16YM-XXX">INJ-081-C-16YM-XXX</option>
+<option value="INJ-087-C-RT50-Rework">INJ-087-C-RT50-Rework</option>
+<option value="INJ-087-C-RT50-XXX">INJ-087-C-RT50-XXX</option>
+<option value="INJ-088-L-5F00-XXX">INJ-088-L-5F00-XXX</option>
+<option value="INJ-088-R-5F00-XXX">INJ-088-R-5F00-XXX</option>
+<option value="INJ-089-L-5F00-XXX">INJ-089-L-5F00-XXX</option>
+<option value="INJ-089-R-5F00-XXX">INJ-089-R-5F00-XXX</option>
+<option value="INJ-090-L-3TXX-XXX">INJ-090-L-3TXX-XXX</option>
+<option value="INJ-090-R-3TXX-XXX">INJ-090-R-3TXX-XXX</option>
+<option value="INJ-091-C-RG14-Rework">INJ-091-C-RG14-Rework</option>
+<option value="INJ-091-C-RG14-XXX">INJ-091-C-RG14-XXX</option>
+<option value="INJ-092-L-RG14-Rework">INJ-092-L-RG14-Rework</option>
+<option value="INJ-092-L-RG14-XXX">INJ-092-L-RG14-XXX</option>
+<option value="INJ-092-R-RG14-Rework">INJ-092-R-RG14-Rework</option>
+<option value="INJ-092-R-RG14-XXX">INJ-092-R-RG14-XXX</option>
+<option value="INJ-093-L-RG14-Rework">INJ-093-L-RG14-Rework</option>
+<option value="INJ-093-L-RG14-XXX">INJ-093-L-RG14-XXX</option>
+<option value="INJ-093-R-RG14-Rework">INJ-093-R-RG14-Rework</option>
+<option value="INJ-093-R-RG14-XXX">INJ-093-R-RG14-XXX</option>
+<option value="INJ-094-L-RG14-XXX">INJ-094-L-RG14-XXX</option>
+<option value="INJ-094-R-RG14-XXX">INJ-094-R-RG14-XXX</option>
+<option value="INJ-095-L-RG14-XXX">INJ-095-L-RG14-XXX</option>
+<option value="INJ-095-R-RG14-XXX">INJ-095-R-RG14-XXX</option>
+<option value="INJ-096-L-RJ08-XXX">INJ-096-L-RJ08-XXX</option>
+<option value="INJ-096-R-RJ08-XXX">INJ-096-R-RJ08-XXX</option>
+<option value="INJ-097-L-RJ08-Rework">INJ-097-L-RJ08-Rework</option>
+<option value="INJ-097-L-RJ08-XXX">INJ-097-L-RJ08-XXX</option>
+<option value="INJ-097-R-RJ08-Rework">INJ-097-R-RJ08-Rework</option>
+<option value="INJ-097-R-RJ08-XXX">INJ-097-R-RJ08-XXX</option>
+<option value="INJ-098-RG17-Rework">INJ-098-RG17-Rework</option>
+<option value="INJ-098-RG17-XXX">INJ-098-RG17-XXX</option>
+<option value="INJ-099-L-397D-XXX">INJ-099-L-397D-XXX</option>
+<option value="INJ-099-R-397D-XXX">INJ-099-R-397D-XXX</option>
+<option value="INJ-100-L-397D-XXX">INJ-100-L-397D-XXX</option>
+<option value="INJ-100-R-397D-XXX">INJ-100-R-397D-XXX</option>
+<option value="INJ-101-L-RT50-XXX">INJ-101-L-RT50-XXX</option>
+<option value="INJ-101-R-RT50-XXX">INJ-101-R-RT50-XXX</option>
+<option value="INJ-102-L-25YM-XXX">INJ-102-L-25YM-XXX</option>
+<option value="INJ-102-R-25YM-XXX">INJ-102-R-25YM-XXX</option>
+<option value="INJ-103-L-25YM-XXX">INJ-103-L-25YM-XXX</option>
+<option value="INJ-103-R-25YM-XXX">INJ-103-R-25YM-XXX</option>
+<option value="INJ-104-C-25YM-XXX">INJ-104-C-25YM-XXX</option>
+<option value="INJ-105-L-RT50-XXX">INJ-105-L-RT50-XXX</option>
+<option value="INJ-105-R-RT50-XXX">INJ-105-R-RT50-XXX</option>
+<option value="INJ-106-L-RT50-XXX">INJ-106-L-RT50-XXX</option>
+<option value="INJ-106-R-RT50-XXX">INJ-106-R-RT50-XXX</option>
+<option value="INJ-107-C-25YM-XXX">INJ-107-C-25YM-XXX</option>
+<option value="INJ-108-L-P703-XXX">INJ-108-L-P703-XXX</option>
+<option value="INJ-108-R-P703-XXX">INJ-108-R-P703-XXX</option>
+<option value="INJ-109-C-XX-XXX">INJ-109-C-XX-XXX</option>
+<option value="INJ-110-C-XX-XXX">INJ-110-C-XX-XXX</option>
+<option value="INJ-111-L- P703 -XXX">INJ-111-L- P703 -XXX</option>
+<option value="INJ-111-R- P703 -XXX">INJ-111-R- P703 -XXX</option>
+<option value="INJ-111.1-L- P703 -XXX">INJ-111.1-L- P703 -XXX</option>
+<option value="INJ-111.1-R- P703 -XXX">INJ-111.1-R- P703 -XXX</option>
+<option value="INJ-112-L- P703 -XXX">INJ-112-L- P703 -XXX</option>
+<option value="INJ-112-L-P703-Rework">INJ-112-L-P703-Rework</option>
+<option value="INJ-112-R- P703 -XXX">INJ-112-R- P703 -XXX</option>
+<option value="INJ-112-R-P703-Rework">INJ-112-R-P703-Rework</option>
+<option value="INJ-112.1-L- P703 -XXX">INJ-112.1-L- P703 -XXX</option>
+<option value="INJ-112.1-L-P703-Rework">INJ-112.1-L-P703-Rework</option>
+<option value="INJ-112.1-R- P703 -XXX">INJ-112.1-R- P703 -XXX</option>
+<option value="INJ-112.1-R-P703-Rework">INJ-112.1-R-P703-Rework</option>
+<option value="INJ-113-L-P703-XXX">INJ-113-L-P703-XXX</option>
+<option value="INJ-113-R-P703-XXX">INJ-113-R-P703-XXX</option>
+<option value="INJ-113.1-L-P703-XXX">INJ-113.1-L-P703-XXX</option>
+<option value="INJ-113.1-R-P703-XXX">INJ-113.1-R-P703-XXX</option>
+<option value="INJ-113.2-L-P703-XXX">INJ-113.2-L-P703-XXX</option>
+<option value="INJ-113.2-R-P703-XXX">INJ-113.2-R-P703-XXX</option>
+<option value="INJ-114-L-581D-XXX">INJ-114-L-581D-XXX</option>
+<option value="INJ-114-R-581D-XXX">INJ-114-R-581D-XXX</option>
+<option value="INJ-115-L-581D-XXX">INJ-115-L-581D-XXX</option>
+<option value="INJ-115-R-581D-XXX">INJ-115-R-581D-XXX</option>
+<option value="INJ-116-C-581D-XXX">INJ-116-C-581D-XXX</option>
+<option value="INJ-117-L-581D-Rework">INJ-117-L-581D-Rework</option>
+<option value="INJ-117-R-581D-Rework">INJ-117-R-581D-Rework</option>
+<option value="INJ-117.1-L-581D-XXX">INJ-117.1-L-581D-XXX</option>
+<option value="INJ-117.1-R-581D-XXX">INJ-117.1-R-581D-XXX</option>
+<option value="INJ-117.2-L-581D-XXX">INJ-117.2-L-581D-XXX</option>
+<option value="INJ-117.2-R-581D-XXX">INJ-117.2-R-581D-XXX</option>
+<option value="INJ-118-C-CAP-XXX">INJ-118-C-CAP-XXX</option>
+<option value="INJ-119-C-RG21-Rework">INJ-119-C-RG21-Rework</option>
+<option value="INJ-119-C-RG21-XXX">INJ-119-C-RG21-XXX</option>
+<option value="INJ-119.1-C-RG21-Rework">INJ-119.1-C-RG21-Rework</option>
+<option value="INJ-120-L-RG21-XXX">INJ-120-L-RG21-XXX</option>
+<option value="INJ-120-R-RG21-XXX">INJ-120-R-RG21-XXX</option>
+<option value="INJ-121-L-RG21-XXX">INJ-121-L-RG21-XXX</option>
+<option value="INJ-121-R-RG21-XXX">INJ-121-R-RG21-XXX</option>
+<option value="INJ-122-C-RG21-Rework">INJ-122-C-RG21-Rework</option>
+<option value="INJ-122-C-RG21-XXX">INJ-122-C-RG21-XXX</option>
+<option value="INJ-123-L-RG21-Gun METALLIC">INJ-123-L-RG21-Gun METALLIC</option>
+<option value="INJ-123-L-RG21-Gun METALLIC-Rework">INJ-123-L-RG21-Gun METALLIC-Rework</option>
+<option value="INJ-123-L-RG21-SILVER">INJ-123-L-RG21-SILVER</option>
+<option value="INJ-123-L-RG21-SILVER-Rework">INJ-123-L-RG21-SILVER-Rework</option>
+<option value="INJ-123-L-RG21-XXX">INJ-123-L-RG21-XXX</option>
+<option value="INJ-123-R-RG21-Gun METALLIC">INJ-123-R-RG21-Gun METALLIC</option>
+<option value="INJ-123-R-RG21-Gun METALLIC-Rework">INJ-123-R-RG21-Gun METALLIC-Rework</option>
+<option value="INJ-123-R-RG21-SILVER">INJ-123-R-RG21-SILVER</option>
+<option value="INJ-123-R-RG21-SILVER-Rework">INJ-123-R-RG21-SILVER-Rework</option>
+<option value="INJ-123-R-RG21-XXX">INJ-123-R-RG21-XXX</option>
+<option value="INJ-123.1-L-RG21-SILVER">INJ-123.1-L-RG21-SILVER</option>
+<option value="INJ-123.1-R-RG21-SILVER">INJ-123.1-R-RG21-SILVER</option>
+<option value="INJ-124-L-RG21-METALLIC">INJ-124-L-RG21-METALLIC</option>
+<option value="INJ-124-L-RG21-METALLIC-Rework">INJ-124-L-RG21-METALLIC-Rework</option>
+<option value="INJ-124-L-RG21-SILVER">INJ-124-L-RG21-SILVER</option>
+<option value="INJ-124-L-RG21-SILVER-Rework">INJ-124-L-RG21-SILVER-Rework</option>
+<option value="INJ-124-L-RG21-XXX">INJ-124-L-RG21-XXX</option>
+<option value="INJ-124-R-RG21-METALLIC">INJ-124-R-RG21-METALLIC</option>
+<option value="INJ-124-R-RG21-METALLIC-Rework">INJ-124-R-RG21-METALLIC-Rework</option>
+<option value="INJ-124-R-RG21-SILVER">INJ-124-R-RG21-SILVER</option>
+<option value="INJ-124-R-RG21-SILVER-Rework">INJ-124-R-RG21-SILVER-Rework</option>
+<option value="INJ-124-R-RG21-XXX">INJ-124-R-RG21-XXX</option>
+<option value="INJ-125-C-581D-XXX">INJ-125-C-581D-XXX</option>
+<option value="INJ-126-L-XX-XXX">INJ-126-L-XX-XXX</option>
+<option value="INJ-126-R-XX-XXX">INJ-126-R-XX-XXX</option>
+<option value="INJ-127-C-581D-XXX">INJ-127-C-581D-XXX</option>
+<option value="INJ-128-C-581D-XXX">INJ-128-C-581D-XXX</option>
+<option value="INJ-129-L-P703-XXX">INJ-129-L-P703-XXX</option>
+<option value="INJ-129-R-P703-XXX">INJ-129-R-P703-XXX</option>
+<option value="INJ-130-X-581D-XXX">INJ-130-X-581D-XXX</option>
+<option value="INJ-131-L-SSB-Splash Shield">INJ-131-L-SSB-Splash Shield</option>
+<option value="INJ-131-L-SSB-Splash Shield-Spare Part">INJ-131-L-SSB-Splash Shield-Spare Part</option>
+<option value="INJ-131-R-SSB-Splash Shield">INJ-131-R-SSB-Splash Shield</option>
+<option value="INJ-131-R-SSB-Splash Shield-Spare Part">INJ-131-R-SSB-Splash Shield-Spare Part</option>
+<option value="INJ-131.1-L-SSB-Splash Shield">INJ-131.1-L-SSB-Splash Shield</option>
+<option value="INJ-131.1-R-SSB-Splash Shield">INJ-131.1-R-SSB-Splash Shield</option>
+<option value="INJ-132-L-SSB-Rear Wheel Arch">INJ-132-L-SSB-Rear Wheel Arch</option>
+<option value="INJ-132-L-SSB-Rear Wheel Arch-Spare Part">INJ-132-L-SSB-Rear Wheel Arch-Spare Part</option>
+<option value="INJ-132-R-SSB-Rear Wheel Arch">INJ-132-R-SSB-Rear Wheel Arch</option>
+<option value="INJ-132-R-SSB-Rear Wheel Arch-Spare Part">INJ-132-R-SSB-Rear Wheel Arch-Spare Part</option>
+<option value="INJ-133-L-SSB-Rear Mud Flap">INJ-133-L-SSB-Rear Mud Flap</option>
+<option value="INJ-133-L-SSB-Rear Mud Flap-Spare Part">INJ-133-L-SSB-Rear Mud Flap-Spare Part</option>
+<option value="INJ-133-R-SSB-Rear Mud Flap">INJ-133-R-SSB-Rear Mud Flap</option>
+<option value="INJ-133-R-SSB-Rear Mud Flap-Spare Part">INJ-133-R-SSB-Rear Mud Flap-Spare Part</option>
+<option value="INJ-133.1-L-SSB-Rear Mud Flap">INJ-133.1-L-SSB-Rear Mud Flap</option>
+<option value="INJ-133.1-R-SSB-Rear Mud Flap">INJ-133.1-R-SSB-Rear Mud Flap</option>
+<option value="INJ-134-L-581D-TSAM-XXX">INJ-134-L-581D-TSAM-XXX</option>
+<option value="INJ-134-R-581D-TSAM-XXX">INJ-134-R-581D-TSAM-XXX</option>
+<option value="INJ-135-L-581D-TSAM-XXX">INJ-135-L-581D-TSAM-XXX</option>
+<option value="INJ-135-R-581D-TSAM-XXX">INJ-135-R-581D-TSAM-XXX</option>
+<option value="INJ-136-C-581D-TSAM-XXX">INJ-136-C-581D-TSAM-XXX</option>
+<option value="INJ-137-L-581D-TSAM-XXX">INJ-137-L-581D-TSAM-XXX</option>
+<option value="INJ-137-R-581D-TSAM-XXX">INJ-137-R-581D-TSAM-XXX</option>
+<option value="INJ-138-L-581D-TSAM-XXX">INJ-138-L-581D-TSAM-XXX</option>
+<option value="INJ-138-R-581D-TSAM-XXX">INJ-138-R-581D-TSAM-XXX</option>
+<option value="INJ-139-L-581D-TSAM-XXX">INJ-139-L-581D-TSAM-XXX</option>
+<option value="INJ-139-R-581D-TSAM-XXX">INJ-139-R-581D-TSAM-XXX</option>
+</div>
+</div>
+
+<div class="auto-info" id="autoInfo" style="display:none">
+<div style="font-weight:700;margin-bottom:4px">✅ Auto-fill จาก Database:</div>
+<div id="autoDetail" style="font-size:11px;line-height:1.6"></div>
+</div>
+
+<div class="g2">
+<div class="f"><label class="fl">Part Name LH</label><input id="hPnLH" readonly style="background:#1e3a5f;color:#5b9cff;border-color:#2d5a9e" placeholder="Auto-fill จาก Mold..."></div>
+<div class="f"><label class="fl">Part Name RH</label><input id="hPnRH" readonly style="background:#1e3a5f;color:#5b9cff;border-color:#2d5a9e" placeholder="Auto-fill จาก Mold..."></div>
+</div>
+<div class="g2">
+<div class="f"><label class="fl">Part No. LH</label><input id="hPoLH" readonly style="background:#1e3a5f;color:#5b9cff;border-color:#2d5a9e" placeholder="Auto-fill จาก Mold..."></div>
+<div class="f"><label class="fl">Part No. RH</label><input id="hPoRH" readonly style="background:#1e3a5f;color:#5b9cff;border-color:#2d5a9e" placeholder="Auto-fill จาก Mold..."></div>
+</div>
+<div class="f"><label class="fl" id="matLabel">🧪 Material วัตถุดิบ</label><input id="hMatType" readonly style="background:#1e3a5f;color:#5b9cff;border-color:#2d5a9e" placeholder="Auto-fill จาก Mold..."></div>
+<div class="g3">
+<div class="f"><label class="fl">Cavity OEE</label><input type="number" id="hCav" value="1"></div>
+<div class="f"><label class="fl">Cycle Time (min)</label><input type="number" id="hCyc" step="0.01" value="0"></div>
+<div class="f"><label class="fl" id="uphLabel">UPH (pcs/hr)</label><input type="number" id="hUph" step="0.01" value="0" onchange="var e=document.getElementById('uphDisplay');if(e)e.innerHTML=this.value||'—'"></div>
+</div>
+</div></div>
+
+<!-- ==================== TAB 2: ผลิต/ชม. + Defect + Downtime ==================== -->
+<div class="tc" id="tab2">
+
+<!-- Hourly Production Table -->
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+  <div>
+    <div class="card-title" style="margin-bottom:2px">🏭 Production/Hour — <span id="shiftLabel"></span></div>
+    <div class="card-sub" style="margin:0">UPH: <b id="uphDisplay" style="color:var(--green)">—</b> pcs/hr | แผนกดปุ่ม Auto-fill ได้</div>
+  </div>
+  <button class="btn btn-a" onclick="autoFillPlan()" style="flex:0;padding:7px 12px;font-size:12px;white-space:nowrap">⚡ Auto Plan</button>
+</div>
+<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="ht" id="hourlyTable"></table></div>
+<div class="g3" style="margin-top:10px" id="hourlyKPI"></div>
+</div>
+
+<!-- Defect Record (inline) -->
+<div class="card" style="border-color:rgba(239,68,68,.4)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <div>
+    <div class="card-title" style="margin-bottom:2px;color:var(--red)">⚠️ Defect Record B0-B32</div>
+    <div class="card-sub" style="margin:0">อ้างอิง Database — 🔴 B1 Short Shot | 🔴 B22 Over Cutting</div>
+  </div>
+  <button class="btn btn-r" onclick="addDefect()" style="flex:0;padding:7px 12px;font-size:12px;white-space:nowrap">+ เพิ่ม</button>
+</div>
+<div id="defectList2"></div>
+<div class="g2" style="margin-top:8px" id="defectKPI2"></div>
+</div>
+
+<!-- Downtime Record (inline) -->
+<div class="card" style="border-color:rgba(245,158,11,.4)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <div>
+    <div class="card-title" style="margin-bottom:2px;color:var(--yellow)">⏱️ Downtime Record A0-A34</div>
+    <div class="card-sub" style="margin:0">อ้างอิง Database — [SD/CD/MC/MD]</div>
+  </div>
+  <button class="btn btn-y" onclick="addDowntime()" style="flex:0;padding:7px 12px;font-size:12px;white-space:nowrap;color:#111">+ เพิ่ม</button>
+</div>
+<div id="downtimeList2"></div>
+<div id="downtimeKPI2" style="margin-top:8px"></div>
+</div>
+
+</div>
+
+<!-- ==================== TAB 3: ของเสีย (B0-B32) ==================== -->
+<div class="tc" id="tab3"><div class="card">
+<div class="card-title">⚠️ Defect Record B0-B32</div>
+<div class="card-sub">อ้างอิง Database — 🔴 B1 Short Shot | 🔴 B22 Over Cutting</div>
+<div id="defectList"></div>
+<button class="btn btn-r" onclick="addDefect()" style="margin-top:8px">+ เพิ่มรายการของเสีย</button>
+<div class="g2" style="margin-top:10px" id="defectKPI"></div>
+</div></div>
+
+<!-- ==================== TAB 4: Downtime (A0-A34) ==================== -->
+<div class="tc" id="tab4"><div class="card">
+<div class="card-title">⏱️ Downtime Record A0-A34</div>
+<div class="card-sub">อ้างอิง Database — [SD/CD/MC/MD]</div>
+<div id="downtimeList"></div>
+<button class="btn btn-y" onclick="addDowntime()" style="margin-top:8px">+ เพิ่มรายการ Downtime</button>
+<div id="downtimeKPI" style="margin-top:10px"></div>
+</div></div>
+
+<!-- ==================== TAB 5: กำลังคน ==================== -->
+<div class="tc" id="tab5"><div class="card">
+<div class="card-title">👷 ManPower — กำลังคน</div>
+<div class="card-sub">พิมพ์ค้นหาชื่อจากฐานข้อมูล 127 คน (Column H — List_validation)</div>
+<div class="mp-r" style="font-weight:700;font-size:11px;color:var(--dim);border:none"><span>Position</span><span style="text-align:center">Name ชื่อ</span><span style="text-align:center">STD</span><span style="text-align:center">ACT</span></div>
+<div id="manpowerList"></div>
+<div class="mp-r" style="font-weight:800;margin-top:4px"><span>Total</span><span></span><span id="mpStd" style="text-align:center;color:var(--accent2)">0</span><span id="mpAct" style="text-align:center;color:var(--green)">0</span></div>
+</div></div>
+
+<!-- ==================== TAB 6: วัตถุดิบ ==================== -->
+<div class="tc" id="tab6"><div class="card">
+<div class="card-title">📦 Material Usage — วัตถุดิบ</div>
+
+<!-- Auto-fill info bar -->
+<div id="matAutoInfo" style="display:none;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:var(--green)">
+  ✅ Auto-fill จาก Mold: <span id="matAutoDetail" style="color:var(--accent2)"></span>
+</div>
+
+<datalist id="materialDL"></datalist>
+<div class="f"><label class="fl">🧪 Material (Type / Grade) — Auto-fill จาก Mold หรือพิมพ์ค้นหา</label>
+<input list="materialDL" id="mMaterial" placeholder="Auto-fill จาก Mold... หรือพิมพ์ค้นหา ABS, PP, COMPOUND..." autocomplete="off" style="font-size:13px;color:var(--accent2)">
+</div>
+<div class="g2">
+<div class="f"><label class="fl">Color สี</label>
+<datalist id="colorDL">
+  <option value="Black ดำ"><option value="White ขาว"><option value="Gray เทา"><option value="Silver เงิน">
+  <option value="Gun Metallic"><option value="Natural"><option value="Red แดง"><option value="Blue น้ำเงิน">
+  <option value="Beige เบจ"><option value="Dark Gray เทาเข้ม"><option value="Chrome โครม">
+</datalist>
+<input list="colorDL" id="mColor" placeholder="Black ดำ / Natural...">
+</div>
+<div class="f"><label class="fl">Lot No. / Batch</label>
+<input id="mLot" placeholder="LOT-2026-xxx (ถ้ามี)">
+</div>
+</div>
+<div style="background:var(--inp);border-radius:var(--r);padding:10px;margin-top:6px">
+<div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:6px">📥 ยอดเข้า (Input)</div>
+<div class="g3">
+<div class="f"><label class="fl">Mat'l In ยอดยกมา (Kg)</label><input type="number" id="mIn" value="0" onchange="calcMaterial()"></div>
+<div class="f"><label class="fl">Virgin เม็ดดี (Kg)</label><input type="number" id="mVirgin" value="0" onchange="calcMaterial()"></div>
+<div class="f"><label class="fl">Regrind เวียนกลับ (Kg)</label><input type="number" id="mRegrind" value="0" onchange="calcMaterial()"></div>
+</div></div>
+<div style="background:var(--inp);border-radius:var(--r);padding:10px;margin-top:6px">
+<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">📤 ยอดเสีย (Waste)</div>
+<div class="g3">
+<div class="f"><label class="fl">Purge ก้อนไล่ (Kg)</label><input type="number" id="mPurge" value="0" onchange="calcMaterial()"></div>
+<div class="f"><label class="fl">Contaminated เศษปน (Kg)</label><input type="number" id="mContam" value="0" onchange="calcMaterial()"></div>
+<div class="f"><label class="fl">Dust เม็ดฝุ่น (Kg)</label><input type="number" id="mDust" value="0" onchange="calcMaterial()"></div>
+</div></div>
+<div class="g3" style="margin-top:10px" id="materialKPI"></div>
+</div></div>
+
+<!-- ==================== TAB 7: สรุป KPI ==================== -->
+<div class="tc" id="tab7">
+<div class="card" id="summaryContent"></div>
+<div class="card">
+<button class="btn btn-g" onclick="saveData()" style="margin-bottom:6px">💾 บันทึกข้อมูล (Save)</button>
+<button class="btn btn-a" onclick="exportCSV()" style="margin-bottom:6px">📥 Export CSV (เปิดใน Excel)</button>
+<button class="btn btn-d" onclick="clearForm()">🔄 ล้างฟอร์มใหม่ (New Report)</button>
+<div style="text-align:center;font-size:11px;color:var(--dim);margin-top:8px" id="saveInfo"></div>
+</div></div>
+
+<!-- ==================== TAB 8: CLOUD SYNC ==================== -->
+<div class="tc" id="tab8"><div class="card">
+<div class="card-title">☁️ Google Sheets Cloud Backup</div>
+<div class="card-sub">Real-time sync to Google Sheets via Apps Script</div>
+
+<div style="background:rgba(45,127,249,.1);border:1px solid rgba(45,127,249,.3);border-radius:8px;padding:12px;margin-bottom:10px">
+<div style="font-size:12px;color:var(--accent2);line-height:1.6">
+<b>☁️ Cloud Status:</b> <span id="cloudStatus" style="font-weight:700">Not configured</span><br>
+<b>📍 Machine ID:</b> <span id="machineIDDisplay" style="font-weight:700">Loading...</span><br>
+<b>🔄 Last Sync:</b> <span id="lastSyncTime" style="font-weight:700">Never</span>
+</div>
+</div>
+
+<div class="f"><label class="fl">🔗 Apps Script Deployment URL</label>
+<input type="text" id="appsScriptURL" placeholder="https://script.google.com/macros/s/...">
+</div>
+
+<div class="g2" style="margin-bottom:10px">
+<button class="btn btn-a" onclick="testCloudConnection()" style="font-size:12px">🧪 Test Connection</button>
+<button class="btn btn-g" onclick="saveCloudConfig()" style="font-size:12px">💾 Save Config</button>
+</div>
+
+<div id="cloudTestResult" style="margin-bottom:10px"></div>
+
+<div style="background:var(--inp);border-radius:var(--r);padding:12px;margin-bottom:10px">
+<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px">📤 Manual Cloud Backup</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:8px">Push all localStorage data to Google Sheets</div>
+<button class="btn btn-g" onclick="syncToCloud()" style="font-size:13px">☁️ Backup Now → Google Sheets</button>
+</div>
+
+<div style="background:var(--inp);border-radius:var(--r);padding:12px;margin-bottom:10px">
+<div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px">📊 Sync Statistics</div>
+<div style="font-size:12px;color:var(--dim);line-height:1.8">
+✅ Local Records: <b id="localRecordCount" style="color:var(--green)">0</b><br>
+☁️ Cloud Synced: <b id="cloudSyncCount" style="color:var(--accent2)">0</b><br>
+⏳ Pending: <b id="pendingSyncCount" style="color:var(--yellow)">0</b>
+</div>
+</div>
+
+<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:12px;margin-bottom:10px">
+<div style="font-size:12px;color:var(--yellow);line-height:1.6">
+<b>⚠️ Setup Guide:</b><br>
+1. Open Google Sheet → Extensions → Apps Script<br>
+2. Paste code from guide file<br>
+3. Deploy → Web app → Anyone<br>
+4. Copy URL → Paste above<br>
+5. Test Connection → Save Config<br>
+6. Click "Backup Now" after each shift
+</div>
+</div>
+
+<!-- ===== MASTER DATA SECTION ===== -->
+<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:var(--r);padding:12px;margin-bottom:10px">
+<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">📊 Master Data จาก Cloud</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:8px">โหลด Molds / Defects / Downtimes / Operators จาก Google Sheet แยกต่างหาก</div>
+<div style="font-size:12px;color:var(--text);margin-bottom:6px;padding:6px 8px;background:rgba(16,185,129,.1);border-radius:6px">
+  🟢 Status: <span id="masterStatus" style="font-weight:700;color:var(--dim)">ไม่ได้ตั้งค่า</span><br>
+  📦 Molds: <span id="masterMoldCount" style="font-weight:700">—</span> |
+  ⚠️ Defects: <span id="masterDefectCount" style="font-weight:700">—</span> |
+  ⏱ Downtime: <span id="masterDTCount" style="font-weight:700">—</span> |
+  👷 Operators: <span id="masterOpCount" style="font-weight:700">—</span>
+</div>
+<div class="f"><label class="fl">🔗 Master Data Script URL (แยกจาก Production URL)</label>
+<input type="text" id="masterScriptURL" placeholder="https://script.google.com/macros/s/... (Master Sheet)">
+</div>
+<div class="g2" style="margin-bottom:8px">
+<button class="btn btn-g" onclick="loadMasterData(true)" style="font-size:12px">🔄 โหลด Master Data</button>
+<button class="btn btn-d" onclick="saveMasterConfig()" style="font-size:12px">💾 Save Master URL</button>
+</div>
+<div id="masterResult" style="font-size:11px"></div>
+<div style="font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5">
+💡 ถ้า offline → WebApp ใช้ข้อมูล default ใน code ได้ปกติ<br>
+💡 เพิ่ม Mold ใหม่ใน Google Sheet Master_Molds → กด "โหลด Master Data" → dropdown อัปเดตทันที
+</div>
+</div>
+
+</div></div>
+
+<div class="bn">
+<button class="btn btn-d" id="btnPrev" onclick="prevTab()" style="flex:1;display:none">◀ ย้อนกลับ</button>
+<button class="btn btn-a" id="btnNext" onclick="nextTab()" style="flex:2">ถัดไป ▶</button>
+</div>
+
+<script>
+// ==================== DATA ==================== 
+const DayHours=["08-09","09-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19","19-20"];
+const NightHours=["20-21","21-22","22-23","23-00","00-01","01-02","02-03","03-04","04-05","05-06","06-07","07-08"];
+
+const Defects=[{c:"B0",t:"ปรับตั้งหลังจากเปลี่ยนแม่พิมพ์"},{c:"B0.1",t:"ปรับตั้งการหยุดเครื่องหลังวันหยุด"},{c:"B1",t:"ฉีดไม่เต็ม (Short Shot)"},{c:"B2",t:"รอยยุบ"},{c:"B3",t:"รอยไหม้"},{c:"B4",t:"รอยการไหล"},{c:"B5",t:"ชิ้นงานเป็นรู"},{c:"B6",t:"รอยเส้นใย"},{c:"B7",t:"โก่งงอ"},{c:"B8",t:"รอยกระทุ้ง"},{c:"B9",t:"รอยแตก"},{c:"B10",t:"รอยพ่น/คลื่น"},{c:"B11",t:"รอยเชื่อมประสาน"},{c:"B12",t:"รอยด่างขาว"},{c:"B13",t:"จุดดำ"},{c:"B14",t:"โพลงอากาศ"},{c:"B15",t:"คราบน้ำมัน"},{c:"B16",t:"คราบสกปรก"},{c:"B17",t:"สีต่าง"},{c:"B18",t:"รอยขูดขีด"},{c:"B19",t:"เศษพลาสติกติด"},{c:"B20",t:"คราบขาว"},{c:"B21",t:"Rework"},{c:"B22",t:"รอยตัดแหว่ง (Over Cutting)"},{c:"B23",t:"งานกระแทก"},{c:"B24",t:"Mold Under Cut"},{c:"B25",t:"ชิ้นงานโปร่งแสง"},{c:"B26",t:"ชิ้นงานเป็นรอยเงา"},{c:"B27",t:"เกจเป็นรู"},{c:"B28",t:"ชิ้นงานเป็นรอยจาก Robot"},{c:"B29",t:"ชิ้นงานขาหัก"},{c:"B30",t:"รอยเม็ดที่ผิว"},{c:"B31",t:"น้ำหนักไม่ได้ตาม STD"},{c:"B32",t:"Gap เกิน"}];
+
+const Downtimes=[{c:"A0",t:"Setup & Adjustment",cat:"SD"},{c:"A1",t:"เปลี่ยนแม่พิมพ์",cat:"SD"},{c:"A2",t:"Trial Mold",cat:"SD"},{c:"A3",t:"PM Machine",cat:"SD"},{c:"A4",t:"Break",cat:"SD"},{c:"A5",t:"Setup Condition Start",cat:"SD"},{c:"A6",t:"5S/Meeting",cat:"SD"},{c:"A7",t:"Start Run Holiday",cat:"SD"},{c:"A8",t:"Change Material & Color",cat:"CD"},{c:"A9",t:"Wait Temp Cylinder",cat:"CD"},{c:"A10",t:"Adjust Robot",cat:"CD"},{c:"A11",t:"Clean Mold",cat:"CD"},{c:"A12",t:"No Production Plan",cat:"SD"},{c:"A13",t:"Mold Change Over Target",cat:"CD"},{c:"A13.1",t:"Start Run Holiday",cat:"SD"},{c:"A14",t:"Mold Breakdown",cat:"MD"},{c:"A15",t:"Trial Material",cat:"CD"},{c:"A16",t:"Reserved",cat:"CD"},{c:"A17",t:"Auto Loader Not Feed",cat:"MC"},{c:"A18",t:"Employee Not Enough",cat:"SD"},{c:"A19",t:"No Packing",cat:"SD"},{c:"A20",t:"Dry Material",cat:"CD"},{c:"A21",t:"Machine Breakdown",cat:"MC"},{c:"A22",t:"Purge Material",cat:"CD"},{c:"A23",t:"Quality Problem",cat:"CD"},{c:"A24",t:"Material Depleted",cat:"CD"},{c:"A25",t:"Wait Component Part",cat:"SD"},{c:"A26",t:"Wait Technician",cat:"MC"},{c:"A27",t:"Nozzle Cold",cat:"MC"},{c:"A28",t:"Nozzle Metal Block",cat:"MC"},{c:"A29",t:"Gate Metal Block",cat:"MD"},{c:"A30",t:"Plastic Leak Nozzle",cat:"MC"},{c:"A31",t:"Robot Problem",cat:"MC"},{c:"A32",t:"Heater Broken",cat:"MC"},{c:"A33",t:"Hot Runner Problem",cat:"MD"},{c:"A34",t:"Gate Stick Mold",cat:"MD"}];
+
+const Positions=["Operator","Finishing_1","Finishing_2","Crusher","Technician","Asst.Tech","Leader","Support"];
+
+const Operators=["น.ส.จันทร์จิรา ดาวเรือง", "น.ส.ซกฮา ฮิน SOKHA HIN", "น.ส.ณิชาภา ซอยรัมย์", "น.ส.ธนนันท์ พิลาวัน", "น.ส.ธัญสิริ ดรบัณฑิตย์", "น.ส.ปนัดดา ฮาดคะดี", "น.ส.ระพีพรรณ อัมภาพร", "น.ส.ลำดวน พลปลัด", "น.ส.วรางรัตน์ ดวงสาม", "น.ส.สมฤดี แสงใสแก้ว", "น.ส.สุรีรัตน์ ฝ่ายเฟีย", "น.ส.อริสรา สหุนันต์", "น.ส.อัญมณี ลาดมุณี", "น.ส.เกษวรางค์ พิมนา", "น.ส.โชมา CHO MAR", "นางสาวจิตรลดา จันทร์แก้ว", "นางสาวจิราวรรณ แก้วจันทร์", "นางสาวจุฑาทิพย์ ขันสำรอง", "นางสาวฐาติรัตน์ จิตรเขต", "นางสาวฐิติวรดา  กุดรังนอก", "นางสาวธนนันท์", "นางสาวธัญสิริ", "นางสาวนิภาพร มิ่งขวัญ", "นางสาวพรนภา อรรคนันท์", "นางสาวมอ มอ ออง MON MON AUNG", "นางสาวมัทนา มาขำ", "นางสาววัชราภรณ์ บุญสัน", "นางสาววิภาดา วินโรจน์", "นางสาววิยะดา ดีสม", "นางสาววิไลพร สุขแจ่ม", "นางสาววุท ฮอน WUTT MHON", "นางสาวสมฤดี", "นางสาวสุพัตรา วัฒนจริยา", "นางสาวอิ โช สิน EI CHO ZIN", "นางสาวเม วิน อู MAY LWIN OO", "นางสาวแสงมณี สีเกิน", "นาย ซูอ่าว  ( AUNG AUNG LWIN )", "นายกมล รักษาพล", "นายกุลเดช คำคูเมือง", "นายจอ จอ KYAW KYAW", "นายฉัตรชวัฒน์ ใชโย", "นายฉัตรมงคล ทองกระโทก", "นายชิด ไว เปียว CHIT WIA PHYO", "นายชุติพงษ์  เฉวียงวาส", "นายซอ ทุย ZAW HTWE", "นายฐิติศักดิ์ คุ้มเขตต์", "นายณฐภัทร นามวิสัย", "นายณรงค์ฤทธ์ บุญพินิจ", "นายณัฐพงษ์ ภาคสิม", "นายณัฐพล พันธุ์ดี", "นายณัฐวุฒิ  ดอกไม้", "นายณัฐวุฒิ ยาเงิน", "นายณัฐวุฒิ แย้มนิ่มนวล", "นายดนุพงศ์ วิญญาณ", "นายติน อ่อง ริน HTIN AUNG LIN", "นายตู เรน โซ THU REIN SOE", "นายทวีทรัพย์ ชะบา", "นายทัศกร สายใจ", "นายธนากร แก้วล้ำ", "นายธีรพงษ์ นิตยารส", "นายนนทวัช ทาศิริ", "นายนพรัตน์ จันทกุล", "นายนันธวัฒน์ พรหมรักษา", "นายนาวิน ถินเรียบ", "นายบดินทร์ เจริญ", "นายบพิตร", "นายบพิตร มาโพนทอง", "นายบรรณวิชญ์  พินิจพงษ์", "นายบัณฑิต คันทจิตร", "นายปฏิพล หงษบุญเรือง", "นายประกิต สระกลาง", "นายประชัน ไทยง่อม", "นายปริญญา มาตรา", "นายปริวัตร จวงโส", "นายปรีชา ศรีไชย", "นายพงศธร พิมพาชาติ", "นายพรศักดิ์ คนซื่อ", "นายพสิษฐ์  กุลเตี้ย", "นายพัทธนันท์  เสนาวงศ์", "นายพันธกานต์ เนื่องมัจฉา", "นายพิศิฏฐพงศ์ ภูที", "นายพุฒินาท สำนึกนิตย์", "นายภูมิพัฒน์ พรมมะลัง", "นายมนตรี ช่วงชู", "นายมานพ ภูจอมแก้ว", "นายมิง หน่าย วิน MYO NAING WIN", "นายมิน โก ไน MIN KO NAING", "นายยศวรรธน์ ผาทิพพาที", "นายยุทธการ ชัยเพ็ชร", "นายวรวุฒิ บุญส่ง", "นายวิชา รอดเงิน", "นายวิน ไน WIN NAING", "นายวิินออง", "นายวีระพล พึ่งย้อย", "นายวุฒิกร นำไทย", "นายวุฒิชัย  โคตรพรม", "นายศตวรรษ สุวินชัย", "นายศุภวัฒน์ บุยเปล่ง", "นายสมรักษ์ คำบ้านฝ้าย", "นายสมหวัง สอไชยยศ", "นายสมัค สุขมล", "นายสาธิต จันทร์สนิท", "นายสุรศักดิ์ ถวิลชา", "นายอนันต์ มัทปะนัง", "นายอนุชิต วัญโส", "นายอรรถพร สุดตา", "นายอารีย์  ชิณมาตย์", "นายอิทธิกร", "นายอุทิศ หลักคำ", "นายอ่อง ซอ มิน AUNG SAW MIN", "นายอ่อง เมา ลุย AUNG MYO LWIN", "นายอ่อง เมี๊ยะ จอ AUNG MYINT KYAW", "นายอ่องตู AUNG THU", "นายอ่องตูราโซ AUNG THU RA SOE", "นายเขมรินทร์  แสงตา", "นายเจษฎาภรณ์ ผ่องศรี", "นายเน มิน ทุน NAY MIN TUN", "นายเน วิน อ่อง NAING WIN AUNG", "นายเวสารัช พลนุรักษ์", "นายเอก เพียรธรรม", "นายเฮือน เซือน HOEUN SOEUN", "นายแต๊ด ไวลิน  HTET WAI LIN", "นายแสงอรุณ ยูชิ", "นายโซ วันนา SOE WANNA", "นายโซยาซาทุน SOE YAR ZAR HTUN", "นายใน แต๊ด โซ NAING HTET SOE", "นายไว ลิน อู WAI LIN OO"];
+
+const MOLDS={"BM-002-R-RT50-XXX": {"p": "F8222ISDC1", "n": "BODY SIDE SPORT BAR 01 LH ISUZU RT93 2020 ก่อนทำสี", "c": "IAST", "d": "RT93"}, "BM-003-L-RT50-XXX": {"p": "F8223ISDC1", "n": "BODY SIDE SPORT BAR 01 RH ISUZU RT93 2020 ก่อนทำสี", "c": "IAST", "d": "RT93"}, "BM-004-C-RT50-XXX": {"p": "F8221ISDC0", "n": "BODY CENTER SPORT BAR ISUZU D-MAX 2012 ก่อนทำสี", "c": "IAST", "d": "RT50"}, "BM-005-L-RT50-XXX": {"p": "F8224ISDC0", "n": "BODY BOX  RAIL SPORT BAR 01 LH ISUZU D-MAX 2012 ก่อนทำสี", "c": "IAST", "d": "RT50"}, "BM-005-R-RT50-XXX": {"p": "F8225ISDC0", "n": "BODY BOX  RAIL SPORT BAR 01 RH ISUZU D-MAX 2012 ก่อนทำสี", "c": "IAST", "d": "RT50"}, "BM-006-C-640A-XXX": {"p": "F8221TODC0", "n": "BODY CENTER MAXSTYLISH BAR TOYOTA  HILUX DBC 2016  ก่อนทำสี", "c": "TSAM", "d": "DBC2016,640A"}, "BM-007-L-640A-XXX": {"p": "F8222TODC0", "n": "BODY SIDE SPORT BAR LH TOYOTA HILUX DBC 2016", "c": "TSAM", "d": "DBC2016,640A"}, "BM-007-R-640A-XXX": {"p": "F8223TODC0", "n": "BODY SIDE SPORT BAR RH TOYOTA HILUX DBC 2016 ก่อนทำสี", "c": "TSAM", "d": "DBC2016,640A"}, "BM-008-L-640A-XXX": {"p": "F8224TODC0", "n": "BODY BOX RAIL SPORT BAR LH TOYOTA HILUX DBC 2016 ก่อนทำสี", "c": "TSAM", "d": "DBC2016,640A"}, "BM-008-R-640A-XXX": {"p": "F8225TODC0", "n": "BODY BOX RAIL SPORT BAR RH TOYOTA HILUX DBC 2016 ก่อนทำสี", "c": "TSAM", "d": "DBC2016,640A"}, "BM-009.1-L-640A-XXX": {"p": "F8269LTOD01", "n": "BODY SIDE STEP TOYOTA HILUX DBC 2015 NIGERIA", "c": "TOYOTA", "d": "640A"}, "BM-009.1-R-640A-XXX": {"p": "F8269RTOD01", "n": "BODY SIDE STEP TOYOTA HILUX DBC 2015 NIGERIA", "c": "TOYOTA", "d": "640A"}, "BM-009-L-640A-XXX": {"p": "F8269LTOD00", "n": "BODY SIDE STEP LH TOYOTA HILUX DBC 2015", "c": "TOYOTA", "d": "640A"}, "BM-009-R-640A-XXX": {"p": "F8269RTOD00", "n": "BODY SIDE STEP RH TOYOTA HILUX DBC 2015", "c": "TOYOTA", "d": "640A"}, "BM-010-R-338B-XXX": {"p": "F8223TODCA", "n": "BODY SIDE RH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำสี", "c": "TDEM", "d": "338B"}, "BM-011-L-338B-XXX": {"p": "F8222TODCA", "n": "BODY SIDE LH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำสี", "c": "TDEM", "d": "338B"}, "BM-012-C-338B-XXX": {"p": "F8221TODCA", "n": "BODY CENTER SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำสี", "c": "TDEM", "d": "338B"}, "BM-013-L-338B-XXX": {"p": "F8224TODCA", "n": "BODY BOX RAIL LH SPORT BAR D-CAB BAR A-DECK TOYOTA HILUX 201", "c": "TDEM", "d": "338B"}, "BM-013-R-338B-XXX": {"p": "F8225TODCA", "n": "BODY BOX RAIL RH SPORT BAR D-CAB BAR A-DECK TOYOTA HILUX 201", "c": "TDEM", "d": "338B"}, "BM-014-L-338B-XXX": {"p": "F8224TOXCA", "n": "BODY BOX RAIL LH SPORT BAR C-CAB A-DECK TOYOTA HILUX 2015 #ก", "c": "TDEM", "d": "338B"}, "BM-014-R-338B-XXX": {"p": "F8225TOXCA", "n": "BODY BOX RAIL RH SPORT BAR C-CAB A-DECK TOYOTA HILUX 2015 #ก", "c": "TDEM", "d": "338B"}, "BM-025-X-MY20-XXX": {"p": "F8272AMIDC0", "n": "SPOILER PREMIUM  MITSUBISHI L200 MY20  ก่อนทำสี (A)", "c": "MMTH", "d": "MY20"}, "BM-026-X-MY20-XXX": {"p": "F8272BMIDC0", "n": "SPOILER STANDARD  MITSUBISHI L200 MY20 ก่อนทำสี", "c": "MMTH", "d": "MY20"}, "BM-027-L-RG01-XXX": {"p": "F8263ISDC1", "n": "BODY CARGO EXTENDER ICL RG10 LH", "c": "IAST", "d": "RG01"}, "BM-027-R-RG01-XXX": {"p": "F8264ISDC1", "n": "BODY CARGO EXTENDER ICL RG10 RH", "c": "IAST", "d": "RG01"}, "BM-028-C-SK82-XXX": {"p": "F8221MGDC0", "n": "BODY CENTER SK82 MG ก่อนทำสี", "c": "MG", "d": "SK82"}, "BM-029-L-SK82-XXX": {"p": "F8222MGDC0", "n": "BODY SIDE FRONT SK82 MG LH ก่อนทำสี", "c": "MG", "d": "SK82"}, "BM-030-R-SK82-XXX": {"p": "F8223MGDC0", "n": "BODY SIDE FRONT SK82 MG RH ก่อนทำสี", "c": "MG", "d": "SK82"}, "BM-031-L-SK82-XXX": {"p": "F8224MGDC0", "n": "BODY SIDE RAIL SK82 MG LH ก่อนทำสี", "c": "MG", "d": "SK82"}, "BM-031-R-SK82-XXX": {"p": "F8225MGDC0", "n": "BODY SIDE RAIL SK82 MG RH ก่อนทำสี", "c": "MG", "d": "SK82"}, "BM-032-X-MY20-XXX": {"p": "F8275AXXB01", "n": "BODY MAX BOX CONCORDE EXTRA V2 FOR EXPORT MARKET", "c": "MMTH", "d": "MY20"}, "BM-033-X-MY20-XXX": {"p": "F8275AXXC01", "n": "COVER MAX BOX BLOW MOLD", "c": "MMTH", "d": "MY20"}, "BM-034-C-RG01-XXX": {"p": "F8221ISDAC0", "n": "BODY CENTER SAIL PLANE RG01", "c": "IAST", "d": "RG01"}, "BM-035-R-RG01-NNX": {"p": "F8223ISDAC1", "n": "BODY FRONT RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "BM-035-R-RG01-ONX": {"p": "F8223ISDAC0", "n": "BODY FRONT RH SAIL PLANE RG01", "c": "IAST", "d": "RG01"}, "BM-035-R-RG05-XXX": {"p": "F8223ISDBC0", "n": "BODY CARGO SPOILER FR RH RG05", "c": "IAST", "d": "RG05"}, "BM-036-L-RG01-NNX": {"p": "F8222ISDAC1", "n": "BODY FRONT LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "BM-036-L-RG01-ONX": {"p": "F8222ISDAC0", "n": "BODY FRONT LH SAIL PLANE RG01", "c": "IAST", "d": "RG01"}, "BM-036-L-RG05-XXX": {"p": "F8222ISDBC0", "n": "BODY CARGO SPOILER FR LH RG05", "c": "IAST", "d": "RG05"}, "BM-037-L-RG01-NNX": {"p": "F8224ISDAC1", "n": "BODY REAR LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "BM-037-L-RG01-ONX": {"p": "F8224ISDAC0", "n": "BODY REAR LH SAIL PLANE RG01", "c": "IAST", "d": "RG01"}, "BM-037-L-RG05-XXX": {"p": "F8224ISDBC0", "n": "BODY CARGO SPOILER RR CREW CAB LH RG05", "c": "IAST", "d": "RG05"}, "BM-037-R-RG01-NNX": {"p": "F8225ISDAC1", "n": "BODY REAR RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "BM-037-R-RG05-XXX": {"p": "F8225ISDBC0", "n": "BODY CARGO SPOILER RR CREW CAB RH RG05", "c": "IAST", "d": "RG05"}, "BM-038.1-C-645B-XXX": {"p": "F8221BTOGC0", "n": "BODY CENTER DECK BAR  645B", "c": "TDEM", "d": "645B"}, "BM-038-C-645B-XXX": {"p": "F8221BTOGC0", "n": "BODY CENTER DECK BAR  645B", "c": "TDEM", "d": "645B"}, "BM-039.1-L-645B-XXX": {"p": "F8224BTODC0", "n": "BODY BOX RAIL DECK BAR LH D-CAB   645B", "c": "TDEM", "d": "645B"}, "BM-039.1-R-645B-XXX": {"p": "F8225BTODC0", "n": "BODY BOX RAIL DECK BAR RH D-CAB  645B", "c": "TDEM", "d": "645B"}, "BM-039-L-645B-XXX": {"p": "F8224BTODC0", "n": "BODY BOX RAIL DECK BAR LH D-CAB   645B", "c": "TDEM", "d": "645B"}, "BM-039-R-645B-XXX": {"p": "F8225BTODC0", "n": "BODY BOX RAIL DECK BAR RH D-CAB  645B", "c": "TDEM", "d": "645B"}, "BM-040-L-645B-XXX": {"p": "F8224BTOXC0", "n": "BODY BOX RAIL LH SPORT BAR C-CAB 645B", "c": "TDEM", "d": "645B"}, "BM-040-R-645B-XXX": {"p": "F8225BTOXC0", "n": "BODY BOX RAIL RH SPORT BAR C-CAB 645B", "c": "TDEM", "d": "645B"}, "BM-041.1-L-645B-XXX": {"p": "F8222BTOGC0", "n": "BODY SIDE DECK BAR LH  645B", "c": "TDEM", "d": "645B"}, "BM-041-L-645B-XXX": {"p": "F8222BTOGC0", "n": "BODY SIDE DECK BAR LH  645B", "c": "TDEM", "d": "645B"}, "BM-042.1-R-645B-XXX": {"p": "F8223BTOGC0", "n": "BODY SIDE DECK BAR RH  645B", "c": "TDEM", "d": "645B"}, "BM-042-R-645B-XXX": {"p": "F8223BTOGC0", "n": "BODY SIDE DECK BAR RH  645B", "c": "TDEM", "d": "645B"}, "BM-045-L-RG05-XXX": {"p": "F8224ISXBC0", "n": "BODY CARGO SPOILER RR EXTEN CAB LH RG05", "c": "IAST", "d": "RG05"}, "BM-045-R-RG05-XXX": {"p": "F8225ISXBC0", "n": "BODY CARGO SPOILER RR EXTEN CAB RH RG05", "c": "IAST", "d": "RG05"}, "BM-046-C-BT50-XXX": {"p": "F8221AMADC0", "n": "BODY CENTER STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50"}, "BM-047-L-BT50-XXX": {"p": "F8222AMADC0", "n": "BODY SIDE LH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50"}, "BM-048-R-BT50-XXX": {"p": "F8223AMADC0", "n": "BODY SIDE RH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50"}, "BM-049-L-BT50-XXX": {"p": "F8224AMADC0", "n": "BODY REAR LH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50"}, "BM-049-R-BT50-XXX": {"p": "F8225AMADC0", "n": "BODY REAR RH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50"}, "BM-051-X-XXXX-XXX": {"p": "F828032CB01", "n": "BODY SURF SKATE 32 inch #CARBON BLACK (PP-GF25%)", "c": "VDP", "d": ""}, "BM-052.1-L-5F00-XXX": {"p": "F8269LMIX00", "n": "FACE STEP LH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-052.1-R-5F00-XXX": {"p": "F8269RMIX00", "n": "FACE STEP RH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-052-L-5F00-XXX": {"p": "96101A040P-1", "n": "FACE STEP LH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-052-R-5F00-XXX": {"p": "96100A040P-1", "n": "FACE STEP RH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-053.1-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-053.1-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-053.2-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-053.2-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-053-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-053-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M1", "c": "SAB", "d": "5F00"}, "BM-054-X-XXXX-XXX": {"p": "F8269XTOD00", "n": "BODY CLEVER SIDE STEP", "c": "TOYOTA", "d": "V2"}, "BM-055-C-DBCX-XXX": {"p": "F8221CTODC0", "n": "BODY CENTER SPORT BAR TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020"}, "BM-056-L-DBCX-XXX": {"p": "F8224CTODC0", "n": "BODY BOX RAIL SPORT BAR LH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020"}, "BM-056-R-DBCX-XXX": {"p": "F8225CTODC0", "n": "BODY BOX RAIL SPORT BAR RH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020"}, "BM-057-X-DBCX-XXX": {"p": "F8272AISDC0", "n": "SPOILER CANOPY 3 ISUZU D-MAX DBC 2020", "c": "IAST", "d": "DBC 2020"}, "BM-058-X-XXXX-XXX": {"p": "F8272ATODC0", "n": "BODY SPOILER VENTURE CANOPY", "c": "TOYOTA", "d": ""}, "BM-059-L-DBCX-XXX": {"p": "F8222CTODC0", "n": "BODY SIDE SPORT BAR LH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020"}, "BM-060-R-DBCX-XXX": {"p": "F8223CTODC0", "n": "BODY SIDE SPORT BAR RH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020"}, "BM-061-X-DBCX-XXX": {"p": "F8272ISDC0", "n": "BODY SPOILER MAXTOP 3 ISUZU D-MAX DBC 2020", "c": "IAST", "d": "DBC 2020"}, "BM-062.1-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062.1-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062.3-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062.3-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-063-L-5F00CC-XXX": {"p": "F8269LMIX00", "n": "FACE STEP LH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-063-R-5F00CC-XXX": {"p": "F8269RMIX00", "n": "FACE STEP RH (C-CAB)", "c": "SAB", "d": "5F00"}, "BM-063.1-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-063.1-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-063.2-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-063.2-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-063-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-063-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M3", "c": "SAB", "d": "5F00"}, "BM-064-L-All-XXX": {"p": "F8283LXX00", "n": "SOLID SIDE WINDOW FOR VENTURE CANOPY LH", "c": "VDP", "d": "ALL MODEL"}, "BM-064-R-All-XXX": {"p": "F8283RXX00", "n": "SOLID SIDE WINDOW FOR VENTURE CANOPY RH", "c": "VDP", "d": "ALL MODEL"}, "BM-065-X-XXXX-XXX": {"p": "F8269XFOG00", "n": "BODY CLEVER SIDE STEP FORD P703", "c": "FORD", "d": "703"}, "BM-066-X-XXXX-XXX": {"p": "F8272MIDCC0", "n": "BODY SPOILER NXGEN CANOPY MMAL2022 ก่อนทำสี", "c": "MMTH", "d": "NXGEN2022"}, "BM-067-C-RG17-XXX": {"p": "F8221ISDCC0", "n": "BODY PART SPORT HOOP CERTER RG17", "c": "IAST", "d": "RG17"}, "BM-068-L-RG17-XXX": {"p": "F8222ISDCC0", "n": "BODY PART SPORT HOOP FRONT LH RG17", "c": "IAST", "d": "RG17"}, "BM-069-R-RG17-XXX": {"p": "F8223ISDCC0", "n": "BODY PART SPORT HOOP FRONT RH RG17", "c": "IAST", "d": "RG17"}, "BM-070-L-RG17-XXX": {"p": "F8224ISDCC0", "n": "BODY PART SPORT HOOP REAR CREW LH RG17", "c": "IAST", "d": "GR17"}, "BM-070-R-RG17-XXX": {"p": "F8225ISDCC0", "n": "BODY PART SPORT HOOP REAR CREW RH RG17", "c": "IAST", "d": "GR17"}, "BM-071.1-L-RG21-WITH": {"p": "F8269LISXA00", "n": "STEP ASM ASST EXT LH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21"}, "BM-071.1-R-RG21-WITH": {"p": "F8269RISXA00", "n": "STEP ASM ASST EXT RH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21"}, "BM-071-L-RG21-WITH": {"p": "F8269LISXA00", "n": "STEP ASM ASST EXT LH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21"}, "BM-071-L-RG21-XXX": {"p": "F82XXX", "n": "Side Step RG21  Extn LH", "c": "IAST", "d": "RG21"}, "BM-071-R-RG21-WITH": {"p": "F8269RISXA00", "n": "STEP ASM ASST EXT RH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21"}, "BM-071-R-RG21-XXX": {"p": "F82XXX", "n": "Side Step RG21  Extn RH", "c": "IAST", "d": "RG21"}, "BM-072.1-L-RG21-WITH": {"p": "F8269LISDA00", "n": "STEP ASM ASST CREW LH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072.1-L-RG21-WITHOUT": {"p": "F8269LISDA01", "n": "STEP ASM ASST CREW LH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072.1-R-RG21-WITH": {"p": "F8269LISDA00", "n": "STEP ASM ASST CREW RH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072.1-R-RG21-WITHOUT": {"p": "F8269RISDA01", "n": "STEP ASM ASST CREW RH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072-L-RG21-WITH": {"p": "F8269LISDA00", "n": "STEP ASM ASST CREW LH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072-L-RG21-WITHOUT": {"p": "F8269LISDA01", "n": "STEP ASM ASST CREW LH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072-L-RG21-XXX": {"p": "F82XXX", "n": "Side Step RG21  CRW LH", "c": "IAST", "d": "RG21"}, "BM-072-R-RG21-WITH": {"p": "F8269RISDA00", "n": "STEP ASM ASST CREW RH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072-R-RG21-WITHOUT": {"p": "F8269RISDA01", "n": "STEP ASM ASST CREW RH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21"}, "BM-072-R-RG21-XXX": {"p": "F82XXX", "n": "Side Step RG21  CRW RH", "c": "IAST", "d": "RG21"}, "BM-073.1-C-581D-XXX": {"p": "F8221ETODC0", "n": "BODY CENTER SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-073-C-581D-XXX": {"p": "F8221ETODC0", "n": "BODY CENTER SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-074.1-L-581D-XXX": {"p": "F8222ETODC0", "n": "BODY SIDE LH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-074-L-581D-XXX": {"p": "F8222ETODC0", "n": "BODY SIDE LH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-075.1-R-581D-XXX": {"p": "F8223ETODC0", "n": "BODY SIDE RH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-075-R-581D-XXX": {"p": "F8223ETODC0", "n": "BODY SIDE RH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "BM-076.1-L-581D-XXX": {"p": "F8224ETODC0", "n": "BODY BOX RAIL DECK BAR LH D-CAB   581D", "c": "TDEM", "d": "581D"}, "BM-076.1-R-581D-XXX": {"p": "F8225ETODC0", "n": "BODY BOX RAIL DECK BAR RH D-CAB  581D", "c": "TDEM", "d": "581D"}, "BM-076-L-581D-XXX": {"p": "F8224ETODC0", "n": "BODY BOX RAIL DECK BAR LH D-CAB   581D", "c": "TDEM", "d": "581D"}, "BM-076-R-581D-XXX": {"p": "F8225ETODC0", "n": "BODY BOX RAIL DECK BAR RH D-CAB  581D", "c": "TDEM", "d": "581D"}, "BM-077-L-RG21-WITH": {"p": "F8269LISDA00", "n": "STEP ASM ASST CREW LH WITH ORNAMENT RG21#M2", "c": "IAST", "d": "RG21"}, "BM-077-L-RG21-WITHOUT": {"p": "F8269LISDA01", "n": "STEP ASM ASST CREW LH WITHOUT ORNAMENT RG21#M2", "c": "IAST", "d": "RG21"}, "BM-077-R-RG21-WITH": {"p": "F8269RISDA00", "n": "STEP ASM ASST CREW RH WITH ORNAMENT RG21#M2", "c": "IAST", "d": "RG21"}, "BM-077-R-RG21-WITHOUT": {"p": "F8269RISDA01", "n": "STEP ASM ASST CREW RH WITHOUT ORNAMENT RG21#M2", "c": "IAST", "d": "RG21"}, "BM-078-C-RG21-XXX": {"p": "F82XXX", "n": "Prototype Side Step  RG21", "c": "", "d": "RG21"}, "BM-079-C-XXX-XXX": {"p": "F8272TODBC0", "n": "REAR SPOILER FOR ROLLER SHUTTER", "c": "-", "d": "581D T"}, "INJ-001-L-RT50-XXX": {"p": "F8246ISDC0", "n": "COVER  FRONT SPORT BAR 01 LH", "c": "IAST", "d": "RT50"}, "INJ-001-R-RT50-XXX": {"p": "F8247ISDC0", "n": "COVER  FRONT SPORT BAR 01 RH", "c": "IAST", "d": "RT50"}, "INJ-002-X-XXXX-XXX": {"p": "F8201001", "n": "COIN BOX COMPLETE SET (1 CTN /70 P.)  (LAJ)", "c": "ALJ", "d": ""}, "INJ-003-L-RT50-XXX": {"p": "F8244ISDC0", "n": "COVER  CENTER SPORT BAR 01 LH", "c": "IAST", "d": "RT50"}, "INJ-003-R-RT50-XXX": {"p": "F8245ISDC0", "n": "COVER  CENTER SPORT BAR 01 RH", "c": "IAST", "d": "RT50"}, "INJ-004-L-RT50-XXX": {"p": "F8248ISDC0", "n": "COVER SIDE SPORT BAR 01 LH", "c": "IAST", "d": "RT50"}, "INJ-004-R-RT50-XXX": {"p": "F8249ISDC0", "n": "COVER SIDE SPORT BAR 01 RH", "c": "IAST", "d": "RT50"}, "INJ-005-L-640A-XXX": {"p": "F8244TODC0", "n": "COVER CENTER SPORT BAR 01 LH TOYOTA 640A DBC 2016 ก่อนทำสี", "c": "TOYOTA", "d": "640A"}, "INJ-005-R-640A-XXX": {"p": "F8245TODC0", "n": "COVER CENTER SPORT BAR 01 RH TOYOTA 640A DBC 2016 ก่อนทำสี", "c": "TOYOTA", "d": "640A"}, "INJ-006-L-640A-XXX": {"p": "F8246TODC0", "n": "COVER FRONT SPORT BAR 01 LH TOYOTA 640A DBC 2016 ก่อนทำสี", "c": "TOYOTA", "d": "640A"}, "INJ-006-R-640A-XXX": {"p": "F8247TODC0", "n": "COVER FRONT SPORT BAR 01 RH TOYOTA 640A DBC 2016 ก่อนทำสี", "c": "TOYOTA", "d": "640A"}, "INJ-008-X-640A-XXX": {"p": "F8215TOD001", "n": "CHROME PLATE MAXBUMPER GUARD TOYOTA (640A) DBC 2015 ก่อนชุบ", "c": "TOYOTA", "d": "640A"}, "INJ-010-X-XXXX-XXX": {"p": "F8210T00", "n": "BODY FRONT DOOR POCKET TOYOTA LC 70", "c": "ALJ", "d": "LC70"}, "INJ-012-L-17YM-XXX": {"p": "F8212RLTOXC0", "n": "BODY SIDE MOLDING REAR LH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ"}, "INJ-012-R-17YM-XXX": {"p": "F8212RRTOXC0", "n": "BODY SIDE MOLDING REAR RH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ"}, "INJ-025-L-18YM-XXX": {"p": "F8212RLTOD001", "n": "BODY SIDE MOLDING REAR LH TOYOTA HILUX DC 2018YM ก่อนชุบ", "c": "ALJ", "d": "18YM"}, "INJ-025-R-18YM-XXX": {"p": "F8212RRTOD001", "n": "BODY SIDE MOLDING REAR RH TOYOTA HILUX DC 2018YM ก่อนชุบ", "c": "ALJ", "d": "18YM"}, "INJ-026-L-18YM-XXX": {"p": "F8212FLTOD001", "n": "BODY SIDE MOLDING FRONT LH TOYOTA HILUX DC 2018YM ก่อนชุบ", "c": "ALJ", "d": "18YM"}, "INJ-026-R-18YM-XXX": {"p": "F8212FRTOD001", "n": "BODY SIDE MOLDING FRONT RH TOYOTA HILUX DC 2018YM ก่อนชุบ", "c": "ALJ", "d": "18YM"}, "INJ-027-X-18YM-XXX": {"p": "F8215TOP001", "n": "CHROME PLATE FRONT BUMPER PROTECTOR PRADO 18YM ก่อนชุบ", "c": "ALJ", "d": "18YM"}, "INJ-028-L-338B-XXX": {"p": "F8244TODCA", "n": "BODY COVER CENTER LH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อ", "c": "TDEM", "d": "338B"}, "INJ-028-R-338B-XXX": {"p": "F8245TODCA", "n": "BODY COVER CENTER RH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อ", "c": "TDEM", "d": "338B"}, "INJ-029-L-338B-XXX": {"p": "F8248TODCA", "n": "BODY COVER SIDE 01 LH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่", "c": "TDEM", "d": "338B"}, "INJ-029-R-338B-XXX": {"p": "F8249TODCA", "n": "BODY COVER SIDE 01 RH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่", "c": "TDEM", "d": "338B"}, "INJ-030.1-X-338B-XXX": {"p": "F8268TOD00", "n": "BODY COVER SIDE 02 SPORT BAR A-DECK TOYOTA HILUX 2015", "c": "TDEM", "d": "338B"}, "INJ-030-X-338B-XXX": {"p": "F8268TOD00", "n": "BODY COVER SIDE 02 SPORT BAR A-DECK TOYOTA HILUX 2015", "c": "TDEM", "d": "338B"}, "INJ-047-X-SK82-XXX": {"p": "F8268MGD00", "n": "COVER BRACKET CLAMP LOCK SK82 MG TEXTURE", "c": "MG", "d": "MG"}, "INJ-048-L-RG01-XXX": {"p": "F8246ISDAC0", "n": "BODY FRONT COVER LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "INJ-048-R-RG01-XXX": {"p": "F8247ISDAC0", "n": "BODY FRONT COVER RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01"}, "INJ-049.1-L-645B-XXX": {"p": "F8277BTOGC0", "n": "COVER OUTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-049.1-R-645B-XXX": {"p": "F8278BTOGC0", "n": "COVER OUTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-049-L-645B-Rework": {"p": "F8277BTOGC0", "n": "COVER OUTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-049-L-645B-XXX": {"p": "F8277BTOGC0", "n": "COVER OUTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-049-R-645B-Rework": {"p": "F8278BTOGC0", "n": "COVER OUTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-049-R-645B-XXX": {"p": "F8278BTOGC0", "n": "COVER OUTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-050-L-645B-XXX": {"p": "F8246BTOGC0", "n": "COVER SIDE DECK BAR 01 LH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-050-R-645B-XXX": {"p": "F8247BTOGC0", "n": "COVER SIDE DECK BAR 01 RH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-051-L-645B-XXX": {"p": "F8244BTOGC0", "n": "COVER CENTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-051-R-645B-XXX": {"p": "F8245BTOGC0", "n": "COVER CENTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B"}, "INJ-052-X-645B-XXX": {"p": "F8279TOD00", "n": "BODY TAIL GATE PROTECTOR 645B HILUX 2020", "c": "TDEM", "d": "645B"}, "INJ-053-L-2TGX-XXX": {"p": "F8271LHOCC0", "n": "BODY REAR UNDER SPOILER LH HONDA CITY 2TG 2020 ก่อนทำสี", "c": "HONDA", "d": "2TG"}, "INJ-053-R-2TGX-XXX": {"p": "F8271RHOCC0", "n": "BODY REAR UNDER SPOILER RH HONDA CITY 2TG 2020 ก่อนทำสี", "c": "HONDA", "d": "2TG"}, "INJ-055-L-LC300-XXX": {"p": "F8234LTOL00", "n": "BODY SIDE MOLDING REAR LH LC300 2022YM", "c": "ALJ", "d": "LC300"}, "INJ-055-R-LC300-XXX": {"p": "F8234RTOL00", "n": "BODY SIDE MOLDING REAR RH LC300 2022YM", "c": "ALJ", "d": "LC300"}, "INJ-056-L-LC300-XXX": {"p": "F8233LTOL00", "n": "BODY SIDE MOLDING FRONT LH LC300 2022YM", "c": "ALJ", "d": "LC300"}, "INJ-056-R-LC300-XXX": {"p": "F8233RTOL00", "n": "BODY SIDE MOLDING FRONT RH LC300 2022YM", "c": "ALJ", "d": "LC300"}, "INJ-057-X-23YM-XXX": {"p": "F8211TOX00", "n": "BODY CONSOLE BOX SEPARATOR TOYOTA HILUX 23YM", "c": "TCD", "d": "23YM"}, "INJ-058-L-22YM-XXX": {"p": "F8213RLTOC001", "n": "BODY SIDE MOLDING REAR LH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM"}, "INJ-058-R-22YM-XXX": {"p": "F8213RRTOC001", "n": "BODY SIDE MOLDING REAR RH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM"}, "INJ-059-L-22YM-XXX": {"p": "F8213FLTOC001", "n": "BODY SIDE MOLDING FRONT LH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM"}, "INJ-059-R-22YM-XXX": {"p": "F8213FRTOC001", "n": "BODY SIDE MOLDING FRONT RH TOYOTA CAMRY 22YM", "c": "ALJ", "d": "22YM"}, "INJ-060-X-23YM-XXX": {"p": "F8272TOYAC0", "n": "BODY TRUNK SPOILER YARIS 23YM (INJECTION)", "c": "ALJ", "d": "23YM"}, "INJ-061-L-23YM-XXX": {"p": "F8281LTOL001", "n": "FOG LAMP GARNISH CHROME LC300 23YM LH # INJECTION", "c": "ALJ", "d": "LC30023YM"}, "INJ-061-R-23YM-XXX": {"p": "F8281RTOL001", "n": "FOG LAMP GARNISH CHROME LC300 23YM RH # INJECTION", "c": "ALJ", "d": "LC30023YM"}, "INJ-062-L-23YM-XXX": {"p": "F8252LTOL001", "n": "VDP1-022-1-00 PM813-60010 REAR BUMPER GARNISH CHROME LC300 2", "c": "ALJ", "d": "LC30023YM"}, "INJ-062-R-23YM-XXX": {"p": "F8252RTOL001", "n": "VDP1-021-1-00 PM813-60020 REAR BUMPER GARNISH CHROME LC300 2", "c": "ALJ", "d": "LC30023YM"}, "INJ-063-L-23YM-XXX": {"p": "F8253LTOL001", "n": "REAR BUMPER GARNISH CHROME LC300 23YM SIDE LH # INJECTION", "c": "ALJ", "d": "LC30023YM"}, "INJ-063-R-23YM-XXX": {"p": "F8254RTOL001", "n": "REAR BUMPER GARNISH CHROME LC300 23YM SIDE RH # INJECTION", "c": "ALJ", "d": "LC30023YM"}, "INJ-064-L-XXXX-XXX": {"p": "F8274F5ERLMIPC0", "n": "BODY REAR BUMPER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": ""}, "INJ-064-R-XXXX-XXX": {"p": "F8274F5ERRMIPC0", "n": "BODY REAR BUMPER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": ""}, "INJ-065-L-3TXX-XXX": {"p": "F8271LHOCAC0", "n": "BODY KIT RR UNDER SPOILER LH 3TX (INJECTION)", "c": "HONDA", "d": "3TX"}, "INJ-065-R-3TXX-XXX": {"p": "F8271RHOCAC0", "n": "BODY KIT RR UNDER SPOILER RH 3TX (INJECTION)", "c": "HONDA", "d": "3TX"}, "INJ-065-X-RF35-XXX": {"p": "F8267ISPC0", "n": "BODY FRONT SPOILER MU-X RF35 ก่อนทำสี", "c": "IAST", "d": "RF35"}, "INJ-066-X-RF35-XXX": {"p": "F8271ISPC0", "n": "BODY REAR SPOILER MU-X RF35 ก่อนทำสี", "c": "IAST", "d": "RF35"}, "INJ-067-X-RF35-XXX": {"p": "F8267ISPC1", "n": "BODY FRONT SPOILER MU-X RF35 NEW TRIMLINE ก่อนทำสี", "c": "IAST", "d": "RF35"}, "INJ-068-X-RF35-XXX": {"p": "F8271ISPC1", "n": "BODY REAR SPOILER MU-X RF35 NEW TRIMLINE ก่อนทำสี", "c": "IAST", "d": "RF35"}, "INJ-069-C-RT93-Rework": {"p": "F8267ISGC0", "n": "BODY FRONT SKIRT HI LANDER RT93 ISUZU ก่อนทำสี", "c": "IAST", "d": "RT93"}, "INJ-069-C-RT93-XXX": {"p": "F8267ISGC0", "n": "BODY FRONT SKIRT HI LANDER RT93 ISUZU ก่อนทำสี", "c": "IAST", "d": "RT93"}, "INJ-070-L-XXXX-XXX": {"p": "F8274F5AFLMIPC0", "n": "BODY FRONT BUMPER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": ""}, "INJ-070-R-XXXX-XXX": {"p": "F8274F5AFRMIPC0", "n": "BODY FRONT BUMPER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": ""}, "INJ-071-L-DBCX-XXX": {"p": "F8234LH001", "n": "BODY  SIDE DOOR GARNISH  DBC  REAR  LH", "c": "MMTH", "d": "4P00"}, "INJ-071-R-DBCX-XXX": {"p": "F8234RH001", "n": "BODY SIDE DOOR GARNISH  DBC REAR RH", "c": "MMTH", "d": "4P00"}, "INJ-072-L-XXXX-XXX": {"p": "F8274F5BFLMIPC0", "n": "BODY FRONT FENDER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-072-R-XXXX-XXX": {"p": "F8274F5BFRMIPC0", "n": "BODY FRONT FENDER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-073-L-XXXX-XXX": {"p": "F8274F5CLRMIPC0", "n": "BODY REAR DOOR MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-073-R-XXXX-XXX": {"p": "F8274F5CRRMIPC0", "n": "BODY REAR DOOR MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-074-L-XXXX-XXX": {"p": "F8274F5DRLMIPC0", "n": "BODY REAR QTR MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-074-R-XXXX-XXX": {"p": "F8274F5DRRMIPC0", "n": "BODY REAR QTR MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00"}, "INJ-075-X-YM15-XXX": {"p": "F8215TOL001", "n": "CHROME PLATE FRONT BUMPER GUARD TOYOTA LC PICK UP YM15 ก่อนช", "c": "ALJ", "d": "15YM"}, "INJ-076-L-DBCX-XXX": {"p": "F8233LH001", "n": "BODY SIDE DOOR GARNISH  DBC FRONT LH", "c": "MMTH", "d": "4P00"}, "INJ-076-R-DBCX-XXX": {"p": "F8233RH001", "n": "BODY SIDE DOOR GARNISH  DBC FRONT RH", "c": "MMTH", "d": "4P00"}, "INJ-077-L-FJ-XXX": {"p": "F8212FLTOXC0", "n": "BODY SIDE MOLDING FRONT LH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ"}, "INJ-077-R-FJ-XXX": {"p": "F8212FRTOXC0", "n": "BODY SIDE MOLDING FRONT RH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ"}, "INJ-078-L-CHRX-XXX": {"p": "F8271LTOCC0", "n": "BODY REAR SKIRT LH TOYOTA CHR ก่อนทำสี", "c": "TDEM", "d": "CHR18YM"}, "INJ-078-R-CHRX-XXX": {"p": "F8271RTOCC0", "n": "BODY REAR SKIRT RH TOYOTA CHR ก่อนทำสี", "c": "TDEM", "d": "CHR18YM"}, "INJ-079-L-CHRX-XXX": {"p": "F8267LTOCC0", "n": "BODY FRONT SKIRT LH  TOYOTA CHR 2018  ก่อนทำสี", "c": "TDEM", "d": "CHR18YM"}, "INJ-079-R-CHRX-XXX": {"p": "F8267RTOCC0", "n": "BODY FRONT SKIRT RH  TOYOTA CHR 2018  ก่อนทำสี", "c": "TDEM", "d": "CHR18YM"}, "INJ-080-L-16YM-XXX": {"p": "F8267SLISGC0", "n": "BODY FRONT BUMPER GUARD EU SIDE LH ISUZU R88 16MY", "c": "IAST", "d": "EU16YM"}, "INJ-080-R-16YM-XXX": {"p": "F8267SRISGC0", "n": "BODY FRONT BUMPER GUARD EU SIDE RH ISUZU R88 16MYทำสี", "c": "IAST", "d": "EU16YM"}, "INJ-081-C-16YM-XXX": {"p": "F8267CTISGC0", "n": "BODY FRONT BUMPER GUARD EU CENTER ISUZU R88 16MYทำสี", "c": "IAST", "d": "EU16YM"}, "INJ-087-C-RT50-Rework": {"p": "F8252ISXC0", "n": "UNDER SPOILER RT50 REAR CENTER (INJECTION PD6) BEFORE PAINT", "c": "IAST", "d": "RT50"}, "INJ-087-C-RT50-XXX": {"p": "F8252ISXC0", "n": "UNDER SPOILER RT50 REAR CENTER (INJECTION PD6) BEFORE PAINT", "c": "IAST", "d": "RT50"}, "INJ-088-L-5F00-XXX": {"p": "F8233LMIDC0", "n": "BODY SIDE DOOR GARNISH DC FRONT LH", "c": "MMTH", "d": "5F00"}, "INJ-088-R-5F00-XXX": {"p": "F8233RMIDC0", "n": "BODY SIDE DOOR GARNISH DC FRONT RH", "c": "MMTH", "d": "5F00"}, "INJ-089-L-5F00-XXX": {"p": "F8234LMIDC0", "n": "BODY SIDE DOOR GARNISH DC REAR LH", "c": "MMTH", "d": "5F00"}, "INJ-089-R-5F00-XXX": {"p": "F8234RMIDC0", "n": "BODY SIDE DOOR GARNISH DC REAR RH", "c": "MMTH", "d": "5F00"}, "INJ-090-L-3TXX-XXX": {"p": "F8267LHOCC0", "n": "BODY FRONT UNDER SPOILER LH 3TX (INJECTION)", "c": "HONDA", "d": "3TX"}, "INJ-090-R-3TXX-XXX": {"p": "F8267RHOCC0", "n": "BODY FRONT UNDER SPOILER RH 3TX (INJECTION)", "c": "HONDA", "d": "3TX"}, "INJ-091-C-RG14-Rework": {"p": "F8267ISGAC0", "n": "FRONT SKIRT RG14", "c": "IAST", "d": "RG14"}, "INJ-091-C-RG14-XXX": {"p": "F8267ISGAC0", "n": "FRONT SKIRT RG14", "c": "IAST", "d": "RG14"}, "INJ-092-L-RG14-Rework": {"p": "F8257ISDAC0", "n": "SIDE UNDER SPOILER FRONT CRW LH", "c": "IAST", "d": "RG14"}, "INJ-092-L-RG14-XXX": {"p": "F8257ISDAC0", "n": "SIDE UNDER SPOILER FRONT CRW LH", "c": "IAST", "d": "RG14"}, "INJ-092-R-RG14-Rework": {"p": "F8258ISDAC0", "n": "SIDE UNDER SPOILER FRONT CRW RH", "c": "IAST", "d": "RG14"}, "INJ-092-R-RG14-XXX": {"p": "F8258ISDAC0", "n": "SIDE UNDER SPOILER FRONT CRW RH", "c": "IAST", "d": "RG14"}, "INJ-093-L-RG14-Rework": {"p": "F8257ISXAC0", "n": "SIDE UNDER SPOILER FRONT EXT LH", "c": "IAST", "d": "RG14"}, "INJ-093-L-RG14-XXX": {"p": "F8257ISXAC0", "n": "SIDE UNDER SPOILER FRONT EXT LH", "c": "IAST", "d": "RG14"}, "INJ-093-R-RG14-Rework": {"p": "F8258ISXAC0", "n": "SIDE UNDER SPOILER FRONT EXT RH", "c": "IAST", "d": "RG14"}, "INJ-093-R-RG14-XXX": {"p": "F8258ISXAC0", "n": "SIDE UNDER SPOILER FRONT EXT RH", "c": "IAST", "d": "RG14"}, "INJ-094-L-RG14-XXX": {"p": "F8261ISDAC0", "n": "SIDE UNDER SPOILER REAR CRW LH", "c": "IAST", "d": "RG14"}, "INJ-094-R-RG14-XXX": {"p": "F8262ISDAC0", "n": "SIDE UNDER SPOILER REAR CRW RH", "c": "IAST", "d": "RG14"}, "INJ-095-L-RG14-XXX": {"p": "F8261ISXAC0", "n": "SIDE UNDER SPOILER REAR EXT LH", "c": "IAST", "d": "RG14"}, "INJ-095-R-RG14-XXX": {"p": "F8262ISXAC0", "n": "SIDE UNDER SPOILER REAR EXT RH", "c": "IAST", "d": "RG14"}, "INJ-096-L-RJ08-XXX": {"p": "F8281LISPC0", "n": "BODY BACK UP LAMP BEZEL LH", "c": "IAST", "d": "RJ08"}, "INJ-096-R-RJ08-XXX": {"p": "F8281RISPC0", "n": "BODY BACK UP LAMP BEZEL RH", "c": "IAST", "d": "RJ08"}, "INJ-097-L-RJ08-Rework": {"p": "F8257ISPAC0", "n": "BODY SIDE SKIRT  LH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08"}, "INJ-097-L-RJ08-XXX": {"p": "F8257ISPAC0", "n": "BODY SIDE SKIRT  LH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08"}, "INJ-097-R-RJ08-Rework": {"p": "F8258ISPAC0", "n": "BODY SIDE SKIRT  RH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08"}, "INJ-097-R-RJ08-XXX": {"p": "F8258ISPAC0", "n": "BODY SIDE SKIRT  RH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08"}, "INJ-098-RG17-Rework": {"p": "F8267ISGBC0", "n": "Front Bumper Under Garnish", "c": "IAST", "d": "RG17"}, "INJ-098-RG17-XXX": {"p": "F8267ISGBC0", "n": "Front Bumper Under Garnish", "c": "IAST", "d": "RG17"}, "INJ-099-L-397D-XXX": {"p": "F8282FLTOG00", "n": "BODY FRONT MUD GUARD TOYOTA COROLLA CROSS 397D LH", "c": "TDEM", "d": "397D"}, "INJ-099-R-397D-XXX": {"p": "F8282FRTOG00", "n": "BODY FRONT MUD GUARD TOYOTA COROLLA CROSS 397D RH", "c": "TDEM", "d": "397D"}, "INJ-100-L-397D-XXX": {"p": "F8282RLTOG00", "n": "BODY REAR MUD GUARD TOYOTA COROLLA CROSS 397D LH", "c": "TDEM", "d": "397D"}, "INJ-100-R-397D-XXX": {"p": "F8282RRTOG00", "n": "BODY REAR MUD GUARD TOYOTA COROLLA CROSS 397D RH", "c": "TDEM", "d": "397D"}, "INJ-101-L-RT50-XXX": {"p": "F8253ISXC0", "n": "UNDER SPOILER RT50 REAR SIDE LH (INJECTION PD5) BEFORE PAINT", "c": "IAST", "d": "RT50"}, "INJ-101-R-RT50-XXX": {"p": "F8254ISXC0", "n": "UNDER SPOILER RT50 REAR SIDE RH (INJECTION PD5) BEFORE PAINT", "c": "IAST", "d": "RT50"}, "INJ-102-L-25YM-XXX": {"p": "F8213RLTOC002", "n": "CAMRY SIDE MOLDING CHROME REAR LH", "c": "ALJ", "d": "25YM"}, "INJ-102-R-25YM-XXX": {"p": "F8213RRTOC002", "n": "CAMRY SIDE MOLDING CHROME REAR RH", "c": "ALJ", "d": "25YM"}, "INJ-103-L-25YM-XXX": {"p": "F8213FLTOC002", "n": "CAMRY SIDE MOLDING CHROME FRONT LH", "c": "ALJ", "d": "25YM"}, "INJ-103-R-25YM-XXX": {"p": "F8213FRTOC002", "n": "CAMRY SIDE MOLDING CHROME FRONT RH", "c": "ALJ", "d": "25YM"}, "INJ-104-C-25YM-XXX": {"p": "F8272TOCAC0", "n": "CAMRY LIP SPOILER 25YM TADME PIO", "c": "ALJ", "d": "25YM"}, "INJ-105-L-RT50-XXX": {"p": "F8261ISXC0", "n": "BODY SIDE REAR UNDER SPOILER LH #ก่อนทำสี", "c": "IAST", "d": "RT50"}, "INJ-105-R-RT50-XXX": {"p": "F8262ISXC0", "n": "BODY SIDE REAR UNDER SPOILER RH #ก่อนทำสี", "c": "IAST", "d": "RT50"}, "INJ-106-L-RT50-XXX": {"p": "F8257ISXC0", "n": "UNDER SPOILER RT50 SIDE FRONT  LH (INJECTION PD6) BEFORE PAI", "c": "IAST", "d": "RT50"}, "INJ-106-R-RT50-XXX": {"p": "F8258ISXC0", "n": "UNDER SPOILER RT50 SIDE FRONT  RH (INJECTION PD6) BEFORE PAI", "c": "IAST", "d": "RT50"}, "INJ-107-C-25YM-XXX": {"p": "F8272TOCBC0", "n": "CAMRY LIP SPOILER 25YM TADME DIO", "c": "ALJ", "d": "25YM"}, "INJ-108-L-P703-XXX": {"p": "F8299ALFOR00", "n": "R1WB-16G563-AB INS ASY FRT FNDR SPLS SHLD LH", "c": "FORD", "d": "P703"}, "INJ-108-R-P703-XXX": {"p": "F8299ARFOR00", "n": "R1WB-16G562-AB INS ASY FRT FNDR SPLS SHLD RH", "c": "FORD", "d": "P703"}, "INJ-109-C-XX-XXX": {"p": "F8211TOXB02", "n": "CONSOLE BOX SEPARATOR (SHORT)", "c": "TOYOTA", "d": ""}, "INJ-110-C-XX-XXX": {"p": "F8211TOXC02", "n": "CONSOLE BOX SEPARATOR (LONG)", "c": "TOYOTA", "d": ""}, "INJ-111.1-L- P703 -XXX": {"p": "F8274OLFORA01", "n": "FRONT WAL RANGER  LH OUTER", "c": "FORD", "d": "P703"}, "INJ-111.1-R- P703 -XXX": {"p": "F8274ORFORA01", "n": "FRONT WAL RANGER  RH OUTER", "c": "FORD", "d": "P703"}, "INJ-111-L- P703 -XXX": {"p": "F8274OLFORA00", "n": "FRONT WAL RANGER  LH OUTER", "c": "FORD", "d": "P703"}, "INJ-111-R- P703 -XXX": {"p": "F8274ORFORA00", "n": "FRONT WAL RANGER  RH OUTER", "c": "FORD", "d": "P703"}, "INJ-112.1-L- P703 -XXX": {"p": "F8274ILFORA01", "n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703"}, "INJ-112.1-L-P703-Rework": {"p": "F8274ILFORA01", "n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703"}, "INJ-112.1-R- P703 -XXX": {"p": "F8274IRFORA01", "n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703"}, "INJ-112.1-R-P703-Rework": {"p": "F8274IRFORA01", "n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703"}, "INJ-112-L- P703 -XXX": {"p": "F8274ILFORA00", "n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703"}, "INJ-112-L-P703-Rework": {"p": "F8274ILFORA01", "n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703"}, "INJ-112-R- P703 -XXX": {"p": "F8274IRFORA00", "n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703"}, "INJ-112-R-P703-Rework": {"p": "F8274IRFORA01", "n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703"}, "INJ-113.1-L-P703-XXX": {"p": "S8299BLFOR02", "n": "R1WZ-16A550-H MUDFLAP ASY", "c": "FORD", "d": "P703"}, "INJ-113.1-R-P703-XXX": {"p": "S8299BRFOR02", "n": "R1WZ-16A550-G MUDFLAP ASY", "c": "FORD", "d": "P703"}, "INJ-113.2-L-P703-XXX": {"p": "S8299BLFOR01", "n": "R1WB-16A263-BC SHLD FRT WHL SPLS LH", "c": "FORD", "d": "P703"}, "INJ-113.2-R-P703-XXX": {"p": "S8299BRFOR01", "n": "R1WB-16A262-BC SHLD FRT WHL SPLS RH", "c": "FORD", "d": "P703"}, "INJ-113-L-P703-XXX": {"p": "F8299BLFOR00", "n": "SHLD FRT WHL SPLS LH", "c": "FORD", "d": "P703"}, "INJ-113-R-P703-XXX": {"p": "F8299BRFOR00", "n": "SHLD FRT WHL SPLS RH", "c": "FORD", "d": "P703"}, "INJ-114-L-581D-XXX": {"p": "F8244ETODC0", "n": "BODY COVER CENTER LH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "INJ-114-R-581D-XXX": {"p": "F8244ETODC0", "n": "BODY COVER CENTER RH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "INJ-115-L-581D-XXX": {"p": "F8246ETODC0", "n": "COVER SIDE LH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "INJ-115-R-581D-XXX": {"p": "F8247ETODC0", "n": "COVER SIDE RH SPORT BAR 581D", "c": "TDEM", "d": "581D"}, "INJ-116-C-581D-XXX": {"p": "F8268ETOD00", "n": "COVER BRACKET CLAMP LOCK581D", "c": "TDEM", "d": "581D"}, "INJ-117.1-L-581D-XXX": {"p": "F8277ETODC0", "n": "COVER OUTER  581  LH", "c": "TCD", "d": "581D"}, "INJ-117.1-R-581D-XXX": {"p": "F8278ETODC0", "n": "COVER OUTER  581  RH", "c": "TCD", "d": "581D"}, "INJ-117.2-L-581D-XXX": {"p": "F8277ETODC0", "n": "COVER OUTER  581  LH", "c": "TCD", "d": "581D"}, "INJ-117.2-R-581D-XXX": {"p": "F8278ETODC0", "n": "COVER OUTER  581  RH", "c": "TCD", "d": "581D"}, "INJ-117-L-581D-Rework": {"p": "F8277ETODC0", "n": "COVER OUTER  581  LH", "c": "TCD", "d": "581D"}, "INJ-117-R-581D-Rework": {"p": "F8278ETODC0", "n": "COVER OUTER  581  RH", "c": "TCD", "d": "581D"}, "INJ-118-C-CAP-XXX": {"p": "R3115048", "n": "CAP LOCK PP PIPE PIN 15x6mm.", "c": "XXX", "d": "XXX"}, "INJ-119.1-C-RG21-Rework": {"p": "F8267ISGCC0", "n": "BODY FRONT SKIRT RG21", "c": "IAST", "d": "RG21"}, "INJ-119-C-RG21-Rework": {"p": "F8267ISGCC0", "n": "BODY FRONT SKIRT RG21", "c": "IAST", "d": "RG21"}, "INJ-119-C-RG21-XXX": {"p": "F8267ISGCC0", "n": "BODY FRONT SKIRT RG21", "c": "IAST", "d": "RG21"}, "INJ-120-L-RG21-XXX": {"p": "R8015439", "n": "BODY FRONT FLANGE LH", "c": "IAST", "d": "RG21"}, "INJ-120-R-RG21-XXX": {"p": "R8015440", "n": "BODY FRONT FLANGE RH", "c": "IAST", "d": "RG21"}, "INJ-121-L-RG21-XXX": {"p": "F8253ISGAC0", "n": "BODY REAR UNDER SPOILER CORNOR LH", "c": "IAST", "d": "RG21"}, "INJ-121-R-RG21-XXX": {"p": "F8254ISGAC0", "n": "BODY REAR UNDER SPOILER CORNOR RH", "c": "IAST", "d": "RG21"}, "INJ-122-C-RG21-Rework": {"p": "F8252ISGAC0", "n": "BODY UNDER SPOILER REAR CTR", "c": "IAST", "d": "RG21"}, "INJ-122-C-RG21-XXX": {"p": "F8252ISGAC0", "n": "BODY UNDER SPOILER REAR CTR", "c": "IAST", "d": "RG21"}, "INJ-123-L-RG21-Gun METALLIC": {"p": "F8284LISDAC1", "n": "ORNAMENT CREW LH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-123-L-RG21-Gun METALLIC-Rework": {"p": "F8284LISDAC1", "n": "ORNAMENT CREW LH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-123.1-L-RG21-SILVER": {"p": "F8284LISDAC0", "n": "ORNAMENT CREW LH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123-L-RG21-SILVER": {"p": "F8284LISDAC0", "n": "ORNAMENT CREW LH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123-L-RG21-SILVER-Rework": {"p": "F8284LISDAC0", "n": "ORNAMENT CREW LH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123-L-RG21-XXX": {"p": "F82XXX", "n": "Side Step CTR LH CRW with Ornament", "c": "IAST", "d": "RG21"}, "INJ-123-R-RG21-Gun METALLIC": {"p": "F8284RISDAC1", "n": "ORNAMENT CREW RH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-123-R-RG21-Gun METALLIC-Rework": {"p": "F8284RISDAC1", "n": "ORNAMENT CREW RH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-123-R-RG21-SILVER": {"p": "F8284RISDAC0", "n": "ORNAMENT CREW RH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123.1-R-RG21-SILVER": {"p": "F8284RISDAC0", "n": "ORNAMENT CREW RH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123-R-RG21-SILVER-Rework": {"p": "F8284RISDAC0", "n": "ORNAMENT CREW RH SILVER", "c": "IAST", "d": "RG21"}, "INJ-123-R-RG21-XXX": {"p": "F82XXX", "n": "Side Step CTR RH CRW with Ornament", "c": "IAST", "d": "RG21"}, "INJ-124-L-RG21-METALLIC": {"p": "F8284LISXAC1", "n": "ORNAMENT EXTEN LH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-124-L-RG21-METALLIC-Rework": {"p": "F8284LISXAC1", "n": "ORNAMENT EXTEN LH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-124-L-RG21-SILVER": {"p": "F8284LISXAC0", "n": "ORNAMENT EXTEN LH SILVER", "c": "IAST", "d": "RG21"}, "INJ-124-L-RG21-SILVER-Rework": {"p": "F8284LISXAC0", "n": "ORNAMENT EXTEN LH SILVER", "c": "IAST", "d": "RG21"}, "INJ-124-L-RG21-XXX": {"p": "F82XXX", "n": "Side Step CTR LH EXT with Ornament", "c": "IAST", "d": "RG21"}, "INJ-124-R-RG21-METALLIC": {"p": "F8284RISXAC1", "n": "ORNAMENT EXTEN RH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-124-R-RG21-METALLIC-Rework": {"p": "F8284RISXAC1", "n": "ORNAMENT EXTEN RH GUN METALLIC", "c": "IAST", "d": "RG21"}, "INJ-124-R-RG21-SILVER": {"p": "F8284RISXAC0", "n": "ORNAMENT EXTEN RH SILVER", "c": "IAST", "d": "RG21"}, "INJ-124-R-RG21-SILVER-Rework": {"p": "F8284RISXAC0", "n": "ORNAMENT EXTEN RH SILVER", "c": "IAST", "d": "RG21"}, "INJ-124-R-RG21-XXX": {"p": "F82XXX", "n": "Side Step CTR RH EXT with Ornament", "c": "IAST", "d": "RG21"}, "INJ-125-C-581D-XXX": {"p": "F82XXX", "n": "Cover Center  581D", "c": "TOYOTA", "d": "581D"}, "INJ-126-L-XX-XXX": {"p": "F82XXX", "n": "Wheel Arch Inner", "c": "FORD", "d": "P703"}, "INJ-126-R-XX-XXX": {"p": "F82XXX", "n": "Wheel Arch Inner", "c": "FORD", "d": "P703"}, "INJ-127-C-581D-XXX": {"p": "F82XXX", "n": "COVER CLAMP", "c": "ICD-ASIA", "d": "581D"}, "INJ-128-C-581D-XXX": {"p": "F8267TOGAC0", "n": "Front Under Run 581D", "c": "TDEM", "d": "581D"}, "INJ-129-L-P703-XXX": {"p": "F82XXX", "n": "WAL FITMENT - PATCH LH", "c": "FORD", "d": "P703"}, "INJ-129-R-P703-XXX": {"p": "F82XXX", "n": "WAL FITMENT - PATCH RH", "c": "FORD", "d": "P703"}, "INJ-130-X-581D-XXX": {"p": "F8279TOD001", "n": "BODY TAIL GATE PROTECTOR 581D", "c": "TDEM", "d": "581D"}, "INJ-131-L-SSB-Splash Shield": {"p": "F8274FLFORA00", "n": "S1WB-16L561-AC SHLD RR WHL FRT SPLS LH", "c": "FORD", "d": "P703 SSB"}, "INJ-131-R-SSB-Splash Shield": {"p": "F8274FRFORA00", "n": "S1WB-16L560-AC SHLD RR WHL FRT SPLS", "c": "FORD", "d": "P703 SSB"}, "INJ-131.1-L-SSB-Splash Shield": {"p": "F8274FLFORA00", "n": "S1WB-16L561-AC SHLD RR WHL FRT SPLS LH", "c": "FORD", "d": "P703 SSB"}, "INJ-131.1-R-SSB-Splash Shield": {"p": "F8274FRFORA00", "n": "S1WB-16L560-AC SHLD RR WHL FRT SPLS", "c": "FORD", "d": "P703 SSB"}, "INJ-131-L-SSB-Splash Shield-Spare Part": {"p": "F8274FLFORA01", "n": "S1WZ-16A550-F SHLD RR WHL FRT SPLS LH", "c": "FORD", "d": "P703 SSB"}, "INJ-131-R-SSB-Splash Shield-Spare Part": {"p": "F8274FRFORA01", "n": "S1WZ-16A550-E SHLD RR WHL FRT SPLS", "c": "FORD", "d": "P703 SSB"}, "INJ-132-L-SSB-Rear Wheel Arch": {"p": "F8274RLFORB00", "n": "S1WB-E28345-AD SHLD ASY RR WHL SPLS LH", "c": "FORD", "d": "P703 SSB"}, "INJ-132-R-SSB-Rear Wheel Arch": {"p": "F8274RRFORB00", "n": "S1WB-E28344-AC SHLD ASY RR WHL SPLS", "c": "FORD", "d": "P703 SSB"}, "INJ-132-L-SSB-Rear Wheel Arch-Spare Part": {"p": "F8274RLFORD00", "n": "S1WZ-2628371-B SHLD ASY RR WHL SPLS LH", "c": "FORD", "d": "P703 SSB"}, "INJ-132-R-SSB-Rear Wheel Arch-Spare Part": {"p": "F8274RRFORD00", "n": "S1WZ-2628370-B SHLD ASY RR WHL SPLS", "c": "FORD", "d": "P703 SSB"}, "INJ-133.1-L-SSB-Rear Mud Flap": {"p": "F8274RLFORA00", "n": "S1WB-E28401-AC SHLD RR WHL SPLS RR LH", "c": "FORD", "d": "P703 SSB"}, "INJ-133.1-R-SSB-Rear Mud Flap": {"p": "F8274RRFORA00", "n": "S1WB-E28400-AC SHLD RR WHL SPLS RR", "c": "FORD", "d": "P703 SSB"}, "INJ-133-L-SSB-Rear Mud Flap": {"p": "F8274RLFORA00", "n": "S1WB-E28401-AC SHLD RR WHL SPLS RR LH", "c": "FORD", "d": "P703 SSB"}, "INJ-133-R-SSB-Rear Mud Flap": {"p": "F8274RRFORA00", "n": "S1WB-E28400-AC SHLD RR WHL SPLS RR", "c": "FORD", "d": "P703 SSB"}, "INJ-133-L-SSB-Rear Mud Flap-Spare Part": {"p": "S8274RLP5FORA00", "n": "S1WZ-16A550-C SHLD RR WHL SPLS RR LH", "c": "FORD", "d": "P703 SSB"}, "INJ-133-R-SSB-Rear Mud Flap-Spare Part": {"p": "S8274RRP5FORA00", "n": "S1WZ-16A550-B SHLD RR WHL SPLS RR", "c": "FORD", "d": "P703 SSB"}, "No Loading": {"p": "No Loading", "n": "No Loading", "c": "No Loading", "d": "No Loading"}, "XXX1": {"p": "F8240LH001", "n": "BODY SIDE DOOR GARNISH  FRONT CC LH ( MITSUBISHI TRITON 4P00", "c": "MMTH", "d": "4P00"}, "XXX2": {"p": "F8240RH001", "n": "BODY SIDE DOOR GARNISH  FRONT CC RH ( MITSUBISHI TRITON 4P00", "c": "MMTH", "d": "4P00"}, "XXX3": {"p": "F8241LH001", "n": "BODY SIDE DOOR GARNISH  REAR CC LH ( MITSUBISHI TRITON 4P00)", "c": "MMTH", "d": "4P00"}, "XXX4": {"p": "F8241RH001", "n": "BODY SIDE DOOR GARNISH  REAR CC RH ( MITSUBISHI TRITON 4P00)", "c": "MMTH", "d": "4P00"}, "BM-062.2-L-5F00-XXX": {"p": "F8269LMID00", "n": "FACE STEP LH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-062.2-R-5F00-XXX": {"p": "F8269RMID00", "n": "FACE STEP RH (D-CAB)#M2", "c": "SAB", "d": "5F00"}, "BM-080-C-581D-TSAM-XXX": {"p": "F8221FTODC0", "n": "BODY CENTER SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "BM-081-L-581D-TSAM-XXX": {"p": "F8222FTODC0", "n": "BODY SIDE LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "BM-082-R-581D-TSAM-XXX": {"p": "F8223FTODC0", "n": "BODY SIDE RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "BM-083-L-581D-TSAM-XXX": {"p": "F8224FTODC0", "n": "BODY BOX RAIL LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "BM-083-R-581D-TSAM-XXX": {"p": "F8225FTODC0", "n": "BODY BOX RAIL RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-134-L-581D-TSAM-XXX": {"p": "F8244FTODC0", "n": "BODY COVER CENTER LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-134-R-581D-TSAM-XXX": {"p": "F8245FTODC0", "n": "BODY COVER CENTER RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-135-L-581D-TSAM-XXX": {"p": "F8248FTODC0", "n": "BODY COVER SIDE LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-135-R-581D-TSAM-XXX": {"p": "F8249FTODC0", "n": "BODY COVER SIDE RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-136-C-581D-TSAM-XXX": {"p": "F8268FTOD00", "n": "BODY COVER CLAMP SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-137-L-581D-TSAM-XXX": {"p": "F8277FTODC0", "n": "BODY COVER OUTER LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-137-R-581D-TSAM-XXX": {"p": "F8278FTODC0", "n": "BODY COVER OUTER RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-138-L-581D-TSAM-XXX": {"p": "F8246FTODC0", "n": "BODY COVER FRONT LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-138-R-581D-TSAM-XXX": {"p": "F8247FTODC0", "n": "BODY COVER FRONT RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-139-L-581D-TSAM-XXX": {"p": "F8285FTODC0", "n": "BODY COVER BRACKET LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}, "INJ-139-R-581D-TSAM-XXX": {"p": "F8286FTODC0", "n": "BODY COVER BRACKET RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T"}};
+
+let curTab=1,defs=[],dts=[],hourly={};
+
+// ==================== INIT ====================
+function init(){
+  document.getElementById('hDate').value=new Date().toISOString().split('T')[0];
+  buildHourlyTable();
+  buildManpower();
+  calcMaterial();
+  updateDisplay();
+  updateSaveInfo();
+  renderDefects();
+  renderDowntimes();
+  buildMoldDatalist();
+  buildDefectDatalist();
+  buildDowntimeDatalist();
+  buildMaterialDatalist();
+}
+
+function updateDisplay(){
+  document.getElementById('dd').textContent=document.getElementById('hDate').value;
+  document.getElementById('di').textContent='Shift '+document.getElementById('hShift').value+' | '+(document.getElementById('hMc').value||'—');
+}
+
+// ==================== MOLD DATALIST BUILD ====================
+function buildMaterialDatalist(){
+  var dl = document.getElementById('materialDL');
+  if(!dl) return;
+  var seen = {};
+  var opts = '';
+  Object.values(MOLDS).forEach(function(m){
+    var mat = (m.mat||'').trim();
+    if(mat && !seen[mat]){ seen[mat]=1; opts += '<option value="'+mat.replace(/"/g,'&quot;')+'">'; }
+  });
+  dl.innerHTML = opts;
+}
+
+function buildMoldDatalist(){
+  var dl = document.getElementById('moldList');
+  if(!dl) return;
+  var opts = '';
+  Object.keys(MOLDS).forEach(function(k){
+    var m = MOLDS[k];
+    // Show: MoldNo — PartName (Customer Model)
+    var label = k + (m.n ? ' — ' + m.n : '') + (m.c ? ' (' + m.c + (m.d ? ' ' + m.d : '') + ')' : '');
+    opts += '<option value="' + k + '" label="' + label.replace(/"/g,'&quot;') + '">';
+  });
+  dl.innerHTML = opts;
+  var cnt = document.getElementById('moldCount');
+  if(cnt) cnt.textContent = Object.keys(MOLDS).length + ' แม่พิมพ์';
+}
+
+// ==================== MOLD AUTO-FILL ====================
+function moldChanged(){
+  var v = (document.getElementById('hMold').value || '').trim();
+  var info = document.getElementById('autoInfo');
+  var clearFields = function(){
+    ['hPnLH','hPnRH','hPoLH','hPoRH','hMatType'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    info.style.display='none';
+  };
+  if(!v){ clearFields(); return; }
+  var found = MOLDS[v];
+  if(!found){ clearFields(); return; }
+
+  // LH/RH logic — each mold row has its own PartNo/PartName
+  // The "own" side is determined by -L- or -R- in mold name
+  var isR = v.indexOf('-R-') > -1;
+  var isL = v.indexOf('-L-') > -1;
+  var isC = !isR && !isL;
+
+  // Own side data
+  var ownPno = found.p || '', ownPnm = found.n || '';
+  // Find pair
+  var pairId = isR ? v.replace('-R-','-L-') : (isL ? v.replace('-L-','-R-') : '');
+  var pairPno = '', pairPnm = '';
+  if(pairId && MOLDS[pairId]){ pairPno = MOLDS[pairId].p||''; pairPnm = MOLDS[pairId].n||''; }
+
+  if(isR){
+    document.getElementById('hPnRH').value = ownPnm;
+    document.getElementById('hPoRH').value = ownPno;
+    document.getElementById('hPnLH').value = pairPnm;
+    document.getElementById('hPoLH').value = pairPno;
+  } else if(isL){
+    document.getElementById('hPnLH').value = ownPnm;
+    document.getElementById('hPoLH').value = ownPno;
+    document.getElementById('hPnRH').value = pairPnm;
+    document.getElementById('hPoRH').value = pairPno;
+  } else {
+    // Center/X — fill both same
+    document.getElementById('hPnLH').value = ownPnm;
+    document.getElementById('hPoLH').value = ownPno;
+    document.getElementById('hPnRH').value = '';
+    document.getElementById('hPoRH').value = '';
+  }
+
+  // Auto-fill Material
+  var matEl = document.getElementById('hMatType');
+  if(matEl) matEl.value = found.mat || '';
+
+  // Auto-fill Cavity / CycleTime / UPH
+  if(found.cav){ document.getElementById('hCav').value = found.cav; }
+  if(found.cyc){ document.getElementById('hCyc').value = found.cyc; }
+  // UPH: Family = uph×2 (total LH+RH), Common = uph (single side)
+  var isFamily2 = found.grp === 'Family';
+  var uphTotal = isFamily2 ? (found.uph||0) * 2 : (found.uph||0);
+  document.getElementById('hUph').value = uphTotal;
+
+  // Update UPH label
+  var uphLabelEl = document.getElementById('uphLabel');
+  if(uphLabelEl){
+    uphLabelEl.innerHTML = isFamily2
+      ? 'UPH รวม LH+RH (pcs/hr) <span style="color:var(--yellow);font-weight:400">'+(found.uph||0)+'×2</span>'
+      : 'UPH (pcs/hr)';
+  }
+
+  // Update Material label
+  var matLabelEl = document.getElementById('matLabel');
+  if(matLabelEl){
+    matLabelEl.innerHTML = isFamily2
+      ? '🧪 Material วัตถุดิบ <span style="color:var(--accent2);font-weight:400">(LH+RH ใช้ร่วมกัน)</span>'
+      : '🧪 Material วัตถุดิบ';
+  }
+
+  // Update UPH display in Tab 2
+  var uphDisp = document.getElementById('uphDisplay');
+  if(uphDisp){
+    uphDisp.innerHTML = uphTotal
+      + (isFamily2 ? ' <span style="font-size:9px;color:var(--yellow)">('+(found.uph||0)+' per side × 2)</span>' : '');
+  }
+
+  // Rebuild hourly table header to reflect new mold type
+  buildHourlyTable();
+
+  // Auto-select Customer & Model dropdowns
+  var cust = found.c, model = found.d;
+  var sc=document.getElementById('hCust');
+  if(cust && sc){for(var i=0;i<sc.options.length;i++){if(sc.options[i].value===cust){sc.selectedIndex=i;break;}}}
+  var sm=document.getElementById('hModel');
+  if(model && sm){for(var i=0;i<sm.options.length;i++){if(model.indexOf(sm.options[i].value)>-1&&sm.options[i].value){sm.selectedIndex=i;break;}}}
+
+  // Auto-select Process
+  var procEl = document.getElementById('hProc');
+  if(procEl && found.proc){
+    for(var i=0;i<procEl.options.length;i++){if(procEl.options[i].value===found.proc||procEl.options[i].text===found.proc){procEl.selectedIndex=i;break;}}
+  }
+
+  // Mold type badge
+  var isFamily = found.grp === 'Family';
+  var moldBadge = isFamily
+    ? '<span style="background:rgba(91,156,255,.2);color:var(--accent2);border:1px solid var(--accent2);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700">🔗 FAMILY MOLD — LH+RH ผลิตพร้อมกัน</span>'
+    : '<span style="background:rgba(16,185,129,.2);color:var(--green);border:1px solid var(--green);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700">📦 COMMON MOLD — Single</span>';
+
+  info.style.display = 'block';
+  document.getElementById('autoDetail').innerHTML =
+    moldBadge + '<br>' +
+    '<b>LH:</b> ' + (document.getElementById('hPoLH').value||'—') + ' — ' + (document.getElementById('hPnLH').value||'—') + '<br>' +
+    '<b>RH:</b> ' + (document.getElementById('hPoRH').value||'—') + ' — ' + (document.getElementById('hPnRH').value||'—') + '<br>' +
+    '<b>Customer:</b> ' + (cust||'—') + ' | <b>Model:</b> ' + (model||'—') +
+    ' | <b>Cavity OEE:</b> ' + (found.cav||'—') + ' | <b>Cavity Mat:</b> ' + (found.cavMat||'—') +
+    '<br><b>CT:</b> ' + (found.cyc||'—') + ' min | <b>UPH:</b> ' + (found.uph||'—') + ' pcs/hr/side' +
+    (isFamily ? ' <span style="color:var(--yellow);font-size:10px">(×2 = '+(2*(found.uph||0))+' pcs/hr รวม LH+RH)</span>' : '') +
+    '<br><b>Material:</b> ' + (found.mat||'—') +
+    ' | <b>Part Weight:</b> ' + (found.pw||'—') + ' kg';
+
+  // ---- Auto-fill Tab 6 Material ----
+  if(found.mat){
+    var matEl = document.getElementById('mMaterial');
+    if(matEl) matEl.value = found.mat;
+    var matInfoEl = document.getElementById('matAutoInfo');
+    var matDetailEl = document.getElementById('matAutoDetail');
+    if(matInfoEl) matInfoEl.style.display = 'block';
+    if(matDetailEl) matDetailEl.textContent = v + ' → ' + found.mat;
+  }
+}
+
+// ==================== TAB NAV ====================
+// Active tabs in order (Tab 3 and 4 removed - now inline in Tab 2)
+var ACTIVE_TABS = [1,2,5,6,7,8];
+function showTab(n){
+  curTab=n;
+  document.querySelectorAll('.tc').forEach(function(e){e.classList.remove('active');});
+  var tabEl=document.getElementById('tab'+n);
+  if(tabEl) tabEl.classList.add('active');
+  // Update nav buttons by data-tab attribute
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tab')==String(n));
+  });
+  document.getElementById('btnPrev').style.display=n>1?'block':'none';
+  var nb=document.getElementById('btnNext');
+  if(n===7){nb.textContent='💾 บันทึกข้อมูล';nb.className='btn btn-g';nb.onclick=saveData;}
+  else if(n===8){nb.textContent='☁️ Sync to Cloud';nb.className='btn btn-g';nb.onclick=syncToCloud;}
+  else{nb.textContent='ถัดไป ▶';nb.className='btn btn-a';nb.onclick=nextTab;}
+  if(n===7)buildSummary();
+  if(n===2)calcHourlyKPI();
+  if(n===8)updateCloudStats();
+}
+function nextTab(){
+  var idx=ACTIVE_TABS.indexOf(curTab);
+  if(idx<ACTIVE_TABS.length-1) showTab(ACTIVE_TABS[idx+1]);
+}
+function prevTab(){
+  var idx=ACTIVE_TABS.indexOf(curTab);
+  if(idx>0) showTab(ACTIVE_TABS[idx-1]);
+}
+
+// ==================== AUTO FILL PLAN FROM UPH ====================
+function autoFillPlan(){
+  var uph = Number(document.getElementById('hUph').value) || 0;
+  if(!uph){ alert('กรุณาเลือก Mold ที่มีข้อมูล UPH ก่อน'); return; }
+  var moldVal = (document.getElementById('hMold').value||'').trim();
+  var found = MOLDS[moldVal] || {};
+  var isFamily = found.grp === 'Family';
+
+  var s = document.getElementById('hShift').value;
+  var hrs = s==='A' ? DayHours : NightHours;
+  hrs.forEach(function(hr){
+    if(!hourly[hr]) hourly[hr]={p:0,a:0,gl:0,gr:0,dl:0,dr:0};
+    hourly[hr].p = uph;
+  });
+  buildHourlyTable();
+
+  var typeLabel = isFamily ? 'Family Mold (LH+RH): แผน='+uph+' pcs/hr ต่อข้าง, รวม='+(uph*2)+' pcs/hr' : 'Common Mold: แผน='+uph+' pcs/hr';
+  var t=document.getElementById('toast');
+  t.textContent='⚡ Auto Plan: ' + typeLabel + ' × '+hrs.length+' ชม.';
+  t.style.background='var(--accent)'; t.style.color='#fff';
+  t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+// ==================== TAB 2: HOURLY ====================
+function buildHourlyTable(){
+  var s=document.getElementById('hShift').value;
+  var hrs=s==='A'?DayHours:NightHours;
+  document.getElementById('shiftLabel').textContent=s==='A'?'Day Shift':'Night Shift';
+  // Detect current mold type for column labels
+  var moldVal = (document.getElementById('hMold') ? document.getElementById('hMold').value||'' : '').trim();
+  var curMold = MOLDS[moldVal] || {};
+  var isFamily = curMold.grp === 'Family';
+  var lhLabel = isFamily ? 'ดี<br><span style="color:#5b9cff">LH</span>' : 'ดี<br><span style="color:#5b9cff">LH</span>';
+  var rhLabel = isFamily ? 'ดี<br><span style="color:#10b981">RH</span>' : 'ดี<br><span style="color:#10b981">RH</span>';
+  var famNote = isFamily ? '<th colspan="7" style="font-size:9px;color:var(--accent2);padding:2px;background:rgba(45,127,249,.06)">🔗 Family Mold — LH+RH ผลิตพร้อมกัน | UPH per side</th>' : '';
+
+  var h='<colgroup><col class="c-hr"><col class="c-plan"><col class="c-act"><col class="c-gl"><col class="c-gr"><col class="c-dl"><col class="c-dr"></colgroup>'
+     +'<thead>'
+     +(isFamily ? '<tr>'+famNote+'</tr>' : '')
+     +'<tr>'
+     +'<th>⏰</th><th>แผน<br><span style="font-weight:400;font-size:8px">(pcs/hr)</span></th><th>ผลิต<br>ได้</th>'
+     +'<th>'+lhLabel+'</th><th>'+rhLabel+'</th>'
+     +'<th style="color:var(--red)">เสีย<br>LH</th><th style="color:var(--red)">เสีย<br>RH</th>'
+     +'</tr></thead><tbody>';
+  hrs.forEach(function(hr){
+    if(!hourly[hr])hourly[hr]={p:0,a:0,gl:0,gr:0,dl:0,dr:0};
+    var d=hourly[hr];
+    // Mark rows that have defects in red tint
+    var hasDefect=(d.dl||0)+(d.dr||0)>0;
+    h+='<tr'+(hasDefect?' style="background:rgba(239,68,68,.04)"':'')+'>'+
+       '<td class="hc">'+hr+'</td>';
+    ['p','a','gl','gr'].forEach(function(f){
+      var cls=f.indexOf('g')>-1?'gi':'';
+      h+='<td><input type="number" class="'+cls+'" value="'+(d[f]||'')+'" onchange="setH(\''+hr+'\',\''+f+'\',this.value)"></td>';
+    });
+    // เสีย LH/RH: readonly if controlled by defect records
+    ['dl','dr'].forEach(function(f){
+      var val=d[f]||0;
+      h+='<td><input type="number" class="di" value="'+(val||'')+'" '
+        +'style="'+(val>0?'color:var(--red);font-weight:700':'')+'" '
+        +'onchange="setH(\''+hr+'\',\''+f+'\',this.value);syncDefectsToHourly&&void(0)"></td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody><tfoot><tr id="hTot"></tr></tfoot>';
+  document.getElementById('hourlyTable').innerHTML=h;
+  calcHourlyKPI();
+}
+function setH(hr,f,v){if(!hourly[hr])hourly[hr]={p:0,a:0,gl:0,gr:0,dl:0,dr:0};hourly[hr][f]=Number(v)||0;calcHourlyKPI();}
+
+function getMoldFamilyMult(){
+  // Returns 1 for Common, 2 for Family Mold (LH+RH counted together)
+  var moldVal = (document.getElementById('hMold') ? document.getElementById('hMold').value||'' : '').trim();
+  var m = MOLDS[moldVal];
+  return (m && m.grp === 'Family') ? 1 : 1; // UPH already ×2 for Family, plan stored as total
+}
+
+function getHTot(){
+  var hrs=document.getElementById('hShift').value==='A'?DayHours:NightHours;
+  var tp=0,ta=0,gl=0,gr=0,dl=0,dr=0;
+  hrs.forEach(function(h){var d=hourly[h]||{};tp+=d.p||0;ta+=d.a||0;gl+=d.gl||0;gr+=d.gr||0;dl+=d.dl||0;dr+=d.dr||0;});
+  var g=gl+gr,df=dl+dr,t=g+df,y=t>0?(g/t*100).toFixed(1):'0.0';
+  return{tp:tp,ta:ta,gl:gl,gr:gr,dl:dl,dr:dr,good:g,defect:df,total:t,yield:y};
+}
+
+function calcHourlyKPI(){
+  var t=getHTot();
+  var tr=document.getElementById('hTot');
+  if(tr) tr.innerHTML='<td style="font-weight:800">รวม</td>'
+    +'<td style="font-weight:800;color:var(--accent2)">'+t.tp+'</td>'
+    +'<td>'+t.ta+'</td>'
+    +'<td style="color:var(--green)">'+t.gl+'</td>'
+    +'<td style="color:var(--green)">'+t.gr+'</td>'
+    +'<td style="color:var(--red)">'+t.dl+'</td>'
+    +'<td style="color:var(--red)">'+t.dr+'</td>';
+  var pf = t.tp>0 ? (t.ta/t.tp*100).toFixed(1) : '0.0';
+  document.getElementById('hourlyKPI').innerHTML=
+    '<div class="kpi kpi-b"><div class="kpi-l">แผนรวม</div><div class="kpi-v" style="color:var(--accent2)">'+t.tp+'</div><div class="kpi-t">Performance: '+pf+'%</div></div>'
+    +'<div class="kpi kpi-g"><div class="kpi-l">ชิ้นดีรวม<br><span style="font-size:9px">LH+RH</span></div><div class="kpi-v" style="color:var(--green)">'+t.good+'</div></div>'
+    +'<div class="kpi kpi-r"><div class="kpi-l">ของเสียรวม</div><div class="kpi-v" style="color:var(--red)">'+t.defect+'</div></div>'
+    +'<div class="kpi '+(Number(t.yield)>=93?'kpi-g':'kpi-y')+'"><div class="kpi-l">Yield %</div><div class="kpi-v">'+t.yield+'%</div><div class="kpi-t">Target: 93%</div></div>';
+}
+
+// ==================== TIME → HOUR SLOT MAPPING ====================
+function timeToHourSlot(timeStr){
+  if(!timeStr) return null;
+  var t = String(timeStr).replace(/[^\d:]/g,'');
+  var parts = t.split(':');
+  if(!parts[0]) return null;
+  var h = parseInt(parts[0],10);
+  if(isNaN(h)) return null;
+  var h2 = (h+1)%24;
+  return String(h).padStart(2,'0')+'-'+String(h2).padStart(2,'0');
+}
+
+function syncDefectsToHourly(){
+  // Reset dl, dr across all hours
+  var allHrs = DayHours.concat(NightHours);
+  allHrs.forEach(function(hr){
+    if(!hourly[hr]) hourly[hr]={p:0,a:0,gl:0,gr:0,dl:0,dr:0};
+    hourly[hr].dl=0; hourly[hr].dr=0;
+  });
+  // Map each defect entry to its hour slot
+  defs.forEach(function(d){
+    var slot = timeToHourSlot(d.t);
+    if(!slot) return;
+    if(!hourly[slot]) hourly[slot]={p:0,a:0,gl:0,gr:0,dl:0,dr:0};
+    var q = Number(d.q)||0;
+    if(d.s==='LH' || d.s==='Both') hourly[slot].dl += q;
+    if(d.s==='RH' || d.s==='Both') hourly[slot].dr += q;
+  });
+  // Recalculate table display
+  var curShift = document.getElementById('hShift');
+  if(curShift){ buildHourlyTable(); }
+}
+
+// ==================== TAB 3: DEFECTS ====================
+function buildDefectDatalist(){
+  var existing = document.getElementById('defectDL');
+  if(existing) existing.remove();
+  var dl = document.createElement('datalist');
+  dl.id = 'defectDL';
+  Defects.forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d.c;
+    opt.label = d.c + ' — ' + d.t;
+    dl.appendChild(opt);
+  });
+  document.body.appendChild(dl);
+}
+function addDefect(){
+  // Default time = current time rounded to hour
+  var now=new Date();
+  var hh=String(now.getHours()).padStart(2,'0');
+  defs.push({c:'B1',q:1,s:'LH',t:hh+':00',n:''});
+  renderDefects();
+}
+function removeDefect(i){defs.splice(i,1);renderDefects();syncDefectsToHourly();}
+function updateDefect(i,f,v){
+  defs[i][f]=f==='q'?Number(v)||0:v;
+  // If time or qty or side changes → sync to hourly table
+  if(f==='t'||f==='q'||f==='s') syncDefectsToHourly();
+  renderDefectKPI();
+}
+function renderDefects(){
+  var h='';
+  defs.forEach(function(d,i){
+    var found=Defects.find(function(x){return x.c===d.c;});
+    var desc=found?found.t:'';
+    var slot=timeToHourSlot(d.t||'');
+    var slotLabel=slot?'→ Row '+slot:'';
+    h+='<div class="ic" style="border-left:3px solid var(--red)">'
+     +'<div class="ih"><span style="font-weight:700;color:var(--red)">#'+(i+1)+' '
+     +'<span style="font-weight:400;font-size:11px;color:var(--dim)">'+desc+'</span></span>'
+     +'<button class="rb" onclick="removeDefect('+i+')">✕ ลบ</button></div>'
+     // Row 1: Code + เวลา
+     +'<div class="g2" style="margin-bottom:4px">'
+     +'<div class="f" style="margin:0"><label class="fl">Defect Code</label>'
+     +'<input list="defectDL" value="'+d.c+'" placeholder="B1, B13..." autocomplete="off" '
+     +'style="font-size:13px;font-weight:700;color:var(--red)" '
+     +'oninput="updateDefect('+i+',\'c\',this.value)" onchange="updateDefect('+i+',\'c\',this.value)"></div>'
+     +'<div class="f" style="margin:0"><label class="fl">⏰ เวลาเกิด <span style="color:var(--accent2);font-weight:400">'+slotLabel+'</span></label>'
+     +'<input type="time" value="'+(d.t||'')+'" style="font-size:13px;font-weight:700;color:var(--yellow)" '
+     +'onchange="updateDefect('+i+',\'t\',this.value)"></div>'
+     +'</div>'
+     // Row 2: จำนวน + Side
+     +'<div class="g2">'
+     +'<div class="f" style="margin:0"><label class="fl">จำนวน (pcs)</label>'
+     +'<input type="number" value="'+d.q+'" min="0" style="font-size:14px;font-weight:700" '
+     +'onchange="updateDefect('+i+',\'q\',this.value)"></div>'
+     +'<div class="f" style="margin:0"><label class="fl">Side ข้าง</label>'
+     +'<select style="font-size:13px;font-weight:700" onchange="updateDefect('+i+',\'s\',this.value)">'
+     +'<option'+(d.s==='LH'?' selected':'')+' style="color:#10b981">LH</option>'
+     +'<option'+(d.s==='RH'?' selected':'')+' style="color:#5b9cff">RH</option>'
+     +'<option'+(d.s==='Both'?' selected':'')+' style="color:#f59e0b">Both LH+RH</option>'
+     +'</select></div>'
+     +'</div></div>';
+  });
+  ['defectList','defectList2'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML=h;
+  });
+  renderDefectKPI();
+}
+function renderDefectKPI(){
+  var tot=defs.reduce(function(s,d){return s+(d.q||0);},0);
+  var kpiHtml='<div class="kpi kpi-r"><div class="kpi-l">Defect ทั้งหมด</div><div class="kpi-v" style="color:var(--red)">'+tot+' pcs</div></div><div class="kpi kpi-y"><div class="kpi-l">จำนวนรายการ</div><div class="kpi-v" style="color:var(--yellow)">'+defs.length+'</div></div>';
+  ['defectKPI','defectKPI2'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML=kpiHtml;
+  });
+}
+
+// ==================== TAB 4: DOWNTIME ====================
+function buildDowntimeDatalist(){
+  var existing = document.getElementById('downtimeDL');
+  if(existing) existing.remove();
+  var dl = document.createElement('datalist');
+  dl.id = 'downtimeDL';
+  Downtimes.forEach(function(d){
+    var opt = document.createElement('option');
+    opt.value = d.c;
+    opt.label = '[' + d.cat + '] ' + d.c + ' — ' + d.t;
+    dl.appendChild(opt);
+  });
+  document.body.appendChild(dl);
+}
+function addDowntime(){dts.push({c:'A1',m:0,d:''});renderDowntimes();}
+function removeDowntime(i){dts.splice(i,1);renderDowntimes();}
+function updateDowntime(i,f,v){
+  dts[i][f]=f==='m'?Number(v)||0:v;
+  if(f==='c'){
+    var found=Downtimes.find(function(x){return x.c===v;});
+    var descEl=document.getElementById('dtDesc'+i);
+    if(descEl) descEl.textContent = found ? '['+found.cat+'] '+found.t : '';
+  }
+  renderDowntimeKPI();
+}
+function renderDowntimes(){
+  var h='';
+  dts.forEach(function(d,i){
+    var found=Downtimes.find(function(x){return x.c===d.c;});
+    var desc=found?'['+found.cat+'] '+found.t:'';
+    h+='<div class="ic"><div class="ih"><span style="font-weight:700;color:var(--yellow)">#'+(i+1)+' <span style="font-weight:400;font-size:11px;color:var(--dim)">'+desc+'</span></span><button class="rb" onclick="removeDowntime('+i+')">✕ ลบ</button></div>'
+     +'<div class="g3">'
+     +'<div class="f"><label class="fl">Downtime Code — พิมพ์ค้นหา</label>'
+     +'<input list="downtimeDL" value="'+d.c+'" placeholder="A1, A14..." autocomplete="off" style="font-size:13px;font-weight:700;color:var(--yellow)" oninput="updateDowntime('+i+',\'c\',this.value)" onchange="updateDowntime('+i+',\'c\',this.value)"></div>'
+     +'<div class="f"><label class="fl">เวลา (นาที)</label><input type="number" value="'+d.m+'" onchange="updateDowntime('+i+',\'m\',this.value)"></div>'
+     +'<div class="f"><label class="fl">รายละเอียด/ช่วงเวลา</label><input value="'+(d.d||'')+'" onchange="updateDowntime('+i+',\'d\',this.value)" placeholder="08:00-10:00..."></div>'
+     +'</div></div>';
+  });
+  // Sync to both containers
+  ['downtimeList','downtimeList2'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML=h;
+  });
+  renderDowntimeKPI();
+}
+function renderDowntimeKPI(){
+  var tot=dts.reduce(function(s,d){return s+(d.m||0);},0);
+  var av=((720-tot)/720*100).toFixed(1);
+  var kpiHtml='<div class="kpi kpi-y"><div class="kpi-l">Downtime รวม</div><div class="kpi-v" style="color:var(--yellow)">'+tot+' นาที</div><div class="kpi-t">Availability: '+av+'%</div></div>';
+  ['downtimeKPI','downtimeKPI2'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.innerHTML=kpiHtml;
+  });
+}
+
+// ==================== TAB 5: MANPOWER ====================
+function buildManpower(){
+  var dl='<datalist id="opList">'+Operators.map(function(n){return '<option value="'+n+'">';}).join('')+'</datalist>';
+  var h=dl;
+  Positions.forEach(function(p,i){
+    h+='<div class="mp-r"><span class="pos">'+p+'</span><input list="opList" id="mpn'+i+'" placeholder="พิมพ์ค้นหาชื่อ..." style="font-size:12px"><input type="number" id="mps'+i+'" value="0" step="0.1" onchange="calcMP()" style="font-size:12px"><input type="number" id="mpa'+i+'" value="0" step="0.1" onchange="calcMP()" style="font-size:12px"></div>';
+  });
+  document.getElementById('manpowerList').innerHTML=h;
+}
+function calcMP(){var s=0,a=0;Positions.forEach(function(_,i){s+=Number(document.getElementById('mps'+i).value)||0;a+=Number(document.getElementById('mpa'+i).value)||0;});document.getElementById('mpStd').textContent=s;document.getElementById('mpAct').textContent=a;document.getElementById('mpAct').style.color=a<=s?'var(--green)':'var(--red)';}
+
+// ==================== TAB 6: MATERIAL ====================
+function calcMaterial(){var mi=Number(document.getElementById('mIn').value)||0,mv=Number(document.getElementById('mVirgin').value)||0,mr=Number(document.getElementById('mRegrind').value)||0,mp=Number(document.getElementById('mPurge').value)||0,mc=Number(document.getElementById('mContam').value)||0,md=Number(document.getElementById('mDust').value)||0;var u=mv+mr,b=mi-u,mt=u+mp+mc+md,w=mt>0?((mt-u)/mt*100).toFixed(1):'0.0';document.getElementById('materialKPI').innerHTML='<div class="kpi kpi-b"><div class="kpi-l">Usage ใช้ไป</div><div class="kpi-v" style="color:var(--accent2)">'+u+' Kg</div></div><div class="kpi '+(b>=0?'kpi-g':'kpi-r')+'"><div class="kpi-l">BOH คงเหลือ</div><div class="kpi-v" style="color:'+(b>=0?'var(--green)':'var(--red)')+'">'+b+' Kg</div></div><div class="kpi '+(Number(w)<=3?'kpi-g':'kpi-r')+'"><div class="kpi-l">Waste %</div><div class="kpi-v">'+w+'%</div><div class="kpi-t">Target: 3%</div></div>';}
+
+// ==================== TAB 7: SUMMARY ====================
+function buildSummary(){var t=getHTot(),tdt=dts.reduce(function(s,d){return s+(d.m||0);},0);var av=((720-tdt)/720*100).toFixed(1),pf=t.tp>0?(t.ta/t.tp*100).toFixed(1):'0.0';var oee=(av/100*pf/100*t.yield/100*100).toFixed(1);var mi=Number(document.getElementById('mIn').value)||0,mv=Number(document.getElementById('mVirgin').value)||0,mr=Number(document.getElementById('mRegrind').value)||0,mp=Number(document.getElementById('mPurge').value)||0,mc=Number(document.getElementById('mContam').value)||0,md=Number(document.getElementById('mDust').value)||0;var u=mv+mr,mt=u+mp+mc+md,w=mt>0?((mt-u)/mt*100).toFixed(1):'0.0';var st=0,at=0;Positions.forEach(function(_,i){st+=Number(document.getElementById('mps'+i)?.value)||0;at+=Number(document.getElementById('mpa'+i)?.value)||0;});var dt=document.getElementById('hDate').value,sh=document.getElementById('hShift').value,mc3=document.getElementById('hMc').value||'—',cu=document.getElementById('hCust').value||'—',mo=document.getElementById('hModel').value||'—';var oc=Number(oee)>=76?'g':Number(oee)>=70?'y':'r',yc=Number(t.yield)>=93?'g':Number(t.yield)>=90?'y':'r',wc=Number(w)<=3?'g':'r';var ds='';defs.sort(function(a,b){return b.q-a.q;}).slice(0,5).forEach(function(d){var i=Defects.find(function(x){return x.c===d.c;});ds+='<div class="sr"><span>'+d.c+' '+(i?.t||'')+' ('+d.s+')</span><span style="font-weight:700;color:var(--red)">'+d.q+' pcs</span></div>';});if(!ds)ds='<div style="color:var(--dim);font-size:12px">ไม่มีรายการของเสีย</div>';var dts2='';dts.forEach(function(d){var i=Downtimes.find(function(x){return x.c===d.c;});dts2+='<div class="sr"><span>['+(i?.cat||'')+'] '+d.c+' '+(i?.t||'')+'</span><span style="color:var(--yellow)">'+d.m+' min</span></div>';});document.getElementById('summaryContent').innerHTML='<div class="card-title">📊 KPI Summary — MES Webapp Production_R1</div><div style="font-size:12px;color:var(--dim);margin-bottom:10px">'+dt+' | Shift '+sh+' | '+mc3+' | '+cu+' — '+mo+'</div><div class="g2" style="margin-bottom:8px"><div class="kpi kpi-'+oc+'"><div class="kpi-l">🎯 OEE</div><div class="kpi-v" style="font-size:30px">'+oee+'%</div><div class="kpi-t">Target: 76%</div></div><div class="kpi kpi-'+yc+'"><div class="kpi-l">🎯 Yield Rate</div><div class="kpi-v" style="font-size:30px">'+t.yield+'%</div><div class="kpi-t">Target: 93%</div></div></div><div class="g2" style="margin-bottom:8px"><div class="kpi kpi-b"><div class="kpi-l">📦 Total Produced</div><div class="kpi-v">'+t.total+'</div><div class="kpi-t">Good: '+t.good+' | Defect: '+t.defect+'</div></div><div class="kpi kpi-'+wc+'"><div class="kpi-l">♻️ Material Waste</div><div class="kpi-v">'+w+'%</div><div class="kpi-t">Target: 3%</div></div></div><div class="g3" style="margin-bottom:10px"><div class="kpi kpi-b"><div class="kpi-l">Availability</div><div class="kpi-v" style="font-size:16px">'+av+'%</div></div><div class="kpi kpi-b"><div class="kpi-l">Performance</div><div class="kpi-v" style="font-size:16px">'+pf+'%</div></div><div class="kpi kpi-b"><div class="kpi-l">Plan Achieve</div><div class="kpi-v" style="font-size:16px">'+(t.tp>0?(t.ta/t.tp*100).toFixed(1):'0')+'%</div></div></div><div style="background:var(--inp);border-radius:var(--r);padding:10px;margin-bottom:8px"><div style="font-weight:700;margin-bottom:6px;color:var(--red)">⚠️ Top Defects</div>'+ds+'</div><div style="background:var(--inp);border-radius:var(--r);padding:10px;margin-bottom:8px"><div style="font-weight:700;margin-bottom:6px;color:var(--yellow)">⏱️ Downtime: '+tdt+' นาที ('+(tdt/60).toFixed(1)+' ชม.)</div>'+(dts2||'<div style="color:var(--dim);font-size:12px">ไม่มี Downtime</div>')+'</div><div style="background:var(--inp);border-radius:var(--r);padding:10px"><div style="font-weight:700;margin-bottom:6px;color:var(--accent2)">👷 ManPower</div><div style="font-size:13px">STD: '+st+' | ACT: '+at+' | Eff: '+(at>0?(st/at*100).toFixed(0):0)+'%</div></div>';}
+
+// ==================== SAVE & EXPORT ====================
+function saveData(){
+  var totals=getHTot();
+  var r={
+    id:Date.now(),
+    ts:new Date().toISOString(),
+    h:{
+      d:document.getElementById('hDate').value,
+      sh:document.getElementById('hShift').value,
+      mc:document.getElementById('hMc').value,
+      cu:document.getElementById('hCust').value,
+      mo:document.getElementById('hModel').value,
+      mold:document.getElementById('hMold').value,
+      poLH:document.getElementById('hPoLH').value,
+      poRH:document.getElementById('hPoRH').value,
+      pnLH:document.getElementById('hPnLH').value,
+      pnRH:document.getElementById('hPnRH').value,
+      cav:document.getElementById('hCav').value,
+      cyc:document.getElementById('hCyc').value,
+      uph:document.getElementById('hUph').value,
+      mat:document.getElementById('mMaterial')?document.getElementById('mMaterial').value:'',
+      matColor:document.getElementById('mColor')?document.getElementById('mColor').value:''
+    },
+    hourly:hourly,
+    defects:defs,
+    downtimes:dts,
+    tot:totals
+  };
+  var recs=[];
+  try{recs=JSON.parse(localStorage.getItem('mes_r1')||'[]');}catch(e){}
+  recs.push(r);
+  localStorage.setItem('mes_r1',JSON.stringify(recs));
+  
+  // ===== AUTO-BRIDGE TO STEP 5 =====
+  // Push Good LH + Good RH to shared storage that Step 5 watches
+  try{
+    var bridge=JSON.parse(localStorage.getItem('mes_bridge_step4_to_5')||'[]');
+    var bridgeRec={
+      id:r.id,
+      ts:r.ts,
+      date:r.h.d,
+      shift:r.h.sh,
+      machine:r.h.mc,
+      mold:r.h.mold,
+      poLH:r.h.poLH,
+      poRH:r.h.poRH,
+      pnLH:r.h.pnLH,
+      pnRH:r.h.pnRH,
+      goodLH:totals.gl,
+      goodRH:totals.gr,
+      defectLH:totals.dl,
+      defectRH:totals.dr,
+      total:totals.good,
+      yield:totals.yield,
+      consumed:false
+    };
+    bridge.push(bridgeRec);
+    localStorage.setItem('mes_bridge_step4_to_5',JSON.stringify(bridge));
+    
+    // Trigger storage event for Step 5 to pick up (works across tabs)
+    var event=new StorageEvent('storage',{key:'mes_bridge_step4_to_5',newValue:JSON.stringify(bridge)});
+    window.dispatchEvent(event);
+  }catch(e){console.error('Bridge save failed:',e);}
+  
+  var t=document.getElementById('toast');
+  t.textContent='✅ บันทึก + ส่งไป Step 5 อัตโนมัติ!';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+  updateSaveInfo();
+}
+function updateSaveInfo(){var recs=[];try{recs=JSON.parse(localStorage.getItem('mes_r1')||'[]');}catch(e){}document.getElementById('saveInfo').textContent='📊 Records: '+recs.length+(recs.length>0?' | Last: '+new Date(recs[recs.length-1].ts).toLocaleString('th-TH'):'');}
+function exportCSV(){var s=document.getElementById('hShift').value,hrs=s==='A'?DayHours:NightHours;var dt=document.getElementById('hDate').value;var csv='Date,Shift,Hour,Plan,Actual,GoodLH,GoodRH,DefectLH,DefectRH\n';hrs.forEach(function(h){var d=hourly[h]||{};csv+=dt+','+s+','+h+','+(d.p||0)+','+(d.a||0)+','+(d.gl||0)+','+(d.gr||0)+','+(d.dl||0)+','+(d.dr||0)+'\n';});var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='MES_R1_'+dt+'_Shift'+s+'.csv';a.click();URL.revokeObjectURL(url);}
+function clearForm(){if(!confirm('ล้างข้อมูลทั้งหมด?'))return;hourly={};defs=[];dts=[];['hDate','hMold','hPnLH','hPnRH','hPoLH','hPoRH'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=id==='hDate'?new Date().toISOString().split('T')[0]:'';});['hCust','hModel','hMc'].forEach(function(id){return document.getElementById(id).selectedIndex=0;});['mIn','mVirgin','mRegrind','mPurge','mContam','mDust'].forEach(function(id){return document.getElementById(id).value=0;});document.getElementById('autoInfo').style.display='none';buildHourlyTable();renderDefects();renderDowntimes();buildManpower();calcMaterial();showTab(1);updateDisplay();}
+
+// ==================== CLOUD SYNC FUNCTIONS ====================
+var machineID_cloud = '';
+var cloudSyncCount = 0;
+
+function initCloud(){
+  // Machine ID
+  machineID_cloud = localStorage.getItem('mes_machine_id_cloud');
+  if(!machineID_cloud){
+    machineID_cloud = 'MC_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+    localStorage.setItem('mes_machine_id_cloud', machineID_cloud);
+  }
+  var el = document.getElementById('machineIDDisplay');
+  if(el) el.textContent = machineID_cloud;
+  
+  // Load saved URL
+  var savedURL = localStorage.getItem('mes_apps_script_url');
+  if(savedURL){
+    var urlEl = document.getElementById('appsScriptURL');
+    if(urlEl) urlEl.value = savedURL;
+  }
+  
+  // Update counts
+  updateCloudStats();
+}
+
+// iPad/Safari-compatible fetch helpers (XMLHttpRequest for max compatibility)
+function cloudGET(url, callback, errback, _retry){
+  try{
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 45000; // 45s — รองรับ Cold Start ของ Apps Script
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 400){
+          try{ callback(JSON.parse(xhr.responseText)); }
+          catch(e){ errback('Parse error: ' + e.message); }
+        }else{ errback('HTTP ' + xhr.status); }
+      }
+    };
+    xhr.ontimeout = function(){
+      if(!_retry){ setTimeout(function(){ cloudGET(url, callback, errback, true); }, 3000); }
+      else{ errback('Timeout — Apps Script ไม่ตอบสนอง กรุณาลองอีกครั้ง'); }
+    };
+    xhr.onerror = function(){
+      if(!_retry){ setTimeout(function(){ cloudGET(url, callback, errback, true); }, 3000); }
+      else{ errback('Network error - ตรวจสอบ internet'); }
+    };
+    xhr.send();
+  }catch(e){ errback(e.message); }
+}
+
+function cloudPOST(url, payload, callback, errback, _retry){
+  try{
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.timeout = 45000;
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 400){
+          try{ callback(JSON.parse(xhr.responseText)); }
+          catch(e){ errback('Parse error: ' + e.message); }
+        }else{ errback('HTTP ' + xhr.status); }
+      }
+    };
+    xhr.ontimeout = function(){
+      if(!_retry){ setTimeout(function(){ cloudPOST(url, payload, callback, errback, true); }, 3000); }
+      else{ errback('Timeout — Apps Script ไม่ตอบสนอง กรุณาลองอีกครั้ง'); }
+    };
+    xhr.onerror = function(){
+      if(!_retry){ setTimeout(function(){ cloudPOST(url, payload, callback, errback, true); }, 3000); }
+      else{ errback('Network error - ตรวจสอบ internet'); }
+    };
+    xhr.send(JSON.stringify(payload));
+  }catch(e){ errback(e.message); }
+}
+
+function saveCloudConfig(){
+  var url = document.getElementById('appsScriptURL').value.trim();
+  // Clean URL - remove zero-width spaces (iPad keyboard issue)
+  url = url.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g,'');
+  if(!url){
+    alert('❌ กรุณาใส่ Apps Script URL');
+    return;
+  }
+  localStorage.setItem('mes_apps_script_url', url);
+  document.getElementById('appsScriptURL').value = url;
+  var t=document.getElementById('toast');
+  t.textContent='✅ Cloud config saved!';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+function testCloudConnection(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(!url){
+    document.getElementById('cloudTestResult').innerHTML='<div style="color:var(--red);font-size:12px">❌ Save URL first</div>';
+    return;
+  }
+  document.getElementById('cloudTestResult').innerHTML='<div style="color:var(--yellow);font-size:12px">⏳ Testing...</div>';
+  
+  cloudGET(url + '?action=getRecent&limit=1', function(data){
+    if(data.status === 'success'){
+      document.getElementById('cloudTestResult').innerHTML='<div style="color:var(--green);font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ Connected! Cloud ready. Records in sheet: '+data.count+'</div>';
+      document.getElementById('cloudStatus').textContent='✅ Connected';
+      document.getElementById('cloudStatus').style.color='var(--green)';
+    }else{
+      document.getElementById('cloudTestResult').innerHTML='<div style="color:var(--red);font-size:12px">❌ Error: '+data.message+'</div>';
+    }
+  }, function(err){
+    document.getElementById('cloudTestResult').innerHTML='<div style="color:var(--red);font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ Connection failed: '+err+'</div>';
+  });
+}
+
+function syncToCloud(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(!url){ alert('❌ กรุณา Save Config ก่อน (Tab ☁️ Cloud)'); return; }
+
+  var recs = [];
+  try{ recs = JSON.parse(localStorage.getItem('mes_r1') || '[]'); }catch(e){}
+  if(recs.length === 0){ alert('📭 ไม่มีข้อมูลใน localStorage'); return; }
+
+  // ส่งเฉพาะ record ที่ยังไม่ได้ sync (_synced !== true)
+  var pending = recs.filter(function(r){ return !r._synced; });
+  if(pending.length === 0){
+    alert('✅ ทุก record sync แล้ว (' + recs.length + ' รายการ)');
+    return;
+  }
+
+  var data = {
+    machineID: machineID_cloud,
+    timestamp: new Date().toISOString(),
+    recordCount: pending.length,
+    records: pending,
+    source: 'Step4_R2_Cloud_Manual'
+  };
+
+  var t=document.getElementById('toast');
+  t.textContent='⏳ Syncing ' + pending.length + '/' + recs.length + ' records...';
+  t.style.background='var(--yellow)'; t.style.color='#111';
+  t.classList.add('show');
+
+  cloudPOST(url, data, function(result){
+    if(result.status === 'success'){
+      // Mark ว่า synced แล้ว — ป้องกัน duplicate เมื่อกด Backup ซ้ำ
+      var tsSet = {};
+      pending.forEach(function(r){ if(r.ts) tsSet[r.ts] = true; });
+      recs.forEach(function(r){ if(r.ts && tsSet[r.ts]) r._synced = true; });
+      localStorage.setItem('mes_r1', JSON.stringify(recs));
+
+      cloudSyncCount = recs.filter(function(r){ return r._synced; }).length;
+      localStorage.setItem('mes_cloud_sync_count', cloudSyncCount.toString());
+      localStorage.setItem('mes_last_sync', new Date().toISOString());
+
+      t.textContent='✅ Synced ' + pending.length + ' records! (skipped: '+(result.message||'').match(/\d+/g)?.[1]||0+' dup)';
+      t.style.background='var(--green)'; t.style.color='#fff';
+      document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString('th-TH');
+      updateCloudStats();
+    }else{
+      t.textContent='❌ Sync failed: ' + result.message;
+      t.style.background='var(--red)'; t.style.color='#fff';
+    }
+    setTimeout(function(){t.classList.remove('show');t.style.background='var(--green)';t.style.color='#fff';},3000);
+  }, function(err){
+    t.textContent='❌ Connection error: ' + err;
+    t.style.background='var(--red)'; t.style.color='#fff';
+    setTimeout(function(){t.classList.remove('show');t.style.background='var(--green)';t.style.color='#fff';},3000);
+  });
+}
+
+function updateCloudStats(){
+  var recs = [];
+  try{ recs = JSON.parse(localStorage.getItem('mes_r1') || '[]'); }catch(e){}
+  var synced = recs.filter(function(r){ return r._synced; }).length;
+  var pending = recs.length - synced;
+
+  var el1 = document.getElementById('localRecordCount');
+  var el2 = document.getElementById('cloudSyncCount');
+  var el3 = document.getElementById('pendingSyncCount');
+  if(el1) el1.textContent = recs.length;
+  if(el2) el2.textContent = synced;
+  if(el3) el3.textContent = pending;
+  
+  var lastSync = localStorage.getItem('mes_last_sync');
+  if(lastSync){
+    var el4 = document.getElementById('lastSyncTime');
+    if(el4) el4.textContent = new Date(lastSync).toLocaleString('th-TH');
+  }
+}
+
+// ==================== MASTER DATA LOADER ====================
+function saveMasterConfig(){
+  var url = document.getElementById('masterScriptURL').value.trim().replace(/[​-‍﻿]/g,'').replace(/\s+/g,'');
+  if(!url){ alert('❌ กรุณาใส่ Master Script URL'); return; }
+  localStorage.setItem('mes_master_script_url', url);
+  document.getElementById('masterScriptURL').value = url;
+  var t=document.getElementById('toast'); t.textContent='✅ Master URL saved!'; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+function loadMasterData(manual){
+  var url = localStorage.getItem('mes_master_script_url');
+  var resultEl = document.getElementById('masterResult');
+  if(!url){
+    if(manual) { if(resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">⚠️ กรุณาใส่ Master Script URL ก่อน</div>'; }
+    updateMasterStatus('ไม่ได้ตั้งค่า (ใช้ข้อมูล default)', false);
+    return;
+  }
+  if(resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">⏳ กำลังโหลด Master Data...</div>';
+  cloudGET(url + '?action=getMasterData', function(data){
+    if(data.status === 'success'){
+      applyMasterData(data);
+      if(resultEl) resultEl.innerHTML='<div style="color:var(--green);font-size:11px;padding:6px;background:rgba(16,185,129,.1);border-radius:6px">✅ โหลดสำเร็จ — อัปเดต: '+new Date().toLocaleTimeString('th-TH')+'</div>';
+      updateMasterStatus('✅ โหลดสำเร็จ จาก Cloud', true);
+      localStorage.setItem('mes_master_cache', JSON.stringify(data));
+      localStorage.setItem('mes_master_cache_time', new Date().toISOString());
+    } else {
+      if(resultEl) resultEl.innerHTML='<div style="color:var(--red);font-size:11px">❌ Error: '+(data.message||'Unknown')+'</div>';
+      updateMasterStatus('❌ โหลดไม่ได้ (ใช้ข้อมูล default)', false);
+    }
+  }, function(err){
+    // Try cache
+    var cached = localStorage.getItem('mes_master_cache');
+    if(cached){
+      try{
+        var data = JSON.parse(cached);
+        applyMasterData(data);
+        var ct = localStorage.getItem('mes_master_cache_time');
+        if(resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">📦 ใช้ Cache (offline) — บันทึกล่าสุด: '+(ct?new Date(ct).toLocaleString('th-TH'):'—')+'</div>';
+        updateMasterStatus('📦 ใช้ Cache (offline)', false);
+        return;
+      }catch(e){}
+    }
+    if(manual && resultEl) resultEl.innerHTML='<div style="color:var(--red);font-size:11px">❌ ไม่สามารถเชื่อมต่อ: '+err+'<br>ใช้ข้อมูล default ใน code แทน</div>';
+    updateMasterStatus('⚠️ Offline — ใช้ข้อมูล default', false);
+  });
+}
+
+function applyMasterData(data){
+  // --- Defects ---
+  if(data.defects && data.defects.length > 0){
+    Defects.length = 0;
+    data.defects.forEach(function(d){ Defects.push({c: d.Code||d.c, t: d.Description_TH||d.t}); });
+  }
+  // --- Downtimes ---
+  if(data.downtimes && data.downtimes.length > 0){
+    Downtimes.length = 0;
+    data.downtimes.forEach(function(d){ Downtimes.push({c: d.Code||d.c, t: d.Description_EN||d.t, cat: d.Category||d.cat}); });
+  }
+  // --- Operators ---
+  if(data.operators && data.operators.length > 0){
+    Operators.length = 0;
+    data.operators.forEach(function(n){ if(n) Operators.push(n); });
+  }
+  // --- Positions ---
+  if(data.positions && data.positions.length > 0){
+    Positions.length = 0;
+    data.positions.forEach(function(p){ if(p) Positions.push(p); });
+  }
+  // --- Molds ---
+  if(data.molds && data.molds.length > 0){
+    var newMolds = {};
+    data.molds.forEach(function(m){
+      var moldNo = m.MoldNo || m.moldNo || '';
+      if(!moldNo) return;
+      newMolds[moldNo] = {
+        p: m.PartNo || '',
+        n: m.PartName || '',
+        c: m.Customer || '',
+        d: m.Model || '',
+        cav: m.CavityOEE || 1,
+        cavMat: m.CavityMat || m.CavityOEE || 1,
+        cyc: m.CycleTime_min || 0,
+        uph: m.UPH_pcs_hr || 0,
+        mat: m.Material || '',
+        proc: m.Process || '',
+        plant: m.Plant || '',
+        grp: m.MoldGroup || 'Common',   // "Family" or "Common"
+        pw: m.PartWeight_kg || 0
+      };
+    });
+    Object.keys(MOLDS).forEach(function(k){ delete MOLDS[k]; });
+    Object.assign(MOLDS, newMolds);
+    buildMoldDatalist();
+    document.getElementById('masterMoldCount').textContent = data.molds.length;
+  }
+  // Update counters
+  if(data.defects) document.getElementById('masterDefectCount').textContent = data.defects.length;
+  if(data.downtimes) document.getElementById('masterDTCount').textContent = data.downtimes.length;
+  if(data.operators) document.getElementById('masterOpCount').textContent = data.operators.length;
+  // Rebuild UI
+  buildManpower();
+  buildDefectDatalist();
+  buildDowntimeDatalist();
+  buildMaterialDatalist();
+  renderDefects();
+  renderDowntimes();
+}
+
+function updateMasterStatus(msg, ok){
+  var el = document.getElementById('masterStatus');
+  if(el){ el.textContent = msg; el.style.color = ok ? 'var(--green)' : 'var(--dim)'; }
+}
+
+init();
+initCloud();
+
+// Load saved Master URL into field
+(function(){
+  var savedMasterURL = localStorage.getItem('mes_master_script_url');
+  if(savedMasterURL){ var el = document.getElementById('masterScriptURL'); if(el) el.value = savedMasterURL; }
+  // Auto-load Master Data on startup
+  setTimeout(function(){ loadMasterData(false); }, 1000);
+})();
+</script>
+</body>
+</html>

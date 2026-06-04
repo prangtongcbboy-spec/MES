@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MES Step 5 - WIP Max-Min Control R2 Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1222;--card:#162032;--card2:#1a2840;--accent:#2d7ff9;--accent2:#5b9cff;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#e8edf5;--dim:#7b8ca8;--border:#253350;--inp:#0e1729;--r:10px;--purple:#a855f7}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;padding-bottom:70px}
+.topbar{background:linear-gradient(135deg,#162032,#1a2840);padding:12px 14px;border-bottom:2px solid var(--purple);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:16px;font-weight:800;color:#c4b5fd}
+.topbar-sub{font-size:11px;color:var(--dim)}
+.flow-bar{background:var(--card);padding:8px;border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;position:sticky;top:54px;z-index:99}
+.flow-bar::-webkit-scrollbar{display:none}
+.flow-step{flex:0 0 auto;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;white-space:nowrap;background:var(--inp);color:var(--dim);border:1px solid var(--border)}
+.flow-step.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.flow-step.done{background:#10b98130;color:var(--green);border-color:#10b98140}
+.nav{display:flex;overflow-x:auto;gap:4px;padding:6px 8px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:96px;z-index:98}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:7px 11px;border:none;border-radius:8px;background:transparent;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+.nav-btn.active{background:var(--purple);color:#fff;font-weight:700}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin:8px;border:1px solid var(--border)}
+.card-title{font-size:16px;font-weight:800;color:#c4b5fd;margin-bottom:10px}
+.card-sub{font-size:11px;color:var(--dim);margin-bottom:10px}
+label.fl{font-size:11px;color:var(--dim);display:block;margin-bottom:3px;font-weight:600}
+.f{margin-bottom:8px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:var(--inp);color:var(--text);font-size:14px;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:var(--purple)}
+input[type="number"]{text-align:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.btn{width:100%;padding:12px;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#fff}
+.btn-p{background:var(--purple)}.btn-a{background:var(--accent)}.btn-g{background:var(--green)}.btn-r{background:var(--red)}.btn-y{background:var(--yellow);color:#111}.btn-d{background:var(--border)}
+.btn:active{transform:scale(.97)}
+.kpi{border-radius:var(--r);padding:12px;text-align:center}
+.kpi-l{font-size:10px;color:var(--dim)}.kpi-v{font-size:24px;font-weight:900}.kpi-t{font-size:9px;color:var(--dim)}
+.kpi-g{background:#10b98115;border:1px solid #10b98140}.kpi-r{background:#ef444415;border:1px solid #ef444440}.kpi-y{background:#f59e0b15;border:1px solid #f59e0b40}.kpi-b{background:#2d7ff915;border:1px solid #2d7ff940}.kpi-p{background:#a855f715;border:1px solid #a855f740}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:8px 6px;text-align:center;font-weight:700;font-size:10px;color:var(--dim);background:rgba(168,85,247,.1);position:sticky;top:0}
+.tbl td{padding:6px 6px;border-bottom:1px solid var(--border)}
+.tbl tr:hover{background:rgba(168,85,247,.05)}
+.tbl .lbl{font-weight:600;color:var(--accent2);font-size:11px}
+.tbl .pn{font-size:11px;color:var(--dim)}
+.tbl input{padding:5px 4px;font-size:12px;min-width:60px;text-align:center}
+.status-ok{color:var(--green);font-weight:700}
+.status-low{color:var(--yellow);font-weight:700}
+.status-high{color:var(--red);font-weight:700}
+.status-crit{color:#fff;background:var(--red);padding:2px 6px;border-radius:4px;font-weight:700;font-size:11px}
+.alert-banner{background:linear-gradient(135deg,#ef444420,#ef444410);border:2px solid var(--red);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.alert-banner.warn{background:linear-gradient(135deg,#f59e0b20,#f59e0b10);border-color:var(--yellow)}
+.alert-banner.ok{background:linear-gradient(135deg,#10b98120,#10b98110);border-color:var(--green)}
+.alert-title{font-weight:800;font-size:14px;margin-bottom:6px}
+.bn{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:8px 10px;display:flex;gap:6px;z-index:99}
+.tc{display:none}.tc.active{display:block}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 24px;border-radius:10px;font-weight:700;z-index:200;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast.show{display:block}
+.import-box{background:linear-gradient(135deg,#2d7ff910,#2d7ff905);border:2px dashed var(--accent);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.import-box:hover{background:rgba(45,127,249,.1)}
+.import-box.has-file{background:rgba(16,185,129,.1);border-color:var(--green)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.badge-ok{background:#10b98130;color:var(--green)}
+.badge-low{background:#f59e0b30;color:var(--yellow)}
+.badge-crit{background:var(--red);color:#fff}
+.badge-high{background:#3b82f630;color:var(--accent2)}
+@media(max-width:400px){.g3,.g4{grid-template-columns:1fr 1fr}.card{padding:10px;margin:6px}}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">✅ บันทึกสำเร็จ!</div>
+
+<div class="topbar">
+<div><div class="topbar-title">📦 MES Step 5 — WIP Max-Min Control R2 Cloud</div><div class="topbar-sub">Vandapac Co., Ltd. — ☁️ Google Sheets Sync</div></div>
+<div style="text-align:right"><div id="dd" style="font-weight:700;font-size:12px"></div><div style="font-size:10px;color:var(--purple)">Connected to Step 4</div></div>
+</div>
+
+<!-- 8-Step Flow Map -->
+<div class="flow-bar">
+<div class="flow-step">0️⃣ Production Plan</div>
+<div class="flow-step">1️⃣ Raw Material In</div>
+<div class="flow-step">2️⃣ WIP Raw Material</div>
+<div class="flow-step">3️⃣ Production Readiness</div>
+<div class="flow-step done">4️⃣ Production Record ✓</div>
+<div class="flow-step active">5️⃣ WIP Max-Min ◀ ตอนนี้</div>
+<div class="flow-step">6️⃣ Route Distribution</div>
+<div class="flow-step">7️⃣ WIP & WHL Rollup</div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="nav" id="nav">
+<button class="nav-btn active" onclick="showTab(1)">📥 Import จาก Step 4</button>
+<button class="nav-btn" onclick="showTab(2)">📊 WIP Status</button>
+<button class="nav-btn" onclick="showTab(3)">⚙️ Max-Min Setup</button>
+<button class="nav-btn" onclick="showTab(4)">📝 บันทึก IN/OUT</button>
+<button class="nav-btn" onclick="showTab(5)">⚠️ Alert</button>
+<button class="nav-btn" onclick="showTab(6)">📤 Export</button>
+<button class="nav-btn" onclick="showTab(7)" style="background:rgba(16,185,129,.2);color:#10b981">☁️ Cloud</button>
+</div>
+
+<!-- ==================== TAB 1: Import from Step 4 ==================== -->
+<div class="tc active" id="tab1"><div class="card">
+<div class="card-title">📥 Import ข้อมูลจาก Step 4 (Production Record)</div>
+<div class="card-sub">รับข้อมูลจาก Step 4 (MES Webapp Production_R1) → 2 ทาง: <b style="color:#22c55e">Auto-Bridge</b> หรือ <b style="color:#3b82f6">Upload CSV</b></div>
+
+<div id="autoBridgeStatus" style="background:linear-gradient(135deg,#10b98120,#10b98110);border:2px solid #10b981;border-radius:10px;padding:12px;margin-bottom:12px">
+<div style="font-weight:700;font-size:14px;color:#10b981;margin-bottom:6px">🔄 Auto-Bridge Mode — Active</div>
+<div style="font-size:12px;color:var(--dim);line-height:1.7">
+✅ เปิด Step 4 บน Browser เดียวกัน → กดบันทึก → ข้อมูลจะมาที่นี่อัตโนมัติ<br>
+📊 รอข้อมูล: <span id="bridgeWaiting" style="color:var(--accent2);font-weight:700">checking...</span><br>
+🎯 ข้อมูลใหม่จาก Step 4: <span id="bridgeCount" style="color:#10b981;font-weight:700;font-size:16px">0</span> รายการ
+</div>
+<button onclick="processAutoBridge()" class="btn btn-g" style="margin-top:8px">🔄 รับข้อมูลจาก Step 4 ตอนนี้</button>
+<button onclick="clearBridge()" style="background:transparent;border:1px solid #ef4444;color:#ef4444;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;margin-top:6px">🗑️ ล้าง Bridge</button>
+</div>
+
+<div style="font-size:12px;color:var(--dim);margin-bottom:8px;text-align:center">— หรือ —</div>
+
+<label class="fl" style="margin-bottom:6px">📄 เลือกไฟล์ CSV จาก Step 4</label>
+<div class="import-box" onclick="document.getElementById('csvFile').click()">
+  <div style="font-size:32px">📁</div>
+  <div style="font-weight:700;margin-top:6px" id="fileLabel">คลิกเพื่อเลือกไฟล์ MES_R1_*.csv</div>
+  <div style="font-size:11px;color:var(--dim);margin-top:4px">รองรับ Multiple files</div>
+</div>
+<input type="file" id="csvFile" accept=".csv" multiple style="display:none" onchange="handleCSVImport(event)">
+
+<div id="importResult" style="margin-top:12px"></div>
+
+<div style="margin-top:12px;padding:10px;background:var(--inp);border-radius:8px;font-size:12px">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:6px">💡 วิธีใช้:</div>
+<div style="line-height:1.7;color:var(--dim)">
+1. กรอกข้อมูลใน Step 4 (Production_R1) ครบทุก Shift<br>
+2. กดปุ่ม "📥 Export CSV" ที่ Tab สรุป KPI ของ Step 4<br>
+3. มาที่หน้านี้ → กดอัพโหลดไฟล์ .csv<br>
+4. ระบบจะเพิ่ม Production เข้า WIP อัตโนมัติ<br>
+5. ไป Tab "📊 WIP Status" ดูสต็อค
+</div></div>
+</div></div>
+
+<!-- ==================== TAB 2: WIP Status ==================== -->
+<div class="tc" id="tab2">
+<div class="card">
+<div class="card-title">📊 WIP Status — สถานะคงคลัง</div>
+<div class="card-sub">ตัวเลขปัจจุบัน vs Max-Min (อัพเดทอัตโนมัติเมื่อ Import Step 4)</div>
+
+<div class="g4" id="wipKPI" style="margin-bottom:12px"></div>
+
+<div class="g2" style="margin-bottom:10px">
+  <div class="f"><label class="fl">🔍 ค้นหา Part No.</label><input type="text" id="searchPart" placeholder="พิมพ์ Part No. หรือชื่อ..." oninput="renderWIPTable()"></div>
+  <div class="f"><label class="fl">📊 กรองสถานะ</label><select id="filterStatus" onchange="renderWIPTable()">
+    <option value="all">ทั้งหมด</option>
+    <option value="crit">🔴 Critical (ต่ำกว่า Min)</option>
+    <option value="low">🟡 Low Stock</option>
+    <option value="ok">🟢 OK</option>
+    <option value="high">🔵 High (เกิน Max)</option>
+  </select></div>
+</div>
+
+<div style="overflow-x:auto;background:var(--inp);border-radius:8px">
+<table class="tbl" id="wipTable"></table>
+</div>
+</div></div>
+
+<!-- ==================== TAB 3: Max-Min Setup ==================== -->
+<div class="tc" id="tab3"><div class="card">
+<div class="card-title">⚙️ Max-Min Setup — ตั้งค่าจุดสั่ง</div>
+<div class="card-sub">กำหนด Min Stock (จุดเตือน) และ Max Stock (จุดเต็ม) สำหรับแต่ละ Part</div>
+
+<div class="f"><label class="fl">🔍 เลือก Part No.</label>
+<select id="setupPart" onchange="loadPartForSetup()">
+<option value="">— เลือก Part —</option>
+<option value="96100A040P-1">96100A040P-1 — FACE STEP RH (C-CAB)</option>
+<option value="96101A040P-1">96101A040P-1 — FACE STEP LH (C-CAB)</option>
+<option value="F8201001">F8201001 — COIN BOX COMPLETE SET (1 CTN /70 P.</option>
+<option value="F8210T00">F8210T00 — BODY FRONT DOOR POCKET TOYOTA LC 70</option>
+<option value="F8211TOX00">F8211TOX00 — BODY CONSOLE BOX SEPARATOR TOYOTA H</option>
+<option value="F8211TOXB02">F8211TOXB02 — CONSOLE BOX SEPARATOR (SHORT)</option>
+<option value="F8211TOXC02">F8211TOXC02 — CONSOLE BOX SEPARATOR (LONG)</option>
+<option value="F8212FLTOD001">F8212FLTOD001 — BODY SIDE MOLDING FRONT LH TOYOTA H</option>
+<option value="F8212FLTOXC0">F8212FLTOXC0 — BODY SIDE MOLDING FRONT LH TOYOTA F</option>
+<option value="F8212FRTOD001">F8212FRTOD001 — BODY SIDE MOLDING FRONT RH TOYOTA H</option>
+<option value="F8212FRTOXC0">F8212FRTOXC0 — BODY SIDE MOLDING FRONT RH TOYOTA F</option>
+<option value="F8212RLTOD001">F8212RLTOD001 — BODY SIDE MOLDING REAR LH TOYOTA HI</option>
+<option value="F8212RLTOXC0">F8212RLTOXC0 — BODY SIDE MOLDING REAR LH TOYOTA FJ</option>
+<option value="F8212RRTOD001">F8212RRTOD001 — BODY SIDE MOLDING REAR RH TOYOTA HI</option>
+<option value="F8212RRTOXC0">F8212RRTOXC0 — BODY SIDE MOLDING REAR RH TOYOTA FJ</option>
+<option value="F8213FLTOC001">F8213FLTOC001 — BODY SIDE MOLDING FRONT LH TOYOTA C</option>
+<option value="F8213FLTOC002">F8213FLTOC002 — CAMRY SIDE MOLDING CHROME FRONT LH</option>
+<option value="F8213FRTOC001">F8213FRTOC001 — BODY SIDE MOLDING FRONT RH TOYOTA C</option>
+<option value="F8213FRTOC002">F8213FRTOC002 — CAMRY SIDE MOLDING CHROME FRONT RH</option>
+<option value="F8213RLTOC001">F8213RLTOC001 — BODY SIDE MOLDING REAR LH TOYOTA CA</option>
+<option value="F8213RLTOC002">F8213RLTOC002 — CAMRY SIDE MOLDING CHROME REAR LH</option>
+<option value="F8213RRTOC001">F8213RRTOC001 — BODY SIDE MOLDING REAR RH TOYOTA CA</option>
+<option value="F8213RRTOC002">F8213RRTOC002 — CAMRY SIDE MOLDING CHROME REAR RH</option>
+<option value="F8215TOD001">F8215TOD001 — CHROME PLATE MAXBUMPER GUARD TOYOTA</option>
+<option value="F8215TOL001">F8215TOL001 — CHROME PLATE FRONT BUMPER GUARD TOY</option>
+<option value="F8215TOP001">F8215TOP001 — CHROME PLATE FRONT BUMPER PROTECTOR</option>
+<option value="F8221AMADC0">F8221AMADC0 — BODY CENTER STYLING BAR BT-50 #BEFO</option>
+<option value="F8221BTOGC0">F8221BTOGC0 — BODY CENTER DECK BAR  645B</option>
+<option value="F8221CTODC0">F8221CTODC0 — BODY CENTER SPORT BAR TOYOTA ROCCO </option>
+<option value="F8221ETODC0">F8221ETODC0 — BODY CENTER SPORT BAR 581D</option>
+<option value="F8221FTODC0">F8221FTODC0 — BODY CENTER SPORT BAR D-CAB HILUX 2</option>
+<option value="F8221ISDAC0">F8221ISDAC0 — BODY CENTER SAIL PLANE RG01</option>
+<option value="F8221ISDC0">F8221ISDC0 — BODY CENTER SPORT BAR ISUZU D-MAX 2</option>
+<option value="F8221ISDCC0">F8221ISDCC0 — BODY PART SPORT HOOP CERTER RG17</option>
+<option value="F8221MGDC0">F8221MGDC0 — BODY CENTER SK82 MG ก่อนทำสี</option>
+<option value="F8221TODC0">F8221TODC0 — BODY CENTER MAXSTYLISH BAR TOYOTA  </option>
+<option value="F8221TODCA">F8221TODCA — BODY CENTER SPORT BAR A-DECK TOYOTA</option>
+<option value="F8222AMADC0">F8222AMADC0 — BODY SIDE LH STYLING BAR BT-50 #BEF</option>
+<option value="F8222BTOGC0">F8222BTOGC0 — BODY SIDE DECK BAR LH  645B</option>
+<option value="F8222CTODC0">F8222CTODC0 — BODY SIDE SPORT BAR LH TOYOTA ROCCO</option>
+<option value="F8222ETODC0">F8222ETODC0 — BODY SIDE LH SPORT BAR 581D</option>
+<option value="F8222FTODC0">F8222FTODC0 — BODY SIDE LH SPORT BAR D-CAB HILUX </option>
+<option value="F8222ISDAC0">F8222ISDAC0 — BODY FRONT LH SAIL PLANE RG01</option>
+<option value="F8222ISDAC1">F8222ISDAC1 — BODY FRONT LH SAIL PLANE RG01 #ก่อน</option>
+<option value="F8222ISDBC0">F8222ISDBC0 — BODY CARGO SPOILER FR LH RG05</option>
+<option value="F8222ISDC1">F8222ISDC1 — BODY SIDE SPORT BAR 01 LH ISUZU RT9</option>
+<option value="F8222ISDCC0">F8222ISDCC0 — BODY PART SPORT HOOP FRONT LH RG17</option>
+<option value="F8222MGDC0">F8222MGDC0 — BODY SIDE FRONT SK82 MG LH ก่อนทำสี</option>
+<option value="F8222TODC0">F8222TODC0 — BODY SIDE SPORT BAR LH TOYOTA HILUX</option>
+<option value="F8222TODCA">F8222TODCA — BODY SIDE LH SPORT BAR A-DECK TOYOT</option>
+<option value="F8223AMADC0">F8223AMADC0 — BODY SIDE RH STYLING BAR BT-50 #BEF</option>
+<option value="F8223BTOGC0">F8223BTOGC0 — BODY SIDE DECK BAR RH  645B</option>
+<option value="F8223CTODC0">F8223CTODC0 — BODY SIDE SPORT BAR RH TOYOTA ROCCO</option>
+<option value="F8223ETODC0">F8223ETODC0 — BODY SIDE RH SPORT BAR 581D</option>
+<option value="F8223FTODC0">F8223FTODC0 — BODY SIDE RH SPORT BAR D-CAB HILUX </option>
+<option value="F8223ISDAC0">F8223ISDAC0 — BODY FRONT RH SAIL PLANE RG01</option>
+<option value="F8223ISDAC1">F8223ISDAC1 — BODY FRONT RH SAIL PLANE RG01 #ก่อน</option>
+<option value="F8223ISDBC0">F8223ISDBC0 — BODY CARGO SPOILER FR RH RG05</option>
+<option value="F8223ISDC1">F8223ISDC1 — BODY SIDE SPORT BAR 01 RH ISUZU RT9</option>
+<option value="F8223ISDCC0">F8223ISDCC0 — BODY PART SPORT HOOP FRONT RH RG17</option>
+<option value="F8223MGDC0">F8223MGDC0 — BODY SIDE FRONT SK82 MG RH ก่อนทำสี</option>
+<option value="F8223TODC0">F8223TODC0 — BODY SIDE SPORT BAR RH TOYOTA HILUX</option>
+<option value="F8223TODCA">F8223TODCA — BODY SIDE RH SPORT BAR A-DECK TOYOT</option>
+<option value="F8224AMADC0">F8224AMADC0 — BODY REAR LH STYLING BAR BT-50 #BEF</option>
+<option value="F8224BTODC0">F8224BTODC0 — BODY BOX RAIL DECK BAR LH D-CAB   6</option>
+<option value="F8224BTOXC0">F8224BTOXC0 — BODY BOX RAIL LH SPORT BAR C-CAB 64</option>
+<option value="F8224CTODC0">F8224CTODC0 — BODY BOX RAIL SPORT BAR LH TOYOTA R</option>
+<option value="F8224ETODC0">F8224ETODC0 — BODY BOX RAIL DECK BAR LH D-CAB   5</option>
+<option value="F8224FTODC0">F8224FTODC0 — BODY BOX RAIL LH SPORT BAR D-CAB HI</option>
+<option value="F8224ISDAC0">F8224ISDAC0 — BODY REAR LH SAIL PLANE RG01</option>
+<option value="F8224ISDAC1">F8224ISDAC1 — BODY REAR LH SAIL PLANE RG01 #ก่อนท</option>
+<option value="F8224ISDBC0">F8224ISDBC0 — BODY CARGO SPOILER RR CREW CAB LH R</option>
+<option value="F8224ISDC0">F8224ISDC0 — BODY BOX  RAIL SPORT BAR 01 LH ISUZ</option>
+<option value="F8224ISDCC0">F8224ISDCC0 — BODY PART SPORT HOOP REAR CREW LH R</option>
+<option value="F8224ISXBC0">F8224ISXBC0 — BODY CARGO SPOILER RR EXTEN CAB LH </option>
+<option value="F8224MGDC0">F8224MGDC0 — BODY SIDE RAIL SK82 MG LH ก่อนทำสี</option>
+<option value="F8224TODC0">F8224TODC0 — BODY BOX RAIL SPORT BAR LH TOYOTA H</option>
+<option value="F8224TODCA">F8224TODCA — BODY BOX RAIL LH SPORT BAR D-CAB BA</option>
+<option value="F8224TOXCA">F8224TOXCA — BODY BOX RAIL LH SPORT BAR C-CAB A-</option>
+<option value="F8225AMADC0">F8225AMADC0 — BODY REAR RH STYLING BAR BT-50 #BEF</option>
+<option value="F8225BTODC0">F8225BTODC0 — BODY BOX RAIL DECK BAR RH D-CAB  64</option>
+<option value="F8225BTOXC0">F8225BTOXC0 — BODY BOX RAIL RH SPORT BAR C-CAB 64</option>
+<option value="F8225CTODC0">F8225CTODC0 — BODY BOX RAIL SPORT BAR RH TOYOTA R</option>
+<option value="F8225ETODC0">F8225ETODC0 — BODY BOX RAIL DECK BAR RH D-CAB  58</option>
+<option value="F8225FTODC0">F8225FTODC0 — BODY BOX RAIL RH SPORT BAR D-CAB HI</option>
+<option value="F8225ISDAC1">F8225ISDAC1 — BODY REAR RH SAIL PLANE RG01 #ก่อนท</option>
+<option value="F8225ISDBC0">F8225ISDBC0 — BODY CARGO SPOILER RR CREW CAB RH R</option>
+<option value="F8225ISDC0">F8225ISDC0 — BODY BOX  RAIL SPORT BAR 01 RH ISUZ</option>
+<option value="F8225ISDCC0">F8225ISDCC0 — BODY PART SPORT HOOP REAR CREW RH R</option>
+<option value="F8225ISXBC0">F8225ISXBC0 — BODY CARGO SPOILER RR EXTEN CAB RH </option>
+<option value="F8225MGDC0">F8225MGDC0 — BODY SIDE RAIL SK82 MG RH ก่อนทำสี</option>
+<option value="F8225TODC0">F8225TODC0 — BODY BOX RAIL SPORT BAR RH TOYOTA H</option>
+<option value="F8225TODCA">F8225TODCA — BODY BOX RAIL RH SPORT BAR D-CAB BA</option>
+<option value="F8225TOXCA">F8225TOXCA — BODY BOX RAIL RH SPORT BAR C-CAB A-</option>
+<option value="F8233LH001">F8233LH001 — BODY SIDE DOOR GARNISH  DBC FRONT L</option>
+<option value="F8233LMIDC0">F8233LMIDC0 — BODY SIDE DOOR GARNISH DC FRONT LH</option>
+<option value="F8233LTOL00">F8233LTOL00 — BODY SIDE MOLDING FRONT LH LC300 20</option>
+<option value="F8233RH001">F8233RH001 — BODY SIDE DOOR GARNISH  DBC FRONT R</option>
+<option value="F8233RMIDC0">F8233RMIDC0 — BODY SIDE DOOR GARNISH DC FRONT RH</option>
+<option value="F8233RTOL00">F8233RTOL00 — BODY SIDE MOLDING FRONT RH LC300 20</option>
+<option value="F8234LH001">F8234LH001 — BODY  SIDE DOOR GARNISH  DBC  REAR </option>
+<option value="F8234LMIDC0">F8234LMIDC0 — BODY SIDE DOOR GARNISH DC REAR LH</option>
+<option value="F8234LTOL00">F8234LTOL00 — BODY SIDE MOLDING REAR LH LC300 202</option>
+<option value="F8234RH001">F8234RH001 — BODY SIDE DOOR GARNISH  DBC REAR RH</option>
+<option value="F8234RMIDC0">F8234RMIDC0 — BODY SIDE DOOR GARNISH DC REAR RH</option>
+<option value="F8234RTOL00">F8234RTOL00 — BODY SIDE MOLDING REAR RH LC300 202</option>
+<option value="F8240LH001">F8240LH001 — BODY SIDE DOOR GARNISH  FRONT CC LH</option>
+<option value="F8240RH001">F8240RH001 — BODY SIDE DOOR GARNISH  FRONT CC RH</option>
+<option value="F8241LH001">F8241LH001 — BODY SIDE DOOR GARNISH  REAR CC LH </option>
+<option value="F8241RH001">F8241RH001 — BODY SIDE DOOR GARNISH  REAR CC RH </option>
+<option value="F8244BTOGC0">F8244BTOGC0 — COVER CENTER DECK BAR LH #ก่อนทำสี</option>
+<option value="F8244ETODC0">F8244ETODC0 — BODY COVER CENTER LH SPORT BAR 581D</option>
+<option value="F8244FTODC0">F8244FTODC0 — BODY COVER CENTER LH SPORT BAR D-CA</option>
+<option value="F8244ISDC0">F8244ISDC0 — COVER  CENTER SPORT BAR 01 LH</option>
+<option value="F8244TODC0">F8244TODC0 — COVER CENTER SPORT BAR 01 LH TOYOTA</option>
+<option value="F8244TODCA">F8244TODCA — BODY COVER CENTER LH SPORT BAR A-DE</option>
+<option value="F8245BTOGC0">F8245BTOGC0 — COVER CENTER DECK BAR RH #ก่อนทำสี</option>
+<option value="F8245FTODC0">F8245FTODC0 — BODY COVER CENTER RH SPORT BAR D-CA</option>
+<option value="F8245ISDC0">F8245ISDC0 — COVER  CENTER SPORT BAR 01 RH</option>
+<option value="F8245TODC0">F8245TODC0 — COVER CENTER SPORT BAR 01 RH TOYOTA</option>
+<option value="F8245TODCA">F8245TODCA — BODY COVER CENTER RH SPORT BAR A-DE</option>
+<option value="F8246BTOGC0">F8246BTOGC0 — COVER SIDE DECK BAR 01 LH #ก่อนทำสี</option>
+<option value="F8246ETODC0">F8246ETODC0 — COVER SIDE LH SPORT BAR 581D</option>
+<option value="F8246FTODC0">F8246FTODC0 — BODY COVER FRONT LH SPORT BAR D-CAB</option>
+<option value="F8246ISDAC0">F8246ISDAC0 — BODY FRONT COVER LH SAIL PLANE RG01</option>
+<option value="F8246ISDC0">F8246ISDC0 — COVER  FRONT SPORT BAR 01 LH</option>
+<option value="F8246TODC0">F8246TODC0 — COVER FRONT SPORT BAR 01 LH TOYOTA </option>
+<option value="F8247BTOGC0">F8247BTOGC0 — COVER SIDE DECK BAR 01 RH #ก่อนทำสี</option>
+<option value="F8247ETODC0">F8247ETODC0 — COVER SIDE RH SPORT BAR 581D</option>
+<option value="F8247FTODC0">F8247FTODC0 — BODY COVER FRONT RH SPORT BAR D-CAB</option>
+<option value="F8247ISDAC0">F8247ISDAC0 — BODY FRONT COVER RH SAIL PLANE RG01</option>
+<option value="F8247ISDC0">F8247ISDC0 — COVER  FRONT SPORT BAR 01 RH</option>
+<option value="F8247TODC0">F8247TODC0 — COVER FRONT SPORT BAR 01 RH TOYOTA </option>
+<option value="F8248FTODC0">F8248FTODC0 — BODY COVER SIDE LH SPORT BAR D-CAB </option>
+<option value="F8248ISDC0">F8248ISDC0 — COVER SIDE SPORT BAR 01 LH</option>
+<option value="F8248TODCA">F8248TODCA — BODY COVER SIDE 01 LH SPORT BAR A-D</option>
+<option value="F8249FTODC0">F8249FTODC0 — BODY COVER SIDE RH SPORT BAR D-CAB </option>
+<option value="F8249ISDC0">F8249ISDC0 — COVER SIDE SPORT BAR 01 RH</option>
+<option value="F8249TODCA">F8249TODCA — BODY COVER SIDE 01 RH SPORT BAR A-D</option>
+<option value="F8252ISGAC0">F8252ISGAC0 — BODY UNDER SPOILER REAR CTR</option>
+<option value="F8252ISXC0">F8252ISXC0 — UNDER SPOILER RT50 REAR CENTER (INJ</option>
+<option value="F8252LTOL001">F8252LTOL001 — VDP1-022-1-00 PM813-60010 REAR BUMP</option>
+<option value="F8252RTOL001">F8252RTOL001 — VDP1-021-1-00 PM813-60020 REAR BUMP</option>
+<option value="F8253ISGAC0">F8253ISGAC0 — BODY REAR UNDER SPOILER CORNOR LH</option>
+<option value="F8253ISXC0">F8253ISXC0 — UNDER SPOILER RT50 REAR SIDE LH (IN</option>
+<option value="F8253LTOL001">F8253LTOL001 — REAR BUMPER GARNISH CHROME LC300 23</option>
+<option value="F8254ISGAC0">F8254ISGAC0 — BODY REAR UNDER SPOILER CORNOR RH</option>
+<option value="F8254ISXC0">F8254ISXC0 — UNDER SPOILER RT50 REAR SIDE RH (IN</option>
+<option value="F8254RTOL001">F8254RTOL001 — REAR BUMPER GARNISH CHROME LC300 23</option>
+<option value="F8257ISDAC0">F8257ISDAC0 — SIDE UNDER SPOILER FRONT CRW LH</option>
+<option value="F8257ISPAC0">F8257ISPAC0 — BODY SIDE SKIRT  LH ISUZU MU-X RJ08</option>
+<option value="F8257ISXAC0">F8257ISXAC0 — SIDE UNDER SPOILER FRONT EXT LH</option>
+<option value="F8257ISXC0">F8257ISXC0 — UNDER SPOILER RT50 SIDE FRONT  LH (</option>
+<option value="F8258ISDAC0">F8258ISDAC0 — SIDE UNDER SPOILER FRONT CRW RH</option>
+<option value="F8258ISPAC0">F8258ISPAC0 — BODY SIDE SKIRT  RH ISUZU MU-X RJ08</option>
+<option value="F8258ISXAC0">F8258ISXAC0 — SIDE UNDER SPOILER FRONT EXT RH</option>
+<option value="F8258ISXC0">F8258ISXC0 — UNDER SPOILER RT50 SIDE FRONT  RH (</option>
+<option value="F8261ISDAC0">F8261ISDAC0 — SIDE UNDER SPOILER REAR CRW LH</option>
+<option value="F8261ISXAC0">F8261ISXAC0 — SIDE UNDER SPOILER REAR EXT LH</option>
+<option value="F8261ISXC0">F8261ISXC0 — BODY SIDE REAR UNDER SPOILER LH #ก่</option>
+<option value="F8262ISDAC0">F8262ISDAC0 — SIDE UNDER SPOILER REAR CRW RH</option>
+<option value="F8262ISXAC0">F8262ISXAC0 — SIDE UNDER SPOILER REAR EXT RH</option>
+<option value="F8262ISXC0">F8262ISXC0 — BODY SIDE REAR UNDER SPOILER RH #ก่</option>
+<option value="F8263ISDC1">F8263ISDC1 — BODY CARGO EXTENDER ICL RG10 LH</option>
+<option value="F8264ISDC1">F8264ISDC1 — BODY CARGO EXTENDER ICL RG10 RH</option>
+<option value="F8267CTISGC0">F8267CTISGC0 — BODY FRONT BUMPER GUARD EU CENTER I</option>
+<option value="F8267ISGAC0">F8267ISGAC0 — FRONT SKIRT RG14</option>
+<option value="F8267ISGBC0">F8267ISGBC0 — Front Bumper Under Garnish</option>
+<option value="F8267ISGC0">F8267ISGC0 — BODY FRONT SKIRT HI LANDER RT93 ISU</option>
+<option value="F8267ISGCC0">F8267ISGCC0 — BODY FRONT SKIRT RG21</option>
+<option value="F8267ISPC0">F8267ISPC0 — BODY FRONT SPOILER MU-X RF35 ก่อนทำ</option>
+<option value="F8267ISPC1">F8267ISPC1 — BODY FRONT SPOILER MU-X RF35 NEW TR</option>
+<option value="F8267LHOCC0">F8267LHOCC0 — BODY FRONT UNDER SPOILER LH 3TX (IN</option>
+<option value="F8267LTOCC0">F8267LTOCC0 — BODY FRONT SKIRT LH  TOYOTA CHR 201</option>
+<option value="F8267RHOCC0">F8267RHOCC0 — BODY FRONT UNDER SPOILER RH 3TX (IN</option>
+<option value="F8267RTOCC0">F8267RTOCC0 — BODY FRONT SKIRT RH  TOYOTA CHR 201</option>
+<option value="F8267SLISGC0">F8267SLISGC0 — BODY FRONT BUMPER GUARD EU SIDE LH </option>
+<option value="F8267SRISGC0">F8267SRISGC0 — BODY FRONT BUMPER GUARD EU SIDE RH </option>
+<option value="F8267TOGAC0">F8267TOGAC0 — Front Under Run 581D</option>
+<option value="F8268ETOD00">F8268ETOD00 — COVER BRACKET CLAMP LOCK581D</option>
+<option value="F8268FTOD00">F8268FTOD00 — BODY COVER CLAMP SPORT BAR D-CAB HI</option>
+<option value="F8268MGD00">F8268MGD00 — COVER BRACKET CLAMP LOCK SK82 MG TE</option>
+<option value="F8268TOD00">F8268TOD00 — BODY COVER SIDE 02 SPORT BAR A-DECK</option>
+<option value="F8269LISDA00">F8269LISDA00 — STEP ASM ASST CREW LH WITH ORNAMENT</option>
+<option value="F8269LISDA01">F8269LISDA01 — STEP ASM ASST CREW LH WITHOUT ORNAM</option>
+<option value="F8269LISXA00">F8269LISXA00 — STEP ASM ASST EXT LH WITH ORNAMENT </option>
+<option value="F8269LMID00">F8269LMID00 — FACE STEP LH (D-CAB)#M1</option>
+<option value="F8269LMIX00">F8269LMIX00 — FACE STEP LH (C-CAB)</option>
+<option value="F8269LTOD00">F8269LTOD00 — BODY SIDE STEP LH TOYOTA HILUX DBC </option>
+<option value="F8269LTOD01">F8269LTOD01 — BODY SIDE STEP TOYOTA HILUX DBC 201</option>
+<option value="F8269RISDA00">F8269RISDA00 — STEP ASM ASST CREW RH WITH ORNAMENT</option>
+<option value="F8269RISDA01">F8269RISDA01 — STEP ASM ASST CREW RH WITHOUT ORNAM</option>
+<option value="F8269RISXA00">F8269RISXA00 — STEP ASM ASST EXT RH WITH ORNAMENT </option>
+<option value="F8269RMID00">F8269RMID00 — FACE STEP RH (D-CAB)#M1</option>
+<option value="F8269RMIX00">F8269RMIX00 — FACE STEP RH (C-CAB)</option>
+<option value="F8269RTOD00">F8269RTOD00 — BODY SIDE STEP RH TOYOTA HILUX DBC </option>
+<option value="F8269RTOD01">F8269RTOD01 — BODY SIDE STEP TOYOTA HILUX DBC 201</option>
+<option value="F8269XFOG00">F8269XFOG00 — BODY CLEVER SIDE STEP FORD P703</option>
+<option value="F8269XTOD00">F8269XTOD00 — BODY CLEVER SIDE STEP</option>
+<option value="F8271ISPC0">F8271ISPC0 — BODY REAR SPOILER MU-X RF35 ก่อนทำส</option>
+<option value="F8271ISPC1">F8271ISPC1 — BODY REAR SPOILER MU-X RF35 NEW TRI</option>
+<option value="F8271LHOCAC0">F8271LHOCAC0 — BODY KIT RR UNDER SPOILER LH 3TX (I</option>
+<option value="F8271LHOCC0">F8271LHOCC0 — BODY REAR UNDER SPOILER LH HONDA CI</option>
+<option value="F8271LTOCC0">F8271LTOCC0 — BODY REAR SKIRT LH TOYOTA CHR ก่อนท</option>
+<option value="F8271RHOCAC0">F8271RHOCAC0 — BODY KIT RR UNDER SPOILER RH 3TX (I</option>
+<option value="F8271RHOCC0">F8271RHOCC0 — BODY REAR UNDER SPOILER RH HONDA CI</option>
+<option value="F8271RTOCC0">F8271RTOCC0 — BODY REAR SKIRT RH TOYOTA CHR ก่อนท</option>
+<option value="F8272AISDC0">F8272AISDC0 — SPOILER CANOPY 3 ISUZU D-MAX DBC 20</option>
+<option value="F8272AMIDC0">F8272AMIDC0 — SPOILER PREMIUM  MITSUBISHI L200 MY</option>
+<option value="F8272ATODC0">F8272ATODC0 — BODY SPOILER VENTURE CANOPY</option>
+<option value="F8272BMIDC0">F8272BMIDC0 — SPOILER STANDARD  MITSUBISHI L200 M</option>
+<option value="F8272ISDC0">F8272ISDC0 — BODY SPOILER MAXTOP 3 ISUZU D-MAX D</option>
+<option value="F8272MIDCC0">F8272MIDCC0 — BODY SPOILER NXGEN CANOPY MMAL2022 </option>
+<option value="F8272TOCAC0">F8272TOCAC0 — CAMRY LIP SPOILER 25YM TADME PIO</option>
+<option value="F8272TOCBC0">F8272TOCBC0 — CAMRY LIP SPOILER 25YM TADME DIO</option>
+<option value="F8272TODBC0">F8272TODBC0 — REAR SPOILER FOR ROLLER SHUTTER</option>
+<option value="F8272TOYAC0">F8272TOYAC0 — BODY TRUNK SPOILER YARIS 23YM (INJE</option>
+<option value="F8274F5AFLMIPC0">F8274F5AFLMIPC0 — BODY FRONT BUMPER MOLDING-LH ก่อนทำ</option>
+<option value="F8274F5AFRMIPC0">F8274F5AFRMIPC0 — BODY FRONT BUMPER MOLDING-RH ก่อนทำ</option>
+<option value="F8274F5BFLMIPC0">F8274F5BFLMIPC0 — BODY FRONT FENDER MOLDING-LH ก่อนทำ</option>
+<option value="F8274F5BFRMIPC0">F8274F5BFRMIPC0 — BODY FRONT FENDER MOLDING-RH ก่อนทำ</option>
+<option value="F8274F5CLRMIPC0">F8274F5CLRMIPC0 — BODY REAR DOOR MOLDING-LH ก่อนทำสี</option>
+<option value="F8274F5CRRMIPC0">F8274F5CRRMIPC0 — BODY REAR DOOR MOLDING-RH ก่อนทำสี</option>
+<option value="F8274F5DRLMIPC0">F8274F5DRLMIPC0 — BODY REAR QTR MOLDING-LH ก่อนทำสี</option>
+<option value="F8274F5DRRMIPC0">F8274F5DRRMIPC0 — BODY REAR QTR MOLDING-RH ก่อนทำสี</option>
+<option value="F8274F5ERLMIPC0">F8274F5ERLMIPC0 — BODY REAR BUMPER MOLDING-LH ก่อนทำส</option>
+<option value="F8274F5ERRMIPC0">F8274F5ERRMIPC0 — BODY REAR BUMPER MOLDING-RH ก่อนทำส</option>
+<option value="F8274FLFORA00">F8274FLFORA00 — S1WB-16L561-AC SHLD RR WHL FRT SPLS</option>
+<option value="F8274FLFORA01">F8274FLFORA01 — S1WZ-16A550-F SHLD RR WHL FRT SPLS </option>
+<option value="F8274FRFORA00">F8274FRFORA00 — S1WB-16L560-AC SHLD RR WHL FRT SPLS</option>
+<option value="F8274FRFORA01">F8274FRFORA01 — S1WZ-16A550-E SHLD RR WHL FRT SPLS</option>
+<option value="F8274ILFORA00">F8274ILFORA00 — FRONT WAL RANGER  LH INNER</option>
+<option value="F8274ILFORA01">F8274ILFORA01 — FRONT WAL RANGER  LH INNER</option>
+<option value="F8274IRFORA00">F8274IRFORA00 — FRONT WAL RANGER  RH INNER</option>
+<option value="F8274IRFORA01">F8274IRFORA01 — FRONT WAL RANGER  RH INNER</option>
+<option value="F8274OLFORA00">F8274OLFORA00 — FRONT WAL RANGER  LH OUTER</option>
+<option value="F8274OLFORA01">F8274OLFORA01 — FRONT WAL RANGER  LH OUTER</option>
+<option value="F8274ORFORA00">F8274ORFORA00 — FRONT WAL RANGER  RH OUTER</option>
+<option value="F8274ORFORA01">F8274ORFORA01 — FRONT WAL RANGER  RH OUTER</option>
+<option value="F8274RLFORA00">F8274RLFORA00 — S1WB-E28401-AC SHLD RR WHL SPLS RR </option>
+<option value="F8274RLFORB00">F8274RLFORB00 — S1WB-E28345-AD SHLD ASY RR WHL SPLS</option>
+<option value="F8274RLFORD00">F8274RLFORD00 — S1WZ-2628371-B SHLD ASY RR WHL SPLS</option>
+<option value="F8274RRFORA00">F8274RRFORA00 — S1WB-E28400-AC SHLD RR WHL SPLS RR</option>
+<option value="F8274RRFORB00">F8274RRFORB00 — S1WB-E28344-AC SHLD ASY RR WHL SPLS</option>
+<option value="F8274RRFORD00">F8274RRFORD00 — S1WZ-2628370-B SHLD ASY RR WHL SPLS</option>
+<option value="F8275AXXB01">F8275AXXB01 — BODY MAX BOX CONCORDE EXTRA V2 FOR </option>
+<option value="F8275AXXC01">F8275AXXC01 — COVER MAX BOX BLOW MOLD</option>
+<option value="F8277BTOGC0">F8277BTOGC0 — COVER OUTER DECK BAR LH #ก่อนทำสี</option>
+<option value="F8277ETODC0">F8277ETODC0 — COVER OUTER  581  LH</option>
+<option value="F8277FTODC0">F8277FTODC0 — BODY COVER OUTER LH SPORT BAR D-CAB</option>
+<option value="F8278BTOGC0">F8278BTOGC0 — COVER OUTER DECK BAR RH #ก่อนทำสี</option>
+<option value="F8278ETODC0">F8278ETODC0 — COVER OUTER  581  RH</option>
+<option value="F8278FTODC0">F8278FTODC0 — BODY COVER OUTER RH SPORT BAR D-CAB</option>
+<option value="F8279TOD00">F8279TOD00 — BODY TAIL GATE PROTECTOR 645B HILUX</option>
+<option value="F8279TOD001">F8279TOD001 — BODY TAIL GATE PROTECTOR 581D</option>
+<option value="F828032CB01">F828032CB01 — BODY SURF SKATE 32 inch #CARBON BLA</option>
+<option value="F8281LISPC0">F8281LISPC0 — BODY BACK UP LAMP BEZEL LH</option>
+<option value="F8281LTOL001">F8281LTOL001 — FOG LAMP GARNISH CHROME LC300 23YM </option>
+<option value="F8281RISPC0">F8281RISPC0 — BODY BACK UP LAMP BEZEL RH</option>
+<option value="F8281RTOL001">F8281RTOL001 — FOG LAMP GARNISH CHROME LC300 23YM </option>
+<option value="F8282FLTOG00">F8282FLTOG00 — BODY FRONT MUD GUARD TOYOTA COROLLA</option>
+<option value="F8282FRTOG00">F8282FRTOG00 — BODY FRONT MUD GUARD TOYOTA COROLLA</option>
+<option value="F8282RLTOG00">F8282RLTOG00 — BODY REAR MUD GUARD TOYOTA COROLLA </option>
+<option value="F8282RRTOG00">F8282RRTOG00 — BODY REAR MUD GUARD TOYOTA COROLLA </option>
+<option value="F8283LXX00">F8283LXX00 — SOLID SIDE WINDOW FOR VENTURE CANOP</option>
+<option value="F8283RXX00">F8283RXX00 — SOLID SIDE WINDOW FOR VENTURE CANOP</option>
+<option value="F8284LISDAC0">F8284LISDAC0 — ORNAMENT CREW LH SILVER</option>
+<option value="F8284LISDAC1">F8284LISDAC1 — ORNAMENT CREW LH GUN METALLIC</option>
+<option value="F8284LISXAC0">F8284LISXAC0 — ORNAMENT EXTEN LH SILVER</option>
+<option value="F8284LISXAC1">F8284LISXAC1 — ORNAMENT EXTEN LH GUN METALLIC</option>
+<option value="F8284RISDAC0">F8284RISDAC0 — ORNAMENT CREW RH SILVER</option>
+<option value="F8284RISDAC1">F8284RISDAC1 — ORNAMENT CREW RH GUN METALLIC</option>
+<option value="F8284RISXAC0">F8284RISXAC0 — ORNAMENT EXTEN RH SILVER</option>
+<option value="F8284RISXAC1">F8284RISXAC1 — ORNAMENT EXTEN RH GUN METALLIC</option>
+<option value="F8285FTODC0">F8285FTODC0 — BODY COVER BRACKET LH SPORT BAR D-C</option>
+<option value="F8286FTODC0">F8286FTODC0 — BODY COVER BRACKET RH SPORT BAR D-C</option>
+<option value="F8299ALFOR00">F8299ALFOR00 — R1WB-16G563-AB INS ASY FRT FNDR SPL</option>
+<option value="F8299ARFOR00">F8299ARFOR00 — R1WB-16G562-AB INS ASY FRT FNDR SPL</option>
+<option value="F8299BLFOR00">F8299BLFOR00 — SHLD FRT WHL SPLS LH</option>
+<option value="F8299BRFOR00">F8299BRFOR00 — SHLD FRT WHL SPLS RH</option>
+<option value="F82XXX">F82XXX — Side Step RG21  Extn LH</option>
+<option value="No Loading">No Loading — No Loading</option>
+<option value="R3115048">R3115048 — CAP LOCK PP PIPE PIN 15x6mm.</option>
+<option value="R8015439">R8015439 — BODY FRONT FLANGE LH</option>
+<option value="R8015440">R8015440 — BODY FRONT FLANGE RH</option>
+<option value="S8274RLP5FORA00">S8274RLP5FORA00 — S1WZ-16A550-C SHLD RR WHL SPLS RR L</option>
+<option value="S8274RRP5FORA00">S8274RRP5FORA00 — S1WZ-16A550-B SHLD RR WHL SPLS RR</option>
+<option value="S8299BLFOR01">S8299BLFOR01 — R1WB-16A263-BC SHLD FRT WHL SPLS LH</option>
+<option value="S8299BLFOR02">S8299BLFOR02 — R1WZ-16A550-H MUDFLAP ASY</option>
+<option value="S8299BRFOR01">S8299BRFOR01 — R1WB-16A262-BC SHLD FRT WHL SPLS RH</option>
+<option value="S8299BRFOR02">S8299BRFOR02 — R1WZ-16A550-G MUDFLAP ASY</option>
+</select>
+</div>
+
+<div id="setupForm" style="display:none">
+<div style="background:var(--inp);border-radius:8px;padding:10px;margin-bottom:10px">
+<div style="font-size:11px;color:var(--dim)">Part Name:</div>
+<div id="setupPartName" style="font-weight:700;color:var(--accent2);font-size:14px"></div>
+<div style="font-size:11px;color:var(--dim);margin-top:4px">Customer: <span id="setupCust" style="color:var(--text)">—</span> | Model: <span id="setupModel" style="color:var(--text)">—</span></div>
+</div>
+
+<div class="g3">
+<div class="f"><label class="fl">📉 Min Stock (จุดเตือน)</label><input type="number" id="setupMin" value="0" min="0"></div>
+<div class="f"><label class="fl">📈 Max Stock (จุดเต็ม)</label><input type="number" id="setupMax" value="1000" min="0"></div>
+<div class="f"><label class="fl">📦 Current Stock</label><input type="number" id="setupCurrent" value="0" min="0"></div>
+</div>
+
+<div class="g2">
+<div class="f"><label class="fl">📅 Lead Time (วัน)</label><input type="number" id="setupLeadTime" value="3" min="0" step="0.5"></div>
+<div class="f"><label class="fl">📊 Safety Stock</label><input type="number" id="setupSafety" value="100" min="0"></div>
+</div>
+
+<button class="btn btn-p" onclick="savePartSetup()">💾 บันทึก Max-Min</button>
+</div>
+
+<div style="margin-top:14px">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:6px">📋 Parts ที่ตั้งค่าแล้ว</div>
+<div style="overflow-x:auto;background:var(--inp);border-radius:8px">
+<table class="tbl" id="setupTable"></table>
+</div>
+</div>
+</div></div>
+
+<!-- ==================== TAB 4: Manual IN/OUT ==================== -->
+<div class="tc" id="tab4"><div class="card">
+<div class="card-title">📝 บันทึก IN/OUT (Manual)</div>
+<div class="card-sub">บันทึกการเบิก-จ่าย manual (เพิ่มเติมจาก Step 4 auto import)</div>
+
+<div class="g2">
+<div class="f"><label class="fl">📅 Date</label><input type="date" id="movDate"></div>
+<div class="f"><label class="fl">🔄 ประเภท</label><select id="movType">
+<option value="IN">📥 IN — รับเข้า WIP (จาก Production)</option>
+<option value="OUT">📤 OUT — จ่ายออก (ไป FG / Secondary Process)</option>
+<option value="ADJ">⚖️ Adjust — ปรับยอด (Stock Count)</option>
+</select></div>
+</div>
+
+<div class="f"><label class="fl">🔩 Part No.</label>
+<select id="movPart">
+<option value="">— เลือก Part —</option>
+<option value="96100A040P-1">96100A040P-1 — FACE STEP RH (C-CAB)</option>
+<option value="96101A040P-1">96101A040P-1 — FACE STEP LH (C-CAB)</option>
+<option value="F8201001">F8201001 — COIN BOX COMPLETE SET (1 CTN /70 P.</option>
+<option value="F8210T00">F8210T00 — BODY FRONT DOOR POCKET TOYOTA LC 70</option>
+<option value="F8211TOX00">F8211TOX00 — BODY CONSOLE BOX SEPARATOR TOYOTA H</option>
+<option value="F8211TOXB02">F8211TOXB02 — CONSOLE BOX SEPARATOR (SHORT)</option>
+<option value="F8211TOXC02">F8211TOXC02 — CONSOLE BOX SEPARATOR (LONG)</option>
+<option value="F8212FLTOD001">F8212FLTOD001 — BODY SIDE MOLDING FRONT LH TOYOTA H</option>
+<option value="F8212FLTOXC0">F8212FLTOXC0 — BODY SIDE MOLDING FRONT LH TOYOTA F</option>
+<option value="F8212FRTOD001">F8212FRTOD001 — BODY SIDE MOLDING FRONT RH TOYOTA H</option>
+<option value="F8212FRTOXC0">F8212FRTOXC0 — BODY SIDE MOLDING FRONT RH TOYOTA F</option>
+<option value="F8212RLTOD001">F8212RLTOD001 — BODY SIDE MOLDING REAR LH TOYOTA HI</option>
+<option value="F8212RLTOXC0">F8212RLTOXC0 — BODY SIDE MOLDING REAR LH TOYOTA FJ</option>
+<option value="F8212RRTOD001">F8212RRTOD001 — BODY SIDE MOLDING REAR RH TOYOTA HI</option>
+<option value="F8212RRTOXC0">F8212RRTOXC0 — BODY SIDE MOLDING REAR RH TOYOTA FJ</option>
+<option value="F8213FLTOC001">F8213FLTOC001 — BODY SIDE MOLDING FRONT LH TOYOTA C</option>
+<option value="F8213FLTOC002">F8213FLTOC002 — CAMRY SIDE MOLDING CHROME FRONT LH</option>
+<option value="F8213FRTOC001">F8213FRTOC001 — BODY SIDE MOLDING FRONT RH TOYOTA C</option>
+<option value="F8213FRTOC002">F8213FRTOC002 — CAMRY SIDE MOLDING CHROME FRONT RH</option>
+<option value="F8213RLTOC001">F8213RLTOC001 — BODY SIDE MOLDING REAR LH TOYOTA CA</option>
+<option value="F8213RLTOC002">F8213RLTOC002 — CAMRY SIDE MOLDING CHROME REAR LH</option>
+<option value="F8213RRTOC001">F8213RRTOC001 — BODY SIDE MOLDING REAR RH TOYOTA CA</option>
+<option value="F8213RRTOC002">F8213RRTOC002 — CAMRY SIDE MOLDING CHROME REAR RH</option>
+<option value="F8215TOD001">F8215TOD001 — CHROME PLATE MAXBUMPER GUARD TOYOTA</option>
+<option value="F8215TOL001">F8215TOL001 — CHROME PLATE FRONT BUMPER GUARD TOY</option>
+<option value="F8215TOP001">F8215TOP001 — CHROME PLATE FRONT BUMPER PROTECTOR</option>
+<option value="F8221AMADC0">F8221AMADC0 — BODY CENTER STYLING BAR BT-50 #BEFO</option>
+<option value="F8221BTOGC0">F8221BTOGC0 — BODY CENTER DECK BAR  645B</option>
+<option value="F8221CTODC0">F8221CTODC0 — BODY CENTER SPORT BAR TOYOTA ROCCO </option>
+<option value="F8221ETODC0">F8221ETODC0 — BODY CENTER SPORT BAR 581D</option>
+<option value="F8221FTODC0">F8221FTODC0 — BODY CENTER SPORT BAR D-CAB HILUX 2</option>
+<option value="F8221ISDAC0">F8221ISDAC0 — BODY CENTER SAIL PLANE RG01</option>
+<option value="F8221ISDC0">F8221ISDC0 — BODY CENTER SPORT BAR ISUZU D-MAX 2</option>
+<option value="F8221ISDCC0">F8221ISDCC0 — BODY PART SPORT HOOP CERTER RG17</option>
+<option value="F8221MGDC0">F8221MGDC0 — BODY CENTER SK82 MG ก่อนทำสี</option>
+<option value="F8221TODC0">F8221TODC0 — BODY CENTER MAXSTYLISH BAR TOYOTA  </option>
+<option value="F8221TODCA">F8221TODCA — BODY CENTER SPORT BAR A-DECK TOYOTA</option>
+<option value="F8222AMADC0">F8222AMADC0 — BODY SIDE LH STYLING BAR BT-50 #BEF</option>
+<option value="F8222BTOGC0">F8222BTOGC0 — BODY SIDE DECK BAR LH  645B</option>
+<option value="F8222CTODC0">F8222CTODC0 — BODY SIDE SPORT BAR LH TOYOTA ROCCO</option>
+<option value="F8222ETODC0">F8222ETODC0 — BODY SIDE LH SPORT BAR 581D</option>
+<option value="F8222FTODC0">F8222FTODC0 — BODY SIDE LH SPORT BAR D-CAB HILUX </option>
+<option value="F8222ISDAC0">F8222ISDAC0 — BODY FRONT LH SAIL PLANE RG01</option>
+<option value="F8222ISDAC1">F8222ISDAC1 — BODY FRONT LH SAIL PLANE RG01 #ก่อน</option>
+<option value="F8222ISDBC0">F8222ISDBC0 — BODY CARGO SPOILER FR LH RG05</option>
+<option value="F8222ISDC1">F8222ISDC1 — BODY SIDE SPORT BAR 01 LH ISUZU RT9</option>
+<option value="F8222ISDCC0">F8222ISDCC0 — BODY PART SPORT HOOP FRONT LH RG17</option>
+<option value="F8222MGDC0">F8222MGDC0 — BODY SIDE FRONT SK82 MG LH ก่อนทำสี</option>
+<option value="F8222TODC0">F8222TODC0 — BODY SIDE SPORT BAR LH TOYOTA HILUX</option>
+<option value="F8222TODCA">F8222TODCA — BODY SIDE LH SPORT BAR A-DECK TOYOT</option>
+<option value="F8223AMADC0">F8223AMADC0 — BODY SIDE RH STYLING BAR BT-50 #BEF</option>
+<option value="F8223BTOGC0">F8223BTOGC0 — BODY SIDE DECK BAR RH  645B</option>
+<option value="F8223CTODC0">F8223CTODC0 — BODY SIDE SPORT BAR RH TOYOTA ROCCO</option>
+<option value="F8223ETODC0">F8223ETODC0 — BODY SIDE RH SPORT BAR 581D</option>
+<option value="F8223FTODC0">F8223FTODC0 — BODY SIDE RH SPORT BAR D-CAB HILUX </option>
+<option value="F8223ISDAC0">F8223ISDAC0 — BODY FRONT RH SAIL PLANE RG01</option>
+<option value="F8223ISDAC1">F8223ISDAC1 — BODY FRONT RH SAIL PLANE RG01 #ก่อน</option>
+<option value="F8223ISDBC0">F8223ISDBC0 — BODY CARGO SPOILER FR RH RG05</option>
+<option value="F8223ISDC1">F8223ISDC1 — BODY SIDE SPORT BAR 01 RH ISUZU RT9</option>
+<option value="F8223ISDCC0">F8223ISDCC0 — BODY PART SPORT HOOP FRONT RH RG17</option>
+<option value="F8223MGDC0">F8223MGDC0 — BODY SIDE FRONT SK82 MG RH ก่อนทำสี</option>
+<option value="F8223TODC0">F8223TODC0 — BODY SIDE SPORT BAR RH TOYOTA HILUX</option>
+<option value="F8223TODCA">F8223TODCA — BODY SIDE RH SPORT BAR A-DECK TOYOT</option>
+<option value="F8224AMADC0">F8224AMADC0 — BODY REAR LH STYLING BAR BT-50 #BEF</option>
+<option value="F8224BTODC0">F8224BTODC0 — BODY BOX RAIL DECK BAR LH D-CAB   6</option>
+<option value="F8224BTOXC0">F8224BTOXC0 — BODY BOX RAIL LH SPORT BAR C-CAB 64</option>
+<option value="F8224CTODC0">F8224CTODC0 — BODY BOX RAIL SPORT BAR LH TOYOTA R</option>
+<option value="F8224ETODC0">F8224ETODC0 — BODY BOX RAIL DECK BAR LH D-CAB   5</option>
+<option value="F8224FTODC0">F8224FTODC0 — BODY BOX RAIL LH SPORT BAR D-CAB HI</option>
+<option value="F8224ISDAC0">F8224ISDAC0 — BODY REAR LH SAIL PLANE RG01</option>
+<option value="F8224ISDAC1">F8224ISDAC1 — BODY REAR LH SAIL PLANE RG01 #ก่อนท</option>
+<option value="F8224ISDBC0">F8224ISDBC0 — BODY CARGO SPOILER RR CREW CAB LH R</option>
+<option value="F8224ISDC0">F8224ISDC0 — BODY BOX  RAIL SPORT BAR 01 LH ISUZ</option>
+<option value="F8224ISDCC0">F8224ISDCC0 — BODY PART SPORT HOOP REAR CREW LH R</option>
+<option value="F8224ISXBC0">F8224ISXBC0 — BODY CARGO SPOILER RR EXTEN CAB LH </option>
+<option value="F8224MGDC0">F8224MGDC0 — BODY SIDE RAIL SK82 MG LH ก่อนทำสี</option>
+<option value="F8224TODC0">F8224TODC0 — BODY BOX RAIL SPORT BAR LH TOYOTA H</option>
+<option value="F8224TODCA">F8224TODCA — BODY BOX RAIL LH SPORT BAR D-CAB BA</option>
+<option value="F8224TOXCA">F8224TOXCA — BODY BOX RAIL LH SPORT BAR C-CAB A-</option>
+<option value="F8225AMADC0">F8225AMADC0 — BODY REAR RH STYLING BAR BT-50 #BEF</option>
+<option value="F8225BTODC0">F8225BTODC0 — BODY BOX RAIL DECK BAR RH D-CAB  64</option>
+<option value="F8225BTOXC0">F8225BTOXC0 — BODY BOX RAIL RH SPORT BAR C-CAB 64</option>
+<option value="F8225CTODC0">F8225CTODC0 — BODY BOX RAIL SPORT BAR RH TOYOTA R</option>
+<option value="F8225ETODC0">F8225ETODC0 — BODY BOX RAIL DECK BAR RH D-CAB  58</option>
+<option value="F8225FTODC0">F8225FTODC0 — BODY BOX RAIL RH SPORT BAR D-CAB HI</option>
+<option value="F8225ISDAC1">F8225ISDAC1 — BODY REAR RH SAIL PLANE RG01 #ก่อนท</option>
+<option value="F8225ISDBC0">F8225ISDBC0 — BODY CARGO SPOILER RR CREW CAB RH R</option>
+<option value="F8225ISDC0">F8225ISDC0 — BODY BOX  RAIL SPORT BAR 01 RH ISUZ</option>
+<option value="F8225ISDCC0">F8225ISDCC0 — BODY PART SPORT HOOP REAR CREW RH R</option>
+<option value="F8225ISXBC0">F8225ISXBC0 — BODY CARGO SPOILER RR EXTEN CAB RH </option>
+<option value="F8225MGDC0">F8225MGDC0 — BODY SIDE RAIL SK82 MG RH ก่อนทำสี</option>
+<option value="F8225TODC0">F8225TODC0 — BODY BOX RAIL SPORT BAR RH TOYOTA H</option>
+<option value="F8225TODCA">F8225TODCA — BODY BOX RAIL RH SPORT BAR D-CAB BA</option>
+<option value="F8225TOXCA">F8225TOXCA — BODY BOX RAIL RH SPORT BAR C-CAB A-</option>
+<option value="F8233LH001">F8233LH001 — BODY SIDE DOOR GARNISH  DBC FRONT L</option>
+<option value="F8233LMIDC0">F8233LMIDC0 — BODY SIDE DOOR GARNISH DC FRONT LH</option>
+<option value="F8233LTOL00">F8233LTOL00 — BODY SIDE MOLDING FRONT LH LC300 20</option>
+<option value="F8233RH001">F8233RH001 — BODY SIDE DOOR GARNISH  DBC FRONT R</option>
+<option value="F8233RMIDC0">F8233RMIDC0 — BODY SIDE DOOR GARNISH DC FRONT RH</option>
+<option value="F8233RTOL00">F8233RTOL00 — BODY SIDE MOLDING FRONT RH LC300 20</option>
+<option value="F8234LH001">F8234LH001 — BODY  SIDE DOOR GARNISH  DBC  REAR </option>
+<option value="F8234LMIDC0">F8234LMIDC0 — BODY SIDE DOOR GARNISH DC REAR LH</option>
+<option value="F8234LTOL00">F8234LTOL00 — BODY SIDE MOLDING REAR LH LC300 202</option>
+<option value="F8234RH001">F8234RH001 — BODY SIDE DOOR GARNISH  DBC REAR RH</option>
+<option value="F8234RMIDC0">F8234RMIDC0 — BODY SIDE DOOR GARNISH DC REAR RH</option>
+<option value="F8234RTOL00">F8234RTOL00 — BODY SIDE MOLDING REAR RH LC300 202</option>
+<option value="F8240LH001">F8240LH001 — BODY SIDE DOOR GARNISH  FRONT CC LH</option>
+<option value="F8240RH001">F8240RH001 — BODY SIDE DOOR GARNISH  FRONT CC RH</option>
+<option value="F8241LH001">F8241LH001 — BODY SIDE DOOR GARNISH  REAR CC LH </option>
+<option value="F8241RH001">F8241RH001 — BODY SIDE DOOR GARNISH  REAR CC RH </option>
+<option value="F8244BTOGC0">F8244BTOGC0 — COVER CENTER DECK BAR LH #ก่อนทำสี</option>
+<option value="F8244ETODC0">F8244ETODC0 — BODY COVER CENTER LH SPORT BAR 581D</option>
+<option value="F8244FTODC0">F8244FTODC0 — BODY COVER CENTER LH SPORT BAR D-CA</option>
+<option value="F8244ISDC0">F8244ISDC0 — COVER  CENTER SPORT BAR 01 LH</option>
+<option value="F8244TODC0">F8244TODC0 — COVER CENTER SPORT BAR 01 LH TOYOTA</option>
+<option value="F8244TODCA">F8244TODCA — BODY COVER CENTER LH SPORT BAR A-DE</option>
+<option value="F8245BTOGC0">F8245BTOGC0 — COVER CENTER DECK BAR RH #ก่อนทำสี</option>
+<option value="F8245FTODC0">F8245FTODC0 — BODY COVER CENTER RH SPORT BAR D-CA</option>
+<option value="F8245ISDC0">F8245ISDC0 — COVER  CENTER SPORT BAR 01 RH</option>
+<option value="F8245TODC0">F8245TODC0 — COVER CENTER SPORT BAR 01 RH TOYOTA</option>
+<option value="F8245TODCA">F8245TODCA — BODY COVER CENTER RH SPORT BAR A-DE</option>
+<option value="F8246BTOGC0">F8246BTOGC0 — COVER SIDE DECK BAR 01 LH #ก่อนทำสี</option>
+<option value="F8246ETODC0">F8246ETODC0 — COVER SIDE LH SPORT BAR 581D</option>
+<option value="F8246FTODC0">F8246FTODC0 — BODY COVER FRONT LH SPORT BAR D-CAB</option>
+<option value="F8246ISDAC0">F8246ISDAC0 — BODY FRONT COVER LH SAIL PLANE RG01</option>
+<option value="F8246ISDC0">F8246ISDC0 — COVER  FRONT SPORT BAR 01 LH</option>
+<option value="F8246TODC0">F8246TODC0 — COVER FRONT SPORT BAR 01 LH TOYOTA </option>
+<option value="F8247BTOGC0">F8247BTOGC0 — COVER SIDE DECK BAR 01 RH #ก่อนทำสี</option>
+<option value="F8247ETODC0">F8247ETODC0 — COVER SIDE RH SPORT BAR 581D</option>
+<option value="F8247FTODC0">F8247FTODC0 — BODY COVER FRONT RH SPORT BAR D-CAB</option>
+<option value="F8247ISDAC0">F8247ISDAC0 — BODY FRONT COVER RH SAIL PLANE RG01</option>
+<option value="F8247ISDC0">F8247ISDC0 — COVER  FRONT SPORT BAR 01 RH</option>
+<option value="F8247TODC0">F8247TODC0 — COVER FRONT SPORT BAR 01 RH TOYOTA </option>
+<option value="F8248FTODC0">F8248FTODC0 — BODY COVER SIDE LH SPORT BAR D-CAB </option>
+<option value="F8248ISDC0">F8248ISDC0 — COVER SIDE SPORT BAR 01 LH</option>
+<option value="F8248TODCA">F8248TODCA — BODY COVER SIDE 01 LH SPORT BAR A-D</option>
+<option value="F8249FTODC0">F8249FTODC0 — BODY COVER SIDE RH SPORT BAR D-CAB </option>
+<option value="F8249ISDC0">F8249ISDC0 — COVER SIDE SPORT BAR 01 RH</option>
+<option value="F8249TODCA">F8249TODCA — BODY COVER SIDE 01 RH SPORT BAR A-D</option>
+<option value="F8252ISGAC0">F8252ISGAC0 — BODY UNDER SPOILER REAR CTR</option>
+<option value="F8252ISXC0">F8252ISXC0 — UNDER SPOILER RT50 REAR CENTER (INJ</option>
+<option value="F8252LTOL001">F8252LTOL001 — VDP1-022-1-00 PM813-60010 REAR BUMP</option>
+<option value="F8252RTOL001">F8252RTOL001 — VDP1-021-1-00 PM813-60020 REAR BUMP</option>
+<option value="F8253ISGAC0">F8253ISGAC0 — BODY REAR UNDER SPOILER CORNOR LH</option>
+<option value="F8253ISXC0">F8253ISXC0 — UNDER SPOILER RT50 REAR SIDE LH (IN</option>
+<option value="F8253LTOL001">F8253LTOL001 — REAR BUMPER GARNISH CHROME LC300 23</option>
+<option value="F8254ISGAC0">F8254ISGAC0 — BODY REAR UNDER SPOILER CORNOR RH</option>
+<option value="F8254ISXC0">F8254ISXC0 — UNDER SPOILER RT50 REAR SIDE RH (IN</option>
+<option value="F8254RTOL001">F8254RTOL001 — REAR BUMPER GARNISH CHROME LC300 23</option>
+<option value="F8257ISDAC0">F8257ISDAC0 — SIDE UNDER SPOILER FRONT CRW LH</option>
+<option value="F8257ISPAC0">F8257ISPAC0 — BODY SIDE SKIRT  LH ISUZU MU-X RJ08</option>
+<option value="F8257ISXAC0">F8257ISXAC0 — SIDE UNDER SPOILER FRONT EXT LH</option>
+<option value="F8257ISXC0">F8257ISXC0 — UNDER SPOILER RT50 SIDE FRONT  LH (</option>
+<option value="F8258ISDAC0">F8258ISDAC0 — SIDE UNDER SPOILER FRONT CRW RH</option>
+<option value="F8258ISPAC0">F8258ISPAC0 — BODY SIDE SKIRT  RH ISUZU MU-X RJ08</option>
+<option value="F8258ISXAC0">F8258ISXAC0 — SIDE UNDER SPOILER FRONT EXT RH</option>
+<option value="F8258ISXC0">F8258ISXC0 — UNDER SPOILER RT50 SIDE FRONT  RH (</option>
+<option value="F8261ISDAC0">F8261ISDAC0 — SIDE UNDER SPOILER REAR CRW LH</option>
+<option value="F8261ISXAC0">F8261ISXAC0 — SIDE UNDER SPOILER REAR EXT LH</option>
+<option value="F8261ISXC0">F8261ISXC0 — BODY SIDE REAR UNDER SPOILER LH #ก่</option>
+<option value="F8262ISDAC0">F8262ISDAC0 — SIDE UNDER SPOILER REAR CRW RH</option>
+<option value="F8262ISXAC0">F8262ISXAC0 — SIDE UNDER SPOILER REAR EXT RH</option>
+<option value="F8262ISXC0">F8262ISXC0 — BODY SIDE REAR UNDER SPOILER RH #ก่</option>
+<option value="F8263ISDC1">F8263ISDC1 — BODY CARGO EXTENDER ICL RG10 LH</option>
+<option value="F8264ISDC1">F8264ISDC1 — BODY CARGO EXTENDER ICL RG10 RH</option>
+<option value="F8267CTISGC0">F8267CTISGC0 — BODY FRONT BUMPER GUARD EU CENTER I</option>
+<option value="F8267ISGAC0">F8267ISGAC0 — FRONT SKIRT RG14</option>
+<option value="F8267ISGBC0">F8267ISGBC0 — Front Bumper Under Garnish</option>
+<option value="F8267ISGC0">F8267ISGC0 — BODY FRONT SKIRT HI LANDER RT93 ISU</option>
+<option value="F8267ISGCC0">F8267ISGCC0 — BODY FRONT SKIRT RG21</option>
+<option value="F8267ISPC0">F8267ISPC0 — BODY FRONT SPOILER MU-X RF35 ก่อนทำ</option>
+<option value="F8267ISPC1">F8267ISPC1 — BODY FRONT SPOILER MU-X RF35 NEW TR</option>
+<option value="F8267LHOCC0">F8267LHOCC0 — BODY FRONT UNDER SPOILER LH 3TX (IN</option>
+<option value="F8267LTOCC0">F8267LTOCC0 — BODY FRONT SKIRT LH  TOYOTA CHR 201</option>
+<option value="F8267RHOCC0">F8267RHOCC0 — BODY FRONT UNDER SPOILER RH 3TX (IN</option>
+<option value="F8267RTOCC0">F8267RTOCC0 — BODY FRONT SKIRT RH  TOYOTA CHR 201</option>
+<option value="F8267SLISGC0">F8267SLISGC0 — BODY FRONT BUMPER GUARD EU SIDE LH </option>
+<option value="F8267SRISGC0">F8267SRISGC0 — BODY FRONT BUMPER GUARD EU SIDE RH </option>
+<option value="F8267TOGAC0">F8267TOGAC0 — Front Under Run 581D</option>
+<option value="F8268ETOD00">F8268ETOD00 — COVER BRACKET CLAMP LOCK581D</option>
+<option value="F8268FTOD00">F8268FTOD00 — BODY COVER CLAMP SPORT BAR D-CAB HI</option>
+<option value="F8268MGD00">F8268MGD00 — COVER BRACKET CLAMP LOCK SK82 MG TE</option>
+<option value="F8268TOD00">F8268TOD00 — BODY COVER SIDE 02 SPORT BAR A-DECK</option>
+<option value="F8269LISDA00">F8269LISDA00 — STEP ASM ASST CREW LH WITH ORNAMENT</option>
+<option value="F8269LISDA01">F8269LISDA01 — STEP ASM ASST CREW LH WITHOUT ORNAM</option>
+<option value="F8269LISXA00">F8269LISXA00 — STEP ASM ASST EXT LH WITH ORNAMENT </option>
+<option value="F8269LMID00">F8269LMID00 — FACE STEP LH (D-CAB)#M1</option>
+<option value="F8269LMIX00">F8269LMIX00 — FACE STEP LH (C-CAB)</option>
+<option value="F8269LTOD00">F8269LTOD00 — BODY SIDE STEP LH TOYOTA HILUX DBC </option>
+<option value="F8269LTOD01">F8269LTOD01 — BODY SIDE STEP TOYOTA HILUX DBC 201</option>
+<option value="F8269RISDA00">F8269RISDA00 — STEP ASM ASST CREW RH WITH ORNAMENT</option>
+<option value="F8269RISDA01">F8269RISDA01 — STEP ASM ASST CREW RH WITHOUT ORNAM</option>
+<option value="F8269RISXA00">F8269RISXA00 — STEP ASM ASST EXT RH WITH ORNAMENT </option>
+<option value="F8269RMID00">F8269RMID00 — FACE STEP RH (D-CAB)#M1</option>
+<option value="F8269RMIX00">F8269RMIX00 — FACE STEP RH (C-CAB)</option>
+<option value="F8269RTOD00">F8269RTOD00 — BODY SIDE STEP RH TOYOTA HILUX DBC </option>
+<option value="F8269RTOD01">F8269RTOD01 — BODY SIDE STEP TOYOTA HILUX DBC 201</option>
+<option value="F8269XFOG00">F8269XFOG00 — BODY CLEVER SIDE STEP FORD P703</option>
+<option value="F8269XTOD00">F8269XTOD00 — BODY CLEVER SIDE STEP</option>
+<option value="F8271ISPC0">F8271ISPC0 — BODY REAR SPOILER MU-X RF35 ก่อนทำส</option>
+<option value="F8271ISPC1">F8271ISPC1 — BODY REAR SPOILER MU-X RF35 NEW TRI</option>
+<option value="F8271LHOCAC0">F8271LHOCAC0 — BODY KIT RR UNDER SPOILER LH 3TX (I</option>
+<option value="F8271LHOCC0">F8271LHOCC0 — BODY REAR UNDER SPOILER LH HONDA CI</option>
+<option value="F8271LTOCC0">F8271LTOCC0 — BODY REAR SKIRT LH TOYOTA CHR ก่อนท</option>
+<option value="F8271RHOCAC0">F8271RHOCAC0 — BODY KIT RR UNDER SPOILER RH 3TX (I</option>
+<option value="F8271RHOCC0">F8271RHOCC0 — BODY REAR UNDER SPOILER RH HONDA CI</option>
+<option value="F8271RTOCC0">F8271RTOCC0 — BODY REAR SKIRT RH TOYOTA CHR ก่อนท</option>
+<option value="F8272AISDC0">F8272AISDC0 — SPOILER CANOPY 3 ISUZU D-MAX DBC 20</option>
+<option value="F8272AMIDC0">F8272AMIDC0 — SPOILER PREMIUM  MITSUBISHI L200 MY</option>
+<option value="F8272ATODC0">F8272ATODC0 — BODY SPOILER VENTURE CANOPY</option>
+<option value="F8272BMIDC0">F8272BMIDC0 — SPOILER STANDARD  MITSUBISHI L200 M</option>
+<option value="F8272ISDC0">F8272ISDC0 — BODY SPOILER MAXTOP 3 ISUZU D-MAX D</option>
+<option value="F8272MIDCC0">F8272MIDCC0 — BODY SPOILER NXGEN CANOPY MMAL2022 </option>
+<option value="F8272TOCAC0">F8272TOCAC0 — CAMRY LIP SPOILER 25YM TADME PIO</option>
+<option value="F8272TOCBC0">F8272TOCBC0 — CAMRY LIP SPOILER 25YM TADME DIO</option>
+<option value="F8272TODBC0">F8272TODBC0 — REAR SPOILER FOR ROLLER SHUTTER</option>
+<option value="F8272TOYAC0">F8272TOYAC0 — BODY TRUNK SPOILER YARIS 23YM (INJE</option>
+<option value="F8274F5AFLMIPC0">F8274F5AFLMIPC0 — BODY FRONT BUMPER MOLDING-LH ก่อนทำ</option>
+<option value="F8274F5AFRMIPC0">F8274F5AFRMIPC0 — BODY FRONT BUMPER MOLDING-RH ก่อนทำ</option>
+<option value="F8274F5BFLMIPC0">F8274F5BFLMIPC0 — BODY FRONT FENDER MOLDING-LH ก่อนทำ</option>
+<option value="F8274F5BFRMIPC0">F8274F5BFRMIPC0 — BODY FRONT FENDER MOLDING-RH ก่อนทำ</option>
+<option value="F8274F5CLRMIPC0">F8274F5CLRMIPC0 — BODY REAR DOOR MOLDING-LH ก่อนทำสี</option>
+<option value="F8274F5CRRMIPC0">F8274F5CRRMIPC0 — BODY REAR DOOR MOLDING-RH ก่อนทำสี</option>
+<option value="F8274F5DRLMIPC0">F8274F5DRLMIPC0 — BODY REAR QTR MOLDING-LH ก่อนทำสี</option>
+<option value="F8274F5DRRMIPC0">F8274F5DRRMIPC0 — BODY REAR QTR MOLDING-RH ก่อนทำสี</option>
+<option value="F8274F5ERLMIPC0">F8274F5ERLMIPC0 — BODY REAR BUMPER MOLDING-LH ก่อนทำส</option>
+<option value="F8274F5ERRMIPC0">F8274F5ERRMIPC0 — BODY REAR BUMPER MOLDING-RH ก่อนทำส</option>
+<option value="F8274FLFORA00">F8274FLFORA00 — S1WB-16L561-AC SHLD RR WHL FRT SPLS</option>
+<option value="F8274FLFORA01">F8274FLFORA01 — S1WZ-16A550-F SHLD RR WHL FRT SPLS </option>
+<option value="F8274FRFORA00">F8274FRFORA00 — S1WB-16L560-AC SHLD RR WHL FRT SPLS</option>
+<option value="F8274FRFORA01">F8274FRFORA01 — S1WZ-16A550-E SHLD RR WHL FRT SPLS</option>
+<option value="F8274ILFORA00">F8274ILFORA00 — FRONT WAL RANGER  LH INNER</option>
+<option value="F8274ILFORA01">F8274ILFORA01 — FRONT WAL RANGER  LH INNER</option>
+<option value="F8274IRFORA00">F8274IRFORA00 — FRONT WAL RANGER  RH INNER</option>
+<option value="F8274IRFORA01">F8274IRFORA01 — FRONT WAL RANGER  RH INNER</option>
+<option value="F8274OLFORA00">F8274OLFORA00 — FRONT WAL RANGER  LH OUTER</option>
+<option value="F8274OLFORA01">F8274OLFORA01 — FRONT WAL RANGER  LH OUTER</option>
+<option value="F8274ORFORA00">F8274ORFORA00 — FRONT WAL RANGER  RH OUTER</option>
+<option value="F8274ORFORA01">F8274ORFORA01 — FRONT WAL RANGER  RH OUTER</option>
+<option value="F8274RLFORA00">F8274RLFORA00 — S1WB-E28401-AC SHLD RR WHL SPLS RR </option>
+<option value="F8274RLFORB00">F8274RLFORB00 — S1WB-E28345-AD SHLD ASY RR WHL SPLS</option>
+<option value="F8274RLFORD00">F8274RLFORD00 — S1WZ-2628371-B SHLD ASY RR WHL SPLS</option>
+<option value="F8274RRFORA00">F8274RRFORA00 — S1WB-E28400-AC SHLD RR WHL SPLS RR</option>
+<option value="F8274RRFORB00">F8274RRFORB00 — S1WB-E28344-AC SHLD ASY RR WHL SPLS</option>
+<option value="F8274RRFORD00">F8274RRFORD00 — S1WZ-2628370-B SHLD ASY RR WHL SPLS</option>
+<option value="F8275AXXB01">F8275AXXB01 — BODY MAX BOX CONCORDE EXTRA V2 FOR </option>
+<option value="F8275AXXC01">F8275AXXC01 — COVER MAX BOX BLOW MOLD</option>
+<option value="F8277BTOGC0">F8277BTOGC0 — COVER OUTER DECK BAR LH #ก่อนทำสี</option>
+<option value="F8277ETODC0">F8277ETODC0 — COVER OUTER  581  LH</option>
+<option value="F8277FTODC0">F8277FTODC0 — BODY COVER OUTER LH SPORT BAR D-CAB</option>
+<option value="F8278BTOGC0">F8278BTOGC0 — COVER OUTER DECK BAR RH #ก่อนทำสี</option>
+<option value="F8278ETODC0">F8278ETODC0 — COVER OUTER  581  RH</option>
+<option value="F8278FTODC0">F8278FTODC0 — BODY COVER OUTER RH SPORT BAR D-CAB</option>
+<option value="F8279TOD00">F8279TOD00 — BODY TAIL GATE PROTECTOR 645B HILUX</option>
+<option value="F8279TOD001">F8279TOD001 — BODY TAIL GATE PROTECTOR 581D</option>
+<option value="F828032CB01">F828032CB01 — BODY SURF SKATE 32 inch #CARBON BLA</option>
+<option value="F8281LISPC0">F8281LISPC0 — BODY BACK UP LAMP BEZEL LH</option>
+<option value="F8281LTOL001">F8281LTOL001 — FOG LAMP GARNISH CHROME LC300 23YM </option>
+<option value="F8281RISPC0">F8281RISPC0 — BODY BACK UP LAMP BEZEL RH</option>
+<option value="F8281RTOL001">F8281RTOL001 — FOG LAMP GARNISH CHROME LC300 23YM </option>
+<option value="F8282FLTOG00">F8282FLTOG00 — BODY FRONT MUD GUARD TOYOTA COROLLA</option>
+<option value="F8282FRTOG00">F8282FRTOG00 — BODY FRONT MUD GUARD TOYOTA COROLLA</option>
+<option value="F8282RLTOG00">F8282RLTOG00 — BODY REAR MUD GUARD TOYOTA COROLLA </option>
+<option value="F8282RRTOG00">F8282RRTOG00 — BODY REAR MUD GUARD TOYOTA COROLLA </option>
+<option value="F8283LXX00">F8283LXX00 — SOLID SIDE WINDOW FOR VENTURE CANOP</option>
+<option value="F8283RXX00">F8283RXX00 — SOLID SIDE WINDOW FOR VENTURE CANOP</option>
+<option value="F8284LISDAC0">F8284LISDAC0 — ORNAMENT CREW LH SILVER</option>
+<option value="F8284LISDAC1">F8284LISDAC1 — ORNAMENT CREW LH GUN METALLIC</option>
+<option value="F8284LISXAC0">F8284LISXAC0 — ORNAMENT EXTEN LH SILVER</option>
+<option value="F8284LISXAC1">F8284LISXAC1 — ORNAMENT EXTEN LH GUN METALLIC</option>
+<option value="F8284RISDAC0">F8284RISDAC0 — ORNAMENT CREW RH SILVER</option>
+<option value="F8284RISDAC1">F8284RISDAC1 — ORNAMENT CREW RH GUN METALLIC</option>
+<option value="F8284RISXAC0">F8284RISXAC0 — ORNAMENT EXTEN RH SILVER</option>
+<option value="F8284RISXAC1">F8284RISXAC1 — ORNAMENT EXTEN RH GUN METALLIC</option>
+<option value="F8285FTODC0">F8285FTODC0 — BODY COVER BRACKET LH SPORT BAR D-C</option>
+<option value="F8286FTODC0">F8286FTODC0 — BODY COVER BRACKET RH SPORT BAR D-C</option>
+<option value="F8299ALFOR00">F8299ALFOR00 — R1WB-16G563-AB INS ASY FRT FNDR SPL</option>
+<option value="F8299ARFOR00">F8299ARFOR00 — R1WB-16G562-AB INS ASY FRT FNDR SPL</option>
+<option value="F8299BLFOR00">F8299BLFOR00 — SHLD FRT WHL SPLS LH</option>
+<option value="F8299BRFOR00">F8299BRFOR00 — SHLD FRT WHL SPLS RH</option>
+<option value="F82XXX">F82XXX — Side Step RG21  Extn LH</option>
+<option value="No Loading">No Loading — No Loading</option>
+<option value="R3115048">R3115048 — CAP LOCK PP PIPE PIN 15x6mm.</option>
+<option value="R8015439">R8015439 — BODY FRONT FLANGE LH</option>
+<option value="R8015440">R8015440 — BODY FRONT FLANGE RH</option>
+<option value="S8274RLP5FORA00">S8274RLP5FORA00 — S1WZ-16A550-C SHLD RR WHL SPLS RR L</option>
+<option value="S8274RRP5FORA00">S8274RRP5FORA00 — S1WZ-16A550-B SHLD RR WHL SPLS RR</option>
+<option value="S8299BLFOR01">S8299BLFOR01 — R1WB-16A263-BC SHLD FRT WHL SPLS LH</option>
+<option value="S8299BLFOR02">S8299BLFOR02 — R1WZ-16A550-H MUDFLAP ASY</option>
+<option value="S8299BRFOR01">S8299BRFOR01 — R1WB-16A262-BC SHLD FRT WHL SPLS RH</option>
+<option value="S8299BRFOR02">S8299BRFOR02 — R1WZ-16A550-G MUDFLAP ASY</option>
+</select>
+</div>
+
+<div class="g3">
+<div class="f"><label class="fl">📦 จำนวน (pcs)</label><input type="number" id="movQty" value="0" min="0"></div>
+<div class="f"><label class="fl">📊 Destination</label><select id="movDest">
+<option value="WIP_Finishing">WIP_Finishing OK</option>
+<option value="WIP_NotFinishing">WIP_Not Finishing</option>
+<option value="WHL">WHL (Direct to FG)</option>
+<option value="Secondary">Secondary Process</option>
+<option value="FG">FG</option>
+</select></div>
+<div class="f"><label class="fl">👤 ผู้บันทึก</label><input id="movUser" placeholder="ชื่อ..."></div>
+</div>
+
+<div class="f"><label class="fl">📝 หมายเหตุ</label><input id="movNote" placeholder="รายละเอียด..."></div>
+
+<button class="btn btn-p" onclick="saveMovement()">💾 บันทึก Movement</button>
+
+<div style="margin-top:14px">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:6px">📋 Movement ล่าสุด (5 รายการ)</div>
+<div style="overflow-x:auto;background:var(--inp);border-radius:8px">
+<table class="tbl" id="movTable"></table>
+</div>
+</div>
+</div></div>
+
+<!-- ==================== TAB 5: Alerts ==================== -->
+<div class="tc" id="tab5"><div class="card">
+<div class="card-title">⚠️ Alert — แจ้งเตือน Stock</div>
+<div class="card-sub">รายการ Part ที่ต้องการความสนใจ (ต่ำกว่า Min / เกิน Max)</div>
+
+<div id="alertContent"></div>
+</div></div>
+
+<!-- ==================== TAB 6: Export ==================== -->
+<div class="tc" id="tab6"><div class="card">
+<div class="card-title">📤 Export ข้อมูล</div>
+<div class="card-sub">ส่งออกข้อมูลไป Excel / Power BI / Step 6 (Route Distribution)</div>
+
+<button class="btn btn-a" onclick="exportWIPStatus()" style="margin-bottom:6px">📊 Export WIP Status (CSV)</button>
+<button class="btn btn-p" onclick="exportMovements()" style="margin-bottom:6px">📝 Export Movements (CSV)</button>
+<button class="btn btn-y" onclick="exportForStep6()" style="margin-bottom:6px">🔄 Export ส่งต่อ Step 6 (Route Distribution)</button>
+<button class="btn btn-g" onclick="exportPowerBI()" style="margin-bottom:6px">📊 Export Power BI Ready (All Data)</button>
+<button class="btn btn-d" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+
+<div style="margin-top:12px;background:var(--inp);border-radius:8px;padding:10px">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:6px">📊 Summary:</div>
+<div id="exportSummary" style="font-size:12px;color:var(--dim);line-height:1.7"></div>
+</div>
+</div></div>
+
+<!-- ==================== TAB 7: CLOUD SYNC ==================== -->
+<div class="tc" id="tab7"><div class="card">
+<div class="card-title" style="color:#c4b5fd">☁️ Cloud — Read from Google Sheets</div>
+<div class="card-sub">Import production data from all machines via Google Sheets</div>
+
+<div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:12px;margin-bottom:10px">
+<div style="font-size:12px;color:#c4b5fd;line-height:1.6">
+<b>☁️ Cloud Status:</b> <span id="cloudStatus5" style="font-weight:700">Not configured</span><br>
+<b>🔄 Last Import:</b> <span id="lastImportTime" style="font-weight:700">Never</span><br>
+<b>📊 Records Imported:</b> <span id="importedCount" style="font-weight:700">0</span>
+</div>
+</div>
+
+<div class="f"><label class="fl">🔗 Apps Script URL (same as Step 4)</label>
+<input type="text" id="appsScriptURL5" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+<button class="btn" style="background:#8b5cf6" onclick="testCloud5()">🧪 Test</button>
+<button class="btn" style="background:#10b981" onclick="saveCloud5()">💾 Save</button>
+</div>
+
+<div id="cloudTest5Result" style="margin-bottom:10px"></div>
+
+<div style="background:var(--inp);border-radius:8px;padding:12px;margin-bottom:10px">
+<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">📥 Import from Cloud</div>
+<button class="btn" style="background:#10b981" onclick="importFromCloud()">📥 Import All Machine Data</button>
+<div style="font-size:11px;color:var(--dim);margin-top:6px">Reads all records from Google Sheets and converts to WIP movements</div>
+</div>
+
+<div style="background:var(--inp);border-radius:8px;padding:12px">
+<div style="font-size:13px;font-weight:700;color:#c4b5fd;margin-bottom:8px">📊 Import by Date</div>
+<div class="f"><label class="fl">Date to Import</label>
+<input type="date" id="importDate" style="font-size:12px">
+</div>
+<button class="btn" style="background:#8b5cf6" onclick="importByDate()">📥 Import Date</button>
+</div>
+
+<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:12px;margin-top:10px">
+<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">☁️ Backup WIP → Google Sheets</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:8px">บันทึกข้อมูล WIP Max-Min + IN/OUT movements ไป Google Sheets (Sheet "WIP_Data")</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:8px">🔄 Last WIP Backup: <span id="wipLastBackup" style="font-weight:700;color:#c4b5fd">Never</span></div>
+<button class="btn" style="background:#10b981" onclick="backupWIPToCloud()">☁️ Backup WIP Now</button>
+<div id="wipBackupResult" style="margin-top:8px"></div>
+</div>
+
+<div id="importResults" style="margin-top:10px"></div>
+
+<!-- ===== MASTER DATA SECTION ===== -->
+<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:var(--r);padding:12px;margin-top:10px">
+<div style="font-size:13px;font-weight:700;color:#10b981;margin-bottom:8px">📊 Master Data จาก Cloud</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:8px">โหลด Molds (Part No. / Part Name) จาก Google Sheet Master — ใช้ URL เดียวกับ Step 4</div>
+<div style="font-size:12px;color:var(--text);margin-bottom:8px;padding:6px 8px;background:rgba(16,185,129,.1);border-radius:6px">
+  🟢 Status: <span id="masterStatus5" style="font-weight:700;color:var(--dim)">ไม่ได้ตั้งค่า</span><br>
+  📦 Molds โหลดแล้ว: <span id="masterMoldCount5" style="font-weight:700">—</span> แม่พิมพ์
+</div>
+<div class="f"><label class="fl">🔗 Master Data Script URL (เดียวกับที่ใช้ใน Step 4)</label>
+<input type="text" id="masterScriptURL5" placeholder="https://script.google.com/macros/s/... (Master Sheet)" style="font-size:12px">
+</div>
+<div class="g2" style="margin-bottom:8px">
+<button class="btn" style="background:#10b981;font-size:12px" onclick="loadMasterData5(true)">🔄 โหลด Master Data</button>
+<button class="btn btn-d" style="font-size:12px" onclick="saveMasterConfig5()">💾 Save Master URL</button>
+</div>
+<div id="masterResult5" style="font-size:11px"></div>
+<div style="font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5">
+💡 ถ้า offline → ใช้ข้อมูล PARTS default ใน code ได้ปกติ<br>
+💡 เพิ่ม Mold ใหม่ใน Google Sheet Master_Molds → กด "โหลด Master Data" → dropdown Part อัปเดตทันที
+</div>
+</div>
+
+</div></div>
+
+<div class="bn">
+<button class="btn btn-d" id="btnPrev" onclick="prevTab()" style="flex:1;display:none">◀ ย้อนกลับ</button>
+<button class="btn btn-p" id="btnNext" onclick="nextTab()" style="flex:2">ถัดไป ▶</button>
+</div>
+
+<script>
+const PARTS={"F8222ISDC1": {"n": "BODY SIDE SPORT BAR 01 LH ISUZU RT93 2020 ก่อนทำสี", "c": "IAST", "d": "RT93", "m": "BM-002-R-RT50-XXX"}, "F8223ISDC1": {"n": "BODY SIDE SPORT BAR 01 RH ISUZU RT93 2020 ก่อนทำสี", "c": "IAST", "d": "RT93", "m": "BM-003-L-RT50-XXX"}, "F8221ISDC0": {"n": "BODY CENTER SPORT BAR ISUZU D-MAX 2012 ก่อนทำสี", "c": "IAST", "d": "RT50", "m": "BM-004-C-RT50-XXX"}, "F8224ISDC0": {"n": "BODY BOX  RAIL SPORT BAR 01 LH ISUZU D-MAX 2012 ก่อนทำส", "c": "IAST", "d": "RT50", "m": "BM-005-L-RT50-XXX"}, "F8225ISDC0": {"n": "BODY BOX  RAIL SPORT BAR 01 RH ISUZU D-MAX 2012 ก่อนทำส", "c": "IAST", "d": "RT50", "m": "BM-005-R-RT50-XXX"}, "F8221TODC0": {"n": "BODY CENTER MAXSTYLISH BAR TOYOTA  HILUX DBC 2016  ก่อน", "c": "TSAM", "d": "DBC2016,640A", "m": "BM-006-C-640A-XXX"}, "F8222TODC0": {"n": "BODY SIDE SPORT BAR LH TOYOTA HILUX DBC 2016", "c": "TSAM", "d": "DBC2016,640A", "m": "BM-007-L-640A-XXX"}, "F8223TODC0": {"n": "BODY SIDE SPORT BAR RH TOYOTA HILUX DBC 2016 ก่อนทำสี", "c": "TSAM", "d": "DBC2016,640A", "m": "BM-007-R-640A-XXX"}, "F8224TODC0": {"n": "BODY BOX RAIL SPORT BAR LH TOYOTA HILUX DBC 2016 ก่อนทำ", "c": "TSAM", "d": "DBC2016,640A", "m": "BM-008-L-640A-XXX"}, "F8225TODC0": {"n": "BODY BOX RAIL SPORT BAR RH TOYOTA HILUX DBC 2016 ก่อนทำ", "c": "TSAM", "d": "DBC2016,640A", "m": "BM-008-R-640A-XXX"}, "F8269LTOD01": {"n": "BODY SIDE STEP TOYOTA HILUX DBC 2015 NIGERIA", "c": "TOYOTA", "d": "640A", "m": "BM-009.1-L-640A-XXX"}, "F8269RTOD01": {"n": "BODY SIDE STEP TOYOTA HILUX DBC 2015 NIGERIA", "c": "TOYOTA", "d": "640A", "m": "BM-009.1-R-640A-XXX"}, "F8269LTOD00": {"n": "BODY SIDE STEP LH TOYOTA HILUX DBC 2015", "c": "TOYOTA", "d": "640A", "m": "BM-009-L-640A-XXX"}, "F8269RTOD00": {"n": "BODY SIDE STEP RH TOYOTA HILUX DBC 2015", "c": "TOYOTA", "d": "640A", "m": "BM-009-R-640A-XXX"}, "F8223TODCA": {"n": "BODY SIDE RH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำ", "c": "TDEM", "d": "338B", "m": "BM-010-R-338B-XXX"}, "F8222TODCA": {"n": "BODY SIDE LH SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำ", "c": "TDEM", "d": "338B", "m": "BM-011-L-338B-XXX"}, "F8221TODCA": {"n": "BODY CENTER SPORT BAR A-DECK TOYOTA HILUX 2015 #ก่อนทำส", "c": "TDEM", "d": "338B", "m": "BM-012-C-338B-XXX"}, "F8224TODCA": {"n": "BODY BOX RAIL LH SPORT BAR D-CAB BAR A-DECK TOYOTA HILU", "c": "TDEM", "d": "338B", "m": "BM-013-L-338B-XXX"}, "F8225TODCA": {"n": "BODY BOX RAIL RH SPORT BAR D-CAB BAR A-DECK TOYOTA HILU", "c": "TDEM", "d": "338B", "m": "BM-013-R-338B-XXX"}, "F8224TOXCA": {"n": "BODY BOX RAIL LH SPORT BAR C-CAB A-DECK TOYOTA HILUX 20", "c": "TDEM", "d": "338B", "m": "BM-014-L-338B-XXX"}, "F8225TOXCA": {"n": "BODY BOX RAIL RH SPORT BAR C-CAB A-DECK TOYOTA HILUX 20", "c": "TDEM", "d": "338B", "m": "BM-014-R-338B-XXX"}, "F8272AMIDC0": {"n": "SPOILER PREMIUM  MITSUBISHI L200 MY20  ก่อนทำสี (A)", "c": "MMTH", "d": "MY20", "m": "BM-025-X-MY20-XXX"}, "F8272BMIDC0": {"n": "SPOILER STANDARD  MITSUBISHI L200 MY20 ก่อนทำสี", "c": "MMTH", "d": "MY20", "m": "BM-026-X-MY20-XXX"}, "F8263ISDC1": {"n": "BODY CARGO EXTENDER ICL RG10 LH", "c": "IAST", "d": "RG01", "m": "BM-027-L-RG01-XXX"}, "F8264ISDC1": {"n": "BODY CARGO EXTENDER ICL RG10 RH", "c": "IAST", "d": "RG01", "m": "BM-027-R-RG01-XXX"}, "F8221MGDC0": {"n": "BODY CENTER SK82 MG ก่อนทำสี", "c": "MG", "d": "SK82", "m": "BM-028-C-SK82-XXX"}, "F8222MGDC0": {"n": "BODY SIDE FRONT SK82 MG LH ก่อนทำสี", "c": "MG", "d": "SK82", "m": "BM-029-L-SK82-XXX"}, "F8223MGDC0": {"n": "BODY SIDE FRONT SK82 MG RH ก่อนทำสี", "c": "MG", "d": "SK82", "m": "BM-030-R-SK82-XXX"}, "F8224MGDC0": {"n": "BODY SIDE RAIL SK82 MG LH ก่อนทำสี", "c": "MG", "d": "SK82", "m": "BM-031-L-SK82-XXX"}, "F8225MGDC0": {"n": "BODY SIDE RAIL SK82 MG RH ก่อนทำสี", "c": "MG", "d": "SK82", "m": "BM-031-R-SK82-XXX"}, "F8275AXXB01": {"n": "BODY MAX BOX CONCORDE EXTRA V2 FOR EXPORT MARKET", "c": "MMTH", "d": "MY20", "m": "BM-032-X-MY20-XXX"}, "F8275AXXC01": {"n": "COVER MAX BOX BLOW MOLD", "c": "MMTH", "d": "MY20", "m": "BM-033-X-MY20-XXX"}, "F8221ISDAC0": {"n": "BODY CENTER SAIL PLANE RG01", "c": "IAST", "d": "RG01", "m": "BM-034-C-RG01-XXX"}, "F8223ISDAC1": {"n": "BODY FRONT RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "BM-035-R-RG01-NNX"}, "F8223ISDAC0": {"n": "BODY FRONT RH SAIL PLANE RG01", "c": "IAST", "d": "RG01", "m": "BM-035-R-RG01-ONX"}, "F8223ISDBC0": {"n": "BODY CARGO SPOILER FR RH RG05", "c": "IAST", "d": "RG05", "m": "BM-035-R-RG05-XXX"}, "F8222ISDAC1": {"n": "BODY FRONT LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "BM-036-L-RG01-NNX"}, "F8222ISDAC0": {"n": "BODY FRONT LH SAIL PLANE RG01", "c": "IAST", "d": "RG01", "m": "BM-036-L-RG01-ONX"}, "F8222ISDBC0": {"n": "BODY CARGO SPOILER FR LH RG05", "c": "IAST", "d": "RG05", "m": "BM-036-L-RG05-XXX"}, "F8224ISDAC1": {"n": "BODY REAR LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "BM-037-L-RG01-NNX"}, "F8224ISDAC0": {"n": "BODY REAR LH SAIL PLANE RG01", "c": "IAST", "d": "RG01", "m": "BM-037-L-RG01-ONX"}, "F8224ISDBC0": {"n": "BODY CARGO SPOILER RR CREW CAB LH RG05", "c": "IAST", "d": "RG05", "m": "BM-037-L-RG05-XXX"}, "F8225ISDAC1": {"n": "BODY REAR RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "BM-037-R-RG01-NNX"}, "F8225ISDBC0": {"n": "BODY CARGO SPOILER RR CREW CAB RH RG05", "c": "IAST", "d": "RG05", "m": "BM-037-R-RG05-XXX"}, "F8221BTOGC0": {"n": "BODY CENTER DECK BAR  645B", "c": "TDEM", "d": "645B", "m": "BM-038.1-C-645B-XXX"}, "F8224BTODC0": {"n": "BODY BOX RAIL DECK BAR LH D-CAB   645B", "c": "TDEM", "d": "645B", "m": "BM-039.1-L-645B-XXX"}, "F8225BTODC0": {"n": "BODY BOX RAIL DECK BAR RH D-CAB  645B", "c": "TDEM", "d": "645B", "m": "BM-039.1-R-645B-XXX"}, "F8224BTOXC0": {"n": "BODY BOX RAIL LH SPORT BAR C-CAB 645B", "c": "TDEM", "d": "645B", "m": "BM-040-L-645B-XXX"}, "F8225BTOXC0": {"n": "BODY BOX RAIL RH SPORT BAR C-CAB 645B", "c": "TDEM", "d": "645B", "m": "BM-040-R-645B-XXX"}, "F8222BTOGC0": {"n": "BODY SIDE DECK BAR LH  645B", "c": "TDEM", "d": "645B", "m": "BM-041.1-L-645B-XXX"}, "F8223BTOGC0": {"n": "BODY SIDE DECK BAR RH  645B", "c": "TDEM", "d": "645B", "m": "BM-042.1-R-645B-XXX"}, "F8224ISXBC0": {"n": "BODY CARGO SPOILER RR EXTEN CAB LH RG05", "c": "IAST", "d": "RG05", "m": "BM-045-L-RG05-XXX"}, "F8225ISXBC0": {"n": "BODY CARGO SPOILER RR EXTEN CAB RH RG05", "c": "IAST", "d": "RG05", "m": "BM-045-R-RG05-XXX"}, "F8221AMADC0": {"n": "BODY CENTER STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50", "m": "BM-046-C-BT50-XXX"}, "F8222AMADC0": {"n": "BODY SIDE LH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50", "m": "BM-047-L-BT50-XXX"}, "F8223AMADC0": {"n": "BODY SIDE RH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50", "m": "BM-048-R-BT50-XXX"}, "F8224AMADC0": {"n": "BODY REAR LH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50", "m": "BM-049-L-BT50-XXX"}, "F8225AMADC0": {"n": "BODY REAR RH STYLING BAR BT-50 #BEFORE PAINT", "c": "IAST", "d": "BT50", "m": "BM-049-R-BT50-XXX"}, "F828032CB01": {"n": "BODY SURF SKATE 32 inch #CARBON BLACK (PP-GF25%)", "c": "VDP", "d": "", "m": "BM-051-X-XXXX-XXX"}, "F8269LMIX00": {"n": "FACE STEP LH (C-CAB)", "c": "SAB", "d": "5F00", "m": "BM-052.1-L-5F00-XXX"}, "F8269RMIX00": {"n": "FACE STEP RH (C-CAB)", "c": "SAB", "d": "5F00", "m": "BM-052.1-R-5F00-XXX"}, "96101A040P-1": {"n": "FACE STEP LH (C-CAB)", "c": "SAB", "d": "5F00", "m": "BM-052-L-5F00-XXX"}, "96100A040P-1": {"n": "FACE STEP RH (C-CAB)", "c": "SAB", "d": "5F00", "m": "BM-052-R-5F00-XXX"}, "F8269LMID00": {"n": "FACE STEP LH (D-CAB)#M1", "c": "SAB", "d": "5F00", "m": "BM-053.1-L-5F00-XXX"}, "F8269RMID00": {"n": "FACE STEP RH (D-CAB)#M1", "c": "SAB", "d": "5F00", "m": "BM-053.1-R-5F00-XXX"}, "F8269XTOD00": {"n": "BODY CLEVER SIDE STEP", "c": "TOYOTA", "d": "V2", "m": "BM-054-X-XXXX-XXX"}, "F8221CTODC0": {"n": "BODY CENTER SPORT BAR TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020", "m": "BM-055-C-DBCX-XXX"}, "F8224CTODC0": {"n": "BODY BOX RAIL SPORT BAR LH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020", "m": "BM-056-L-DBCX-XXX"}, "F8225CTODC0": {"n": "BODY BOX RAIL SPORT BAR RH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020", "m": "BM-056-R-DBCX-XXX"}, "F8272AISDC0": {"n": "SPOILER CANOPY 3 ISUZU D-MAX DBC 2020", "c": "IAST", "d": "DBC 2020", "m": "BM-057-X-DBCX-XXX"}, "F8272ATODC0": {"n": "BODY SPOILER VENTURE CANOPY", "c": "TOYOTA", "d": "", "m": "BM-058-X-XXXX-XXX"}, "F8222CTODC0": {"n": "BODY SIDE SPORT BAR LH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020", "m": "BM-059-L-DBCX-XXX"}, "F8223CTODC0": {"n": "BODY SIDE SPORT BAR RH TOYOTA ROCCO DBC 2020", "c": "TOYOTA", "d": "DBC 2020", "m": "BM-060-R-DBCX-XXX"}, "F8272ISDC0": {"n": "BODY SPOILER MAXTOP 3 ISUZU D-MAX DBC 2020", "c": "IAST", "d": "DBC 2020", "m": "BM-061-X-DBCX-XXX"}, "F8283LXX00": {"n": "SOLID SIDE WINDOW FOR VENTURE CANOPY LH", "c": "VDP", "d": "ALL MODEL", "m": "BM-064-L-All-XXX"}, "F8283RXX00": {"n": "SOLID SIDE WINDOW FOR VENTURE CANOPY RH", "c": "VDP", "d": "ALL MODEL", "m": "BM-064-R-All-XXX"}, "F8269XFOG00": {"n": "BODY CLEVER SIDE STEP FORD P703", "c": "FORD", "d": "703", "m": "BM-065-X-XXXX-XXX"}, "F8272MIDCC0": {"n": "BODY SPOILER NXGEN CANOPY MMAL2022 ก่อนทำสี", "c": "MMTH", "d": "NXGEN2022", "m": "BM-066-X-XXXX-XXX"}, "F8221ISDCC0": {"n": "BODY PART SPORT HOOP CERTER RG17", "c": "IAST", "d": "RG17", "m": "BM-067-C-RG17-XXX"}, "F8222ISDCC0": {"n": "BODY PART SPORT HOOP FRONT LH RG17", "c": "IAST", "d": "RG17", "m": "BM-068-L-RG17-XXX"}, "F8223ISDCC0": {"n": "BODY PART SPORT HOOP FRONT RH RG17", "c": "IAST", "d": "RG17", "m": "BM-069-R-RG17-XXX"}, "F8224ISDCC0": {"n": "BODY PART SPORT HOOP REAR CREW LH RG17", "c": "IAST", "d": "GR17", "m": "BM-070-L-RG17-XXX"}, "F8225ISDCC0": {"n": "BODY PART SPORT HOOP REAR CREW RH RG17", "c": "IAST", "d": "GR17", "m": "BM-070-R-RG17-XXX"}, "F8269LISXA00": {"n": "STEP ASM ASST EXT LH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21", "m": "BM-071.1-L-RG21-WITH"}, "F8269RISXA00": {"n": "STEP ASM ASST EXT RH WITH ORNAMENT RG21", "c": "IAST", "d": "RG21", "m": "BM-071.1-R-RG21-WITH"}, "F82XXX": {"n": "Side Step RG21  Extn LH", "c": "IAST", "d": "RG21", "m": "BM-071-L-RG21-XXX"}, "F8269LISDA00": {"n": "STEP ASM ASST CREW LH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21", "m": "BM-072.1-L-RG21-WITH"}, "F8269LISDA01": {"n": "STEP ASM ASST CREW LH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21", "m": "BM-072.1-L-RG21-WITHOUT"}, "F8269RISDA01": {"n": "STEP ASM ASST CREW RH WITHOUT ORNAMENT RG21#M1", "c": "IAST", "d": "RG21", "m": "BM-072.1-R-RG21-WITHOUT"}, "F8269RISDA00": {"n": "STEP ASM ASST CREW RH WITH ORNAMENT RG21#M1", "c": "IAST", "d": "RG21", "m": "BM-072-R-RG21-WITH"}, "F8221ETODC0": {"n": "BODY CENTER SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "BM-073.1-C-581D-XXX"}, "F8222ETODC0": {"n": "BODY SIDE LH SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "BM-074.1-L-581D-XXX"}, "F8223ETODC0": {"n": "BODY SIDE RH SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "BM-075.1-R-581D-XXX"}, "F8224ETODC0": {"n": "BODY BOX RAIL DECK BAR LH D-CAB   581D", "c": "TDEM", "d": "581D", "m": "BM-076.1-L-581D-XXX"}, "F8225ETODC0": {"n": "BODY BOX RAIL DECK BAR RH D-CAB  581D", "c": "TDEM", "d": "581D", "m": "BM-076.1-R-581D-XXX"}, "F8272TODBC0": {"n": "REAR SPOILER FOR ROLLER SHUTTER", "c": "-", "d": "581D T", "m": "BM-079-C-XXX-XXX"}, "F8246ISDC0": {"n": "COVER  FRONT SPORT BAR 01 LH", "c": "IAST", "d": "RT50", "m": "INJ-001-L-RT50-XXX"}, "F8247ISDC0": {"n": "COVER  FRONT SPORT BAR 01 RH", "c": "IAST", "d": "RT50", "m": "INJ-001-R-RT50-XXX"}, "F8201001": {"n": "COIN BOX COMPLETE SET (1 CTN /70 P.)  (LAJ)", "c": "ALJ", "d": "", "m": "INJ-002-X-XXXX-XXX"}, "F8244ISDC0": {"n": "COVER  CENTER SPORT BAR 01 LH", "c": "IAST", "d": "RT50", "m": "INJ-003-L-RT50-XXX"}, "F8245ISDC0": {"n": "COVER  CENTER SPORT BAR 01 RH", "c": "IAST", "d": "RT50", "m": "INJ-003-R-RT50-XXX"}, "F8248ISDC0": {"n": "COVER SIDE SPORT BAR 01 LH", "c": "IAST", "d": "RT50", "m": "INJ-004-L-RT50-XXX"}, "F8249ISDC0": {"n": "COVER SIDE SPORT BAR 01 RH", "c": "IAST", "d": "RT50", "m": "INJ-004-R-RT50-XXX"}, "F8244TODC0": {"n": "COVER CENTER SPORT BAR 01 LH TOYOTA 640A DBC 2016 ก่อนท", "c": "TOYOTA", "d": "640A", "m": "INJ-005-L-640A-XXX"}, "F8245TODC0": {"n": "COVER CENTER SPORT BAR 01 RH TOYOTA 640A DBC 2016 ก่อนท", "c": "TOYOTA", "d": "640A", "m": "INJ-005-R-640A-XXX"}, "F8246TODC0": {"n": "COVER FRONT SPORT BAR 01 LH TOYOTA 640A DBC 2016 ก่อนทำ", "c": "TOYOTA", "d": "640A", "m": "INJ-006-L-640A-XXX"}, "F8247TODC0": {"n": "COVER FRONT SPORT BAR 01 RH TOYOTA 640A DBC 2016 ก่อนทำ", "c": "TOYOTA", "d": "640A", "m": "INJ-006-R-640A-XXX"}, "F8215TOD001": {"n": "CHROME PLATE MAXBUMPER GUARD TOYOTA (640A) DBC 2015 ก่อ", "c": "TOYOTA", "d": "640A", "m": "INJ-008-X-640A-XXX"}, "F8210T00": {"n": "BODY FRONT DOOR POCKET TOYOTA LC 70", "c": "ALJ", "d": "LC70", "m": "INJ-010-X-XXXX-XXX"}, "F8212RLTOXC0": {"n": "BODY SIDE MOLDING REAR LH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ", "m": "INJ-012-L-17YM-XXX"}, "F8212RRTOXC0": {"n": "BODY SIDE MOLDING REAR RH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ", "m": "INJ-012-R-17YM-XXX"}, "F8212RLTOD001": {"n": "BODY SIDE MOLDING REAR LH TOYOTA HILUX DC 2018YM ก่อนชุ", "c": "ALJ", "d": "18YM", "m": "INJ-025-L-18YM-XXX"}, "F8212RRTOD001": {"n": "BODY SIDE MOLDING REAR RH TOYOTA HILUX DC 2018YM ก่อนชุ", "c": "ALJ", "d": "18YM", "m": "INJ-025-R-18YM-XXX"}, "F8212FLTOD001": {"n": "BODY SIDE MOLDING FRONT LH TOYOTA HILUX DC 2018YM ก่อนช", "c": "ALJ", "d": "18YM", "m": "INJ-026-L-18YM-XXX"}, "F8212FRTOD001": {"n": "BODY SIDE MOLDING FRONT RH TOYOTA HILUX DC 2018YM ก่อนช", "c": "ALJ", "d": "18YM", "m": "INJ-026-R-18YM-XXX"}, "F8215TOP001": {"n": "CHROME PLATE FRONT BUMPER PROTECTOR PRADO 18YM ก่อนชุบ", "c": "ALJ", "d": "18YM", "m": "INJ-027-X-18YM-XXX"}, "F8244TODCA": {"n": "BODY COVER CENTER LH SPORT BAR A-DECK TOYOTA HILUX 2015", "c": "TDEM", "d": "338B", "m": "INJ-028-L-338B-XXX"}, "F8245TODCA": {"n": "BODY COVER CENTER RH SPORT BAR A-DECK TOYOTA HILUX 2015", "c": "TDEM", "d": "338B", "m": "INJ-028-R-338B-XXX"}, "F8248TODCA": {"n": "BODY COVER SIDE 01 LH SPORT BAR A-DECK TOYOTA HILUX 201", "c": "TDEM", "d": "338B", "m": "INJ-029-L-338B-XXX"}, "F8249TODCA": {"n": "BODY COVER SIDE 01 RH SPORT BAR A-DECK TOYOTA HILUX 201", "c": "TDEM", "d": "338B", "m": "INJ-029-R-338B-XXX"}, "F8268TOD00": {"n": "BODY COVER SIDE 02 SPORT BAR A-DECK TOYOTA HILUX 2015", "c": "TDEM", "d": "338B", "m": "INJ-030.1-X-338B-XXX"}, "F8268MGD00": {"n": "COVER BRACKET CLAMP LOCK SK82 MG TEXTURE", "c": "MG", "d": "MG", "m": "INJ-047-X-SK82-XXX"}, "F8246ISDAC0": {"n": "BODY FRONT COVER LH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "INJ-048-L-RG01-XXX"}, "F8247ISDAC0": {"n": "BODY FRONT COVER RH SAIL PLANE RG01 #ก่อนทำสี", "c": "IAST", "d": "RG01", "m": "INJ-048-R-RG01-XXX"}, "F8277BTOGC0": {"n": "COVER OUTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-049.1-L-645B-XXX"}, "F8278BTOGC0": {"n": "COVER OUTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-049.1-R-645B-XXX"}, "F8246BTOGC0": {"n": "COVER SIDE DECK BAR 01 LH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-050-L-645B-XXX"}, "F8247BTOGC0": {"n": "COVER SIDE DECK BAR 01 RH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-050-R-645B-XXX"}, "F8244BTOGC0": {"n": "COVER CENTER DECK BAR LH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-051-L-645B-XXX"}, "F8245BTOGC0": {"n": "COVER CENTER DECK BAR RH #ก่อนทำสี", "c": "TDEM", "d": "645B", "m": "INJ-051-R-645B-XXX"}, "F8279TOD00": {"n": "BODY TAIL GATE PROTECTOR 645B HILUX 2020", "c": "TDEM", "d": "645B", "m": "INJ-052-X-645B-XXX"}, "F8271LHOCC0": {"n": "BODY REAR UNDER SPOILER LH HONDA CITY 2TG 2020 ก่อนทำสี", "c": "HONDA", "d": "2TG", "m": "INJ-053-L-2TGX-XXX"}, "F8271RHOCC0": {"n": "BODY REAR UNDER SPOILER RH HONDA CITY 2TG 2020 ก่อนทำสี", "c": "HONDA", "d": "2TG", "m": "INJ-053-R-2TGX-XXX"}, "F8234LTOL00": {"n": "BODY SIDE MOLDING REAR LH LC300 2022YM", "c": "ALJ", "d": "LC300", "m": "INJ-055-L-LC300-XXX"}, "F8234RTOL00": {"n": "BODY SIDE MOLDING REAR RH LC300 2022YM", "c": "ALJ", "d": "LC300", "m": "INJ-055-R-LC300-XXX"}, "F8233LTOL00": {"n": "BODY SIDE MOLDING FRONT LH LC300 2022YM", "c": "ALJ", "d": "LC300", "m": "INJ-056-L-LC300-XXX"}, "F8233RTOL00": {"n": "BODY SIDE MOLDING FRONT RH LC300 2022YM", "c": "ALJ", "d": "LC300", "m": "INJ-056-R-LC300-XXX"}, "F8211TOX00": {"n": "BODY CONSOLE BOX SEPARATOR TOYOTA HILUX 23YM", "c": "TCD", "d": "23YM", "m": "INJ-057-X-23YM-XXX"}, "F8213RLTOC001": {"n": "BODY SIDE MOLDING REAR LH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM", "m": "INJ-058-L-22YM-XXX"}, "F8213RRTOC001": {"n": "BODY SIDE MOLDING REAR RH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM", "m": "INJ-058-R-22YM-XXX"}, "F8213FLTOC001": {"n": "BODY SIDE MOLDING FRONT LH TOYOTA CAMRY 22YM", "c": "TCD", "d": "22YM", "m": "INJ-059-L-22YM-XXX"}, "F8213FRTOC001": {"n": "BODY SIDE MOLDING FRONT RH TOYOTA CAMRY 22YM", "c": "ALJ", "d": "22YM", "m": "INJ-059-R-22YM-XXX"}, "F8272TOYAC0": {"n": "BODY TRUNK SPOILER YARIS 23YM (INJECTION)", "c": "ALJ", "d": "23YM", "m": "INJ-060-X-23YM-XXX"}, "F8281LTOL001": {"n": "FOG LAMP GARNISH CHROME LC300 23YM LH # INJECTION", "c": "ALJ", "d": "LC30023YM", "m": "INJ-061-L-23YM-XXX"}, "F8281RTOL001": {"n": "FOG LAMP GARNISH CHROME LC300 23YM RH # INJECTION", "c": "ALJ", "d": "LC30023YM", "m": "INJ-061-R-23YM-XXX"}, "F8252LTOL001": {"n": "VDP1-022-1-00 PM813-60010 REAR BUMPER GARNISH CHROME LC", "c": "ALJ", "d": "LC30023YM", "m": "INJ-062-L-23YM-XXX"}, "F8252RTOL001": {"n": "VDP1-021-1-00 PM813-60020 REAR BUMPER GARNISH CHROME LC", "c": "ALJ", "d": "LC30023YM", "m": "INJ-062-R-23YM-XXX"}, "F8253LTOL001": {"n": "REAR BUMPER GARNISH CHROME LC300 23YM SIDE LH # INJECTI", "c": "ALJ", "d": "LC30023YM", "m": "INJ-063-L-23YM-XXX"}, "F8254RTOL001": {"n": "REAR BUMPER GARNISH CHROME LC300 23YM SIDE RH # INJECTI", "c": "ALJ", "d": "LC30023YM", "m": "INJ-063-R-23YM-XXX"}, "F8274F5ERLMIPC0": {"n": "BODY REAR BUMPER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "", "m": "INJ-064-L-XXXX-XXX"}, "F8274F5ERRMIPC0": {"n": "BODY REAR BUMPER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "", "m": "INJ-064-R-XXXX-XXX"}, "F8271LHOCAC0": {"n": "BODY KIT RR UNDER SPOILER LH 3TX (INJECTION)", "c": "HONDA", "d": "3TX", "m": "INJ-065-L-3TXX-XXX"}, "F8271RHOCAC0": {"n": "BODY KIT RR UNDER SPOILER RH 3TX (INJECTION)", "c": "HONDA", "d": "3TX", "m": "INJ-065-R-3TXX-XXX"}, "F8267ISPC0": {"n": "BODY FRONT SPOILER MU-X RF35 ก่อนทำสี", "c": "IAST", "d": "RF35", "m": "INJ-065-X-RF35-XXX"}, "F8271ISPC0": {"n": "BODY REAR SPOILER MU-X RF35 ก่อนทำสี", "c": "IAST", "d": "RF35", "m": "INJ-066-X-RF35-XXX"}, "F8267ISPC1": {"n": "BODY FRONT SPOILER MU-X RF35 NEW TRIMLINE ก่อนทำสี", "c": "IAST", "d": "RF35", "m": "INJ-067-X-RF35-XXX"}, "F8271ISPC1": {"n": "BODY REAR SPOILER MU-X RF35 NEW TRIMLINE ก่อนทำสี", "c": "IAST", "d": "RF35", "m": "INJ-068-X-RF35-XXX"}, "F8267ISGC0": {"n": "BODY FRONT SKIRT HI LANDER RT93 ISUZU ก่อนทำสี", "c": "IAST", "d": "RT93", "m": "INJ-069-C-RT93-Rework"}, "F8274F5AFLMIPC0": {"n": "BODY FRONT BUMPER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "", "m": "INJ-070-L-XXXX-XXX"}, "F8274F5AFRMIPC0": {"n": "BODY FRONT BUMPER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "", "m": "INJ-070-R-XXXX-XXX"}, "F8234LH001": {"n": "BODY  SIDE DOOR GARNISH  DBC  REAR  LH", "c": "MMTH", "d": "4P00", "m": "INJ-071-L-DBCX-XXX"}, "F8234RH001": {"n": "BODY SIDE DOOR GARNISH  DBC REAR RH", "c": "MMTH", "d": "4P00", "m": "INJ-071-R-DBCX-XXX"}, "F8274F5BFLMIPC0": {"n": "BODY FRONT FENDER MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-072-L-XXXX-XXX"}, "F8274F5BFRMIPC0": {"n": "BODY FRONT FENDER MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-072-R-XXXX-XXX"}, "F8274F5CLRMIPC0": {"n": "BODY REAR DOOR MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-073-L-XXXX-XXX"}, "F8274F5CRRMIPC0": {"n": "BODY REAR DOOR MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-073-R-XXXX-XXX"}, "F8274F5DRLMIPC0": {"n": "BODY REAR QTR MOLDING-LH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-074-L-XXXX-XXX"}, "F8274F5DRRMIPC0": {"n": "BODY REAR QTR MOLDING-RH ก่อนทำสี", "c": "MMTH", "d": "4P00", "m": "INJ-074-R-XXXX-XXX"}, "F8215TOL001": {"n": "CHROME PLATE FRONT BUMPER GUARD TOYOTA LC PICK UP YM15 ", "c": "ALJ", "d": "15YM", "m": "INJ-075-X-YM15-XXX"}, "F8233LH001": {"n": "BODY SIDE DOOR GARNISH  DBC FRONT LH", "c": "MMTH", "d": "4P00", "m": "INJ-076-L-DBCX-XXX"}, "F8233RH001": {"n": "BODY SIDE DOOR GARNISH  DBC FRONT RH", "c": "MMTH", "d": "4P00", "m": "INJ-076-R-DBCX-XXX"}, "F8212FLTOXC0": {"n": "BODY SIDE MOLDING FRONT LH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ", "m": "INJ-077-L-FJ-XXX"}, "F8212FRTOXC0": {"n": "BODY SIDE MOLDING FRONT RH TOYOTA FJ CRUISER ก่อนทำสี", "c": "ALJ", "d": "FJ", "m": "INJ-077-R-FJ-XXX"}, "F8271LTOCC0": {"n": "BODY REAR SKIRT LH TOYOTA CHR ก่อนทำสี", "c": "TDEM", "d": "CHR18YM", "m": "INJ-078-L-CHRX-XXX"}, "F8271RTOCC0": {"n": "BODY REAR SKIRT RH TOYOTA CHR ก่อนทำสี", "c": "TDEM", "d": "CHR18YM", "m": "INJ-078-R-CHRX-XXX"}, "F8267LTOCC0": {"n": "BODY FRONT SKIRT LH  TOYOTA CHR 2018  ก่อนทำสี", "c": "TDEM", "d": "CHR18YM", "m": "INJ-079-L-CHRX-XXX"}, "F8267RTOCC0": {"n": "BODY FRONT SKIRT RH  TOYOTA CHR 2018  ก่อนทำสี", "c": "TDEM", "d": "CHR18YM", "m": "INJ-079-R-CHRX-XXX"}, "F8267SLISGC0": {"n": "BODY FRONT BUMPER GUARD EU SIDE LH ISUZU R88 16MY", "c": "IAST", "d": "EU16YM", "m": "INJ-080-L-16YM-XXX"}, "F8267SRISGC0": {"n": "BODY FRONT BUMPER GUARD EU SIDE RH ISUZU R88 16MYทำสี", "c": "IAST", "d": "EU16YM", "m": "INJ-080-R-16YM-XXX"}, "F8267CTISGC0": {"n": "BODY FRONT BUMPER GUARD EU CENTER ISUZU R88 16MYทำสี", "c": "IAST", "d": "EU16YM", "m": "INJ-081-C-16YM-XXX"}, "F8252ISXC0": {"n": "UNDER SPOILER RT50 REAR CENTER (INJECTION PD6) BEFORE P", "c": "IAST", "d": "RT50", "m": "INJ-087-C-RT50-Rework"}, "F8233LMIDC0": {"n": "BODY SIDE DOOR GARNISH DC FRONT LH", "c": "MMTH", "d": "5F00", "m": "INJ-088-L-5F00-XXX"}, "F8233RMIDC0": {"n": "BODY SIDE DOOR GARNISH DC FRONT RH", "c": "MMTH", "d": "5F00", "m": "INJ-088-R-5F00-XXX"}, "F8234LMIDC0": {"n": "BODY SIDE DOOR GARNISH DC REAR LH", "c": "MMTH", "d": "5F00", "m": "INJ-089-L-5F00-XXX"}, "F8234RMIDC0": {"n": "BODY SIDE DOOR GARNISH DC REAR RH", "c": "MMTH", "d": "5F00", "m": "INJ-089-R-5F00-XXX"}, "F8267LHOCC0": {"n": "BODY FRONT UNDER SPOILER LH 3TX (INJECTION)", "c": "HONDA", "d": "3TX", "m": "INJ-090-L-3TXX-XXX"}, "F8267RHOCC0": {"n": "BODY FRONT UNDER SPOILER RH 3TX (INJECTION)", "c": "HONDA", "d": "3TX", "m": "INJ-090-R-3TXX-XXX"}, "F8267ISGAC0": {"n": "FRONT SKIRT RG14", "c": "IAST", "d": "RG14", "m": "INJ-091-C-RG14-Rework"}, "F8257ISDAC0": {"n": "SIDE UNDER SPOILER FRONT CRW LH", "c": "IAST", "d": "RG14", "m": "INJ-092-L-RG14-Rework"}, "F8258ISDAC0": {"n": "SIDE UNDER SPOILER FRONT CRW RH", "c": "IAST", "d": "RG14", "m": "INJ-092-R-RG14-Rework"}, "F8257ISXAC0": {"n": "SIDE UNDER SPOILER FRONT EXT LH", "c": "IAST", "d": "RG14", "m": "INJ-093-L-RG14-Rework"}, "F8258ISXAC0": {"n": "SIDE UNDER SPOILER FRONT EXT RH", "c": "IAST", "d": "RG14", "m": "INJ-093-R-RG14-Rework"}, "F8261ISDAC0": {"n": "SIDE UNDER SPOILER REAR CRW LH", "c": "IAST", "d": "RG14", "m": "INJ-094-L-RG14-XXX"}, "F8262ISDAC0": {"n": "SIDE UNDER SPOILER REAR CRW RH", "c": "IAST", "d": "RG14", "m": "INJ-094-R-RG14-XXX"}, "F8261ISXAC0": {"n": "SIDE UNDER SPOILER REAR EXT LH", "c": "IAST", "d": "RG14", "m": "INJ-095-L-RG14-XXX"}, "F8262ISXAC0": {"n": "SIDE UNDER SPOILER REAR EXT RH", "c": "IAST", "d": "RG14", "m": "INJ-095-R-RG14-XXX"}, "F8281LISPC0": {"n": "BODY BACK UP LAMP BEZEL LH", "c": "IAST", "d": "RJ08", "m": "INJ-096-L-RJ08-XXX"}, "F8281RISPC0": {"n": "BODY BACK UP LAMP BEZEL RH", "c": "IAST", "d": "RJ08", "m": "INJ-096-R-RJ08-XXX"}, "F8257ISPAC0": {"n": "BODY SIDE SKIRT  LH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08", "m": "INJ-097-L-RJ08-Rework"}, "F8258ISPAC0": {"n": "BODY SIDE SKIRT  RH ISUZU MU-X RJ08 #ก่อนทำสี", "c": "IAST", "d": "RJ08", "m": "INJ-097-R-RJ08-Rework"}, "F8267ISGBC0": {"n": "Front Bumper Under Garnish", "c": "IAST", "d": "RG17", "m": "INJ-098-RG17-Rework"}, "F8282FLTOG00": {"n": "BODY FRONT MUD GUARD TOYOTA COROLLA CROSS 397D LH", "c": "TDEM", "d": "397D", "m": "INJ-099-L-397D-XXX"}, "F8282FRTOG00": {"n": "BODY FRONT MUD GUARD TOYOTA COROLLA CROSS 397D RH", "c": "TDEM", "d": "397D", "m": "INJ-099-R-397D-XXX"}, "F8282RLTOG00": {"n": "BODY REAR MUD GUARD TOYOTA COROLLA CROSS 397D LH", "c": "TDEM", "d": "397D", "m": "INJ-100-L-397D-XXX"}, "F8282RRTOG00": {"n": "BODY REAR MUD GUARD TOYOTA COROLLA CROSS 397D RH", "c": "TDEM", "d": "397D", "m": "INJ-100-R-397D-XXX"}, "F8253ISXC0": {"n": "UNDER SPOILER RT50 REAR SIDE LH (INJECTION PD5) BEFORE ", "c": "IAST", "d": "RT50", "m": "INJ-101-L-RT50-XXX"}, "F8254ISXC0": {"n": "UNDER SPOILER RT50 REAR SIDE RH (INJECTION PD5) BEFORE ", "c": "IAST", "d": "RT50", "m": "INJ-101-R-RT50-XXX"}, "F8213RLTOC002": {"n": "CAMRY SIDE MOLDING CHROME REAR LH", "c": "ALJ", "d": "25YM", "m": "INJ-102-L-25YM-XXX"}, "F8213RRTOC002": {"n": "CAMRY SIDE MOLDING CHROME REAR RH", "c": "ALJ", "d": "25YM", "m": "INJ-102-R-25YM-XXX"}, "F8213FLTOC002": {"n": "CAMRY SIDE MOLDING CHROME FRONT LH", "c": "ALJ", "d": "25YM", "m": "INJ-103-L-25YM-XXX"}, "F8213FRTOC002": {"n": "CAMRY SIDE MOLDING CHROME FRONT RH", "c": "ALJ", "d": "25YM", "m": "INJ-103-R-25YM-XXX"}, "F8272TOCAC0": {"n": "CAMRY LIP SPOILER 25YM TADME PIO", "c": "ALJ", "d": "25YM", "m": "INJ-104-C-25YM-XXX"}, "F8261ISXC0": {"n": "BODY SIDE REAR UNDER SPOILER LH #ก่อนทำสี", "c": "IAST", "d": "RT50", "m": "INJ-105-L-RT50-XXX"}, "F8262ISXC0": {"n": "BODY SIDE REAR UNDER SPOILER RH #ก่อนทำสี", "c": "IAST", "d": "RT50", "m": "INJ-105-R-RT50-XXX"}, "F8257ISXC0": {"n": "UNDER SPOILER RT50 SIDE FRONT  LH (INJECTION PD6) BEFOR", "c": "IAST", "d": "RT50", "m": "INJ-106-L-RT50-XXX"}, "F8258ISXC0": {"n": "UNDER SPOILER RT50 SIDE FRONT  RH (INJECTION PD6) BEFOR", "c": "IAST", "d": "RT50", "m": "INJ-106-R-RT50-XXX"}, "F8272TOCBC0": {"n": "CAMRY LIP SPOILER 25YM TADME DIO", "c": "ALJ", "d": "25YM", "m": "INJ-107-C-25YM-XXX"}, "F8299ALFOR00": {"n": "R1WB-16G563-AB INS ASY FRT FNDR SPLS SHLD LH", "c": "FORD", "d": "P703", "m": "INJ-108-L-P703-XXX"}, "F8299ARFOR00": {"n": "R1WB-16G562-AB INS ASY FRT FNDR SPLS SHLD RH", "c": "FORD", "d": "P703", "m": "INJ-108-R-P703-XXX"}, "F8211TOXB02": {"n": "CONSOLE BOX SEPARATOR (SHORT)", "c": "TOYOTA", "d": "", "m": "INJ-109-C-XX-XXX"}, "F8211TOXC02": {"n": "CONSOLE BOX SEPARATOR (LONG)", "c": "TOYOTA", "d": "", "m": "INJ-110-C-XX-XXX"}, "F8274OLFORA01": {"n": "FRONT WAL RANGER  LH OUTER", "c": "FORD", "d": "P703", "m": "INJ-111.1-L- P703 -XXX"}, "F8274ORFORA01": {"n": "FRONT WAL RANGER  RH OUTER", "c": "FORD", "d": "P703", "m": "INJ-111.1-R- P703 -XXX"}, "F8274OLFORA00": {"n": "FRONT WAL RANGER  LH OUTER", "c": "FORD", "d": "P703", "m": "INJ-111-L- P703 -XXX"}, "F8274ORFORA00": {"n": "FRONT WAL RANGER  RH OUTER", "c": "FORD", "d": "P703", "m": "INJ-111-R- P703 -XXX"}, "F8274ILFORA01": {"n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703", "m": "INJ-112.1-L- P703 -XXX"}, "F8274IRFORA01": {"n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703", "m": "INJ-112.1-R- P703 -XXX"}, "F8274ILFORA00": {"n": "FRONT WAL RANGER  LH INNER", "c": "FORD", "d": "P703", "m": "INJ-112-L- P703 -XXX"}, "F8274IRFORA00": {"n": "FRONT WAL RANGER  RH INNER", "c": "FORD", "d": "P703", "m": "INJ-112-R- P703 -XXX"}, "S8299BLFOR02": {"n": "R1WZ-16A550-H MUDFLAP ASY", "c": "FORD", "d": "P703", "m": "INJ-113.1-L-P703-XXX"}, "S8299BRFOR02": {"n": "R1WZ-16A550-G MUDFLAP ASY", "c": "FORD", "d": "P703", "m": "INJ-113.1-R-P703-XXX"}, "S8299BLFOR01": {"n": "R1WB-16A263-BC SHLD FRT WHL SPLS LH", "c": "FORD", "d": "P703", "m": "INJ-113.2-L-P703-XXX"}, "S8299BRFOR01": {"n": "R1WB-16A262-BC SHLD FRT WHL SPLS RH", "c": "FORD", "d": "P703", "m": "INJ-113.2-R-P703-XXX"}, "F8299BLFOR00": {"n": "SHLD FRT WHL SPLS LH", "c": "FORD", "d": "P703", "m": "INJ-113-L-P703-XXX"}, "F8299BRFOR00": {"n": "SHLD FRT WHL SPLS RH", "c": "FORD", "d": "P703", "m": "INJ-113-R-P703-XXX"}, "F8244ETODC0": {"n": "BODY COVER CENTER LH SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "INJ-114-L-581D-XXX"}, "F8246ETODC0": {"n": "COVER SIDE LH SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "INJ-115-L-581D-XXX"}, "F8247ETODC0": {"n": "COVER SIDE RH SPORT BAR 581D", "c": "TDEM", "d": "581D", "m": "INJ-115-R-581D-XXX"}, "F8268ETOD00": {"n": "COVER BRACKET CLAMP LOCK581D", "c": "TDEM", "d": "581D", "m": "INJ-116-C-581D-XXX"}, "F8277ETODC0": {"n": "COVER OUTER  581  LH", "c": "TCD", "d": "581D", "m": "INJ-117.1-L-581D-XXX"}, "F8278ETODC0": {"n": "COVER OUTER  581  RH", "c": "TCD", "d": "581D", "m": "INJ-117.1-R-581D-XXX"}, "R3115048": {"n": "CAP LOCK PP PIPE PIN 15x6mm.", "c": "XXX", "d": "XXX", "m": "INJ-118-C-CAP-XXX"}, "F8267ISGCC0": {"n": "BODY FRONT SKIRT RG21", "c": "IAST", "d": "RG21", "m": "INJ-119.1-C-RG21-Rework"}, "R8015439": {"n": "BODY FRONT FLANGE LH", "c": "IAST", "d": "RG21", "m": "INJ-120-L-RG21-XXX"}, "R8015440": {"n": "BODY FRONT FLANGE RH", "c": "IAST", "d": "RG21", "m": "INJ-120-R-RG21-XXX"}, "F8253ISGAC0": {"n": "BODY REAR UNDER SPOILER CORNOR LH", "c": "IAST", "d": "RG21", "m": "INJ-121-L-RG21-XXX"}, "F8254ISGAC0": {"n": "BODY REAR UNDER SPOILER CORNOR RH", "c": "IAST", "d": "RG21", "m": "INJ-121-R-RG21-XXX"}, "F8252ISGAC0": {"n": "BODY UNDER SPOILER REAR CTR", "c": "IAST", "d": "RG21", "m": "INJ-122-C-RG21-Rework"}, "F8284LISDAC1": {"n": "ORNAMENT CREW LH GUN METALLIC", "c": "IAST", "d": "RG21", "m": "INJ-123-L-RG21-Gun METALLIC"}, "F8284LISDAC0": {"n": "ORNAMENT CREW LH SILVER", "c": "IAST", "d": "RG21", "m": "INJ-123.1-L-RG21-SILVER"}, "F8284RISDAC1": {"n": "ORNAMENT CREW RH GUN METALLIC", "c": "IAST", "d": "RG21", "m": "INJ-123-R-RG21-Gun METALLIC"}, "F8284RISDAC0": {"n": "ORNAMENT CREW RH SILVER", "c": "IAST", "d": "RG21", "m": "INJ-123-R-RG21-SILVER"}, "F8284LISXAC1": {"n": "ORNAMENT EXTEN LH GUN METALLIC", "c": "IAST", "d": "RG21", "m": "INJ-124-L-RG21-METALLIC"}, "F8284LISXAC0": {"n": "ORNAMENT EXTEN LH SILVER", "c": "IAST", "d": "RG21", "m": "INJ-124-L-RG21-SILVER"}, "F8284RISXAC1": {"n": "ORNAMENT EXTEN RH GUN METALLIC", "c": "IAST", "d": "RG21", "m": "INJ-124-R-RG21-METALLIC"}, "F8284RISXAC0": {"n": "ORNAMENT EXTEN RH SILVER", "c": "IAST", "d": "RG21", "m": "INJ-124-R-RG21-SILVER"}, "F8267TOGAC0": {"n": "Front Under Run 581D", "c": "TDEM", "d": "581D", "m": "INJ-128-C-581D-XXX"}, "F8279TOD001": {"n": "BODY TAIL GATE PROTECTOR 581D", "c": "TDEM", "d": "581D", "m": "INJ-130-X-581D-XXX"}, "F8274FLFORA00": {"n": "S1WB-16L561-AC SHLD RR WHL FRT SPLS LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-131-L-SSB-Splash Shield"}, "F8274FRFORA00": {"n": "S1WB-16L560-AC SHLD RR WHL FRT SPLS", "c": "FORD", "d": "P703 SSB", "m": "INJ-131-R-SSB-Splash Shield"}, "F8274FLFORA01": {"n": "S1WZ-16A550-F SHLD RR WHL FRT SPLS LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-131-L-SSB-Splash Shield-Spare Part"}, "F8274FRFORA01": {"n": "S1WZ-16A550-E SHLD RR WHL FRT SPLS", "c": "FORD", "d": "P703 SSB", "m": "INJ-131-R-SSB-Splash Shield-Spare Part"}, "F8274RLFORB00": {"n": "S1WB-E28345-AD SHLD ASY RR WHL SPLS LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-132-L-SSB-Rear Wheel Arch"}, "F8274RRFORB00": {"n": "S1WB-E28344-AC SHLD ASY RR WHL SPLS", "c": "FORD", "d": "P703 SSB", "m": "INJ-132-R-SSB-Rear Wheel Arch"}, "F8274RLFORD00": {"n": "S1WZ-2628371-B SHLD ASY RR WHL SPLS LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-132-L-SSB-Rear Wheel Arch-Spare Part"}, "F8274RRFORD00": {"n": "S1WZ-2628370-B SHLD ASY RR WHL SPLS", "c": "FORD", "d": "P703 SSB", "m": "INJ-132-R-SSB-Rear Wheel Arch-Spare Part"}, "F8274RLFORA00": {"n": "S1WB-E28401-AC SHLD RR WHL SPLS RR LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-133.1-L-SSB-Rear Mud Flap"}, "F8274RRFORA00": {"n": "S1WB-E28400-AC SHLD RR WHL SPLS RR", "c": "FORD", "d": "P703 SSB", "m": "INJ-133.1-R-SSB-Rear Mud Flap"}, "S8274RLP5FORA00": {"n": "S1WZ-16A550-C SHLD RR WHL SPLS RR LH", "c": "FORD", "d": "P703 SSB", "m": "INJ-133-L-SSB-Rear Mud Flap-Spare Part"}, "S8274RRP5FORA00": {"n": "S1WZ-16A550-B SHLD RR WHL SPLS RR", "c": "FORD", "d": "P703 SSB", "m": "INJ-133-R-SSB-Rear Mud Flap-Spare Part"}, "No Loading": {"n": "No Loading", "c": "No Loading", "d": "No Loading", "m": "No Loading"}, "F8240LH001": {"n": "BODY SIDE DOOR GARNISH  FRONT CC LH ( MITSUBISHI TRITON", "c": "MMTH", "d": "4P00", "m": "XXX1"}, "F8240RH001": {"n": "BODY SIDE DOOR GARNISH  FRONT CC RH ( MITSUBISHI TRITON", "c": "MMTH", "d": "4P00", "m": "XXX2"}, "F8241LH001": {"n": "BODY SIDE DOOR GARNISH  REAR CC LH ( MITSUBISHI TRITON ", "c": "MMTH", "d": "4P00", "m": "XXX3"}, "F8241RH001": {"n": "BODY SIDE DOOR GARNISH  REAR CC RH ( MITSUBISHI TRITON ", "c": "MMTH", "d": "4P00", "m": "XXX4"}, "F8221FTODC0": {"n": "BODY CENTER SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "BM-080-C-581D-TSAM-XXX"}, "F8222FTODC0": {"n": "BODY SIDE LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "BM-081-L-581D-TSAM-XXX"}, "F8223FTODC0": {"n": "BODY SIDE RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "BM-082-R-581D-TSAM-XXX"}, "F8224FTODC0": {"n": "BODY BOX RAIL LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "BM-083-L-581D-TSAM-XXX"}, "F8225FTODC0": {"n": "BODY BOX RAIL RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "BM-083-R-581D-TSAM-XXX"}, "F8244FTODC0": {"n": "BODY COVER CENTER LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-134-L-581D-TSAM-XXX"}, "F8245FTODC0": {"n": "BODY COVER CENTER RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-134-R-581D-TSAM-XXX"}, "F8248FTODC0": {"n": "BODY COVER SIDE LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-135-L-581D-TSAM-XXX"}, "F8249FTODC0": {"n": "BODY COVER SIDE RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-135-R-581D-TSAM-XXX"}, "F8268FTOD00": {"n": "BODY COVER CLAMP SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-136-C-581D-TSAM-XXX"}, "F8277FTODC0": {"n": "BODY COVER OUTER LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-137-L-581D-TSAM-XXX"}, "F8278FTODC0": {"n": "BODY COVER OUTER RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-137-R-581D-TSAM-XXX"}, "F8246FTODC0": {"n": "BODY COVER FRONT LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-138-L-581D-TSAM-XXX"}, "F8247FTODC0": {"n": "BODY COVER FRONT RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-138-R-581D-TSAM-XXX"}, "F8285FTODC0": {"n": "BODY COVER BRACKET LH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-139-L-581D-TSAM-XXX"}, "F8286FTODC0": {"n": "BODY COVER BRACKET RH SPORT BAR D-CAB HILUX 2026", "c": "TOYOTA", "d": "581D T", "m": "INJ-139-R-581D-TSAM-XXX"}};
+
+let curTab=1;
+let wipData={}; // {partNo: {current, min, max, leadTime, safety, lastUpdate}}
+let movements=[]; // [{date, type, part, qty, dest, user, note, source}]
+let importedRecords=[]; // Records from Step 4
+
+// ==================== INIT ====================
+function init(){
+  loadFromStorage();
+  document.getElementById('dd').textContent=new Date().toLocaleDateString('th-TH');
+  document.getElementById('movDate').value=new Date().toISOString().split('T')[0];
+  renderWIPTable();
+  renderSetupTable();
+  renderMovTable();
+  renderAlerts();
+  updateExportSummary();
+}
+
+function loadFromStorage(){
+  try{wipData=JSON.parse(localStorage.getItem('mes_step5_wip')||'{}');}catch(e){wipData={};}
+  try{movements=JSON.parse(localStorage.getItem('mes_step5_mov')||'[]');}catch(e){movements=[];}
+  try{importedRecords=JSON.parse(localStorage.getItem('mes_step5_imp')||'[]');}catch(e){importedRecords=[];}
+}
+function saveToStorage(){
+  localStorage.setItem('mes_step5_wip',JSON.stringify(wipData));
+  localStorage.setItem('mes_step5_mov',JSON.stringify(movements));
+  localStorage.setItem('mes_step5_imp',JSON.stringify(importedRecords));
+}
+
+// ==================== TAB NAV ====================
+function showTab(n){
+  curTab=n;
+  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab'+n).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n-1));
+  document.getElementById('btnPrev').style.display=n>1?'block':'none';
+  var nb=document.getElementById('btnNext');
+  if(n<6){nb.textContent='ถัดไป ▶';nb.className='btn btn-p';nb.onclick=nextTab;}
+  else{nb.textContent='💾 บันทึก';nb.className='btn btn-g';nb.onclick=saveAllData;}
+  if(n===2)renderWIPTable();
+  if(n===3)renderSetupTable();
+  if(n===4)renderMovTable();
+  if(n===5)renderAlerts();
+  if(n===6)updateExportSummary();
+}
+function nextTab(){if(curTab<6)showTab(curTab+1);}
+function prevTab(){if(curTab>1)showTab(curTab-1);}
+
+// ==================== TAB 1: CSV IMPORT ====================
+function handleCSVImport(event){
+  var files=event.target.files;
+  if(!files.length)return;
+  var fileNames=[];
+  var totalRecords=0;
+  var partsUpdated={};
+  
+  var processed=0;
+  Array.from(files).forEach(function(file){
+    fileNames.push(file.name);
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var text=e.target.result;
+      var lines=text.split('\n').filter(function(l){return l.trim();});
+      
+      // Parse CSV - Step 4 format: Date,Shift,Hour,Plan,Actual,GoodLH,GoodRH,DefectLH,DefectRH
+      // Find Good LH/RH columns
+      var header=lines[0].split(',').map(function(s){return s.trim().replace(/^\ufeff/,'');});
+      var goodLHidx=header.indexOf('GoodLH');
+      var goodRHidx=header.indexOf('GoodRH');
+      var dateIdx=header.indexOf('Date');
+      var shiftIdx=header.indexOf('Shift');
+      
+      // Get Part No from filename or from CSV (Step 4 stores in header section)
+      // Step 4 CSV format: hourly data first, then defects, then downtimes
+      var partLH='',partRH='';
+      // Find machine/mold info section
+      for(var i=0;i<lines.length;i++){
+        if(lines[i].indexOf('Part_LH')>-1||lines[i].indexOf('Mold')>-1){
+          var nextLine=lines[i+1]?lines[i+1].split(','):[];
+          break;
+        }
+      }
+      
+      // Sum Good LH and Good RH for this shift
+      var totalGoodLH=0,totalGoodRH=0,sumDate='';
+      for(var i=1;i<lines.length;i++){
+        var cols=lines[i].split(',');
+        if(cols.length<header.length)break; // End of hourly section
+        if(!cols[0]||cols[0].indexOf('Defect_Code')>-1)break;
+        totalGoodLH+=Number(cols[goodLHidx])||0;
+        totalGoodRH+=Number(cols[goodRHidx])||0;
+        if(!sumDate)sumDate=cols[dateIdx];
+      }
+      
+      // Try to extract Part Nos from filename: MES_R1_2026-05-18_ShiftA_IJ04-2500T.csv
+      var fnMatch=file.name.match(/MES_R1_(\d{4}-\d{2}-\d{2})_Shift([AB])/);
+      var importDate=sumDate||(fnMatch?fnMatch[1]:new Date().toISOString().split('T')[0]);
+      var importShift=fnMatch?fnMatch[2]:'A';
+      
+      // Record import
+      var rec={
+        file:file.name,
+        date:importDate,
+        shift:importShift,
+        goodLH:totalGoodLH,
+        goodRH:totalGoodRH,
+        total:totalGoodLH+totalGoodRH,
+        imported:new Date().toISOString()
+      };
+      importedRecords.push(rec);
+      totalRecords+=rec.total;
+      
+      processed++;
+      if(processed===files.length){
+        saveToStorage();
+        showImportResult(fileNames,totalRecords,partsUpdated);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function showImportResult(files,total,parts){
+  document.getElementById('fileLabel').textContent='✅ Imported '+files.length+' file(s)';
+  document.querySelector('.import-box').classList.add('has-file');
+  
+  var html='<div class="alert-banner ok"><div class="alert-title">✅ Import สำเร็จ!</div>'+
+    '<div style="font-size:12px;line-height:1.7">'+
+    '📁 Files: '+files.join(', ')+'<br>'+
+    '📦 Total Good Pieces: <b style="color:var(--green);font-size:16px">'+total+' pcs</b><br>'+
+    '💡 ไปที่ Tab "📝 บันทึก IN/OUT" → เลือก Part No. → ใส่จำนวน → ระบบจะเพิ่มเข้า WIP</div></div>';
+  
+  if(importedRecords.length>0){
+    html+='<div style="margin-top:10px"><div style="font-weight:700;color:var(--accent2);margin-bottom:6px">📋 Import History:</div>';
+    html+='<div style="overflow-x:auto;background:var(--inp);border-radius:8px"><table class="tbl">';
+    html+='<thead><tr><th>Date</th><th>Shift</th><th>File</th><th>Good LH</th><th>Good RH</th><th>Total</th></tr></thead><tbody>';
+    importedRecords.slice(-10).reverse().forEach(function(r){
+      html+='<tr><td>'+r.date+'</td><td>'+r.shift+'</td><td style="font-size:10px">'+r.file+'</td>'+
+        '<td style="color:var(--green)">'+r.goodLH+'</td><td style="color:var(--green)">'+r.goodRH+'</td>'+
+        '<td style="font-weight:700">'+r.total+'</td></tr>';
+    });
+    html+='</tbody></table></div></div>';
+  }
+  
+  document.getElementById('importResult').innerHTML=html;
+  saveToStorage();
+}
+
+// ==================== TAB 2: WIP STATUS ====================
+function getPartStatus(part){
+  var d=wipData[part];
+  if(!d)return{status:'none',color:'#666',label:'—'};
+  var c=d.current||0,min=d.min||0,max=d.max||0;
+  if(c<min*0.5)return{status:'crit',color:'var(--red)',label:'🔴 Critical'};
+  if(c<min)return{status:'low',color:'var(--yellow)',label:'🟡 Low'};
+  if(c>max)return{status:'high',color:'var(--accent)',label:'🔵 High'};
+  return{status:'ok',color:'var(--green)',label:'🟢 OK'};
+}
+
+function renderWIPTable(){
+  var search=(document.getElementById('searchPart')?.value||'').toLowerCase();
+  var filter=document.getElementById('filterStatus')?.value||'all';
+  var parts=Object.keys(wipData);
+  
+  var crit=0,low=0,ok=0,high=0;
+  parts.forEach(function(p){
+    var s=getPartStatus(p).status;
+    if(s==='crit')crit++;
+    else if(s==='low')low++;
+    else if(s==='ok')ok++;
+    else if(s==='high')high++;
+  });
+  
+  document.getElementById('wipKPI').innerHTML=
+    '<div class="kpi kpi-r"><div class="kpi-l">🔴 Critical</div><div class="kpi-v" style="color:var(--red)">'+crit+'</div><div class="kpi-t">ต่ำกว่า Min/2</div></div>'+
+    '<div class="kpi kpi-y"><div class="kpi-l">🟡 Low</div><div class="kpi-v" style="color:var(--yellow)">'+low+'</div><div class="kpi-t">ต่ำกว่า Min</div></div>'+
+    '<div class="kpi kpi-g"><div class="kpi-l">🟢 OK</div><div class="kpi-v" style="color:var(--green)">'+ok+'</div><div class="kpi-t">Min ≤ X ≤ Max</div></div>'+
+    '<div class="kpi kpi-b"><div class="kpi-l">🔵 High</div><div class="kpi-v" style="color:var(--accent2)">'+high+'</div><div class="kpi-t">เกิน Max</div></div>';
+  
+  var html='<thead><tr><th>Part No.</th><th>Part Name</th><th>Min</th><th>Current</th><th>Max</th><th>Status</th><th>Last Update</th></tr></thead><tbody>';
+  
+  if(parts.length===0){
+    html+='<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--dim)">ยังไม่มีข้อมูล WIP — ไปที่ Tab "⚙️ Max-Min Setup" เพื่อเพิ่ม Parts</td></tr>';
+  }else{
+    parts.forEach(function(p){
+      var d=wipData[p];
+      var info=PARTS[p]||{n:'—',c:'',d:''};
+      var st=getPartStatus(p);
+      if(filter!=='all'&&st.status!==filter)return;
+      if(search&&p.toLowerCase().indexOf(search)===-1&&info.n.toLowerCase().indexOf(search)===-1)return;
+      html+='<tr><td class="lbl">'+p+'</td>'+
+        '<td class="pn">'+info.n+'</td>'+
+        '<td>'+d.min+'</td>'+
+        '<td style="font-weight:800;color:'+st.color+';font-size:14px">'+d.current+'</td>'+
+        '<td>'+d.max+'</td>'+
+        '<td><span style="color:'+st.color+';font-weight:700">'+st.label+'</span></td>'+
+        '<td style="font-size:10px;color:var(--dim)">'+(d.lastUpdate?new Date(d.lastUpdate).toLocaleString('th-TH'):'—')+'</td></tr>';
+    });
+  }
+  html+='</tbody>';
+  document.getElementById('wipTable').innerHTML=html;
+}
+
+// ==================== TAB 3: MAX-MIN SETUP ====================
+function loadPartForSetup(){
+  var p=document.getElementById('setupPart').value;
+  if(!p){document.getElementById('setupForm').style.display='none';return;}
+  var info=PARTS[p]||{n:'—',c:'',d:''};
+  document.getElementById('setupPartName').textContent=info.n;
+  document.getElementById('setupCust').textContent=info.c||'—';
+  document.getElementById('setupModel').textContent=info.d||'—';
+  
+  var d=wipData[p]||{};
+  document.getElementById('setupMin').value=d.min||0;
+  document.getElementById('setupMax').value=d.max||1000;
+  document.getElementById('setupCurrent').value=d.current||0;
+  document.getElementById('setupLeadTime').value=d.leadTime||3;
+  document.getElementById('setupSafety').value=d.safety||100;
+  document.getElementById('setupForm').style.display='block';
+}
+
+function savePartSetup(){
+  var p=document.getElementById('setupPart').value;
+  if(!p){alert('เลือก Part ก่อน');return;}
+  wipData[p]={
+    min:Number(document.getElementById('setupMin').value)||0,
+    max:Number(document.getElementById('setupMax').value)||0,
+    current:Number(document.getElementById('setupCurrent').value)||0,
+    leadTime:Number(document.getElementById('setupLeadTime').value)||0,
+    safety:Number(document.getElementById('setupSafety').value)||0,
+    lastUpdate:new Date().toISOString()
+  };
+  saveToStorage();
+  toast('✅ บันทึก '+p+' สำเร็จ!');
+  renderSetupTable();
+  renderWIPTable();
+  renderAlerts();
+}
+
+function renderSetupTable(){
+  var parts=Object.keys(wipData);
+  var html='<thead><tr><th>Part No.</th><th>Min</th><th>Max</th><th>Current</th><th>Lead Time</th><th>Action</th></tr></thead><tbody>';
+  if(parts.length===0){
+    html+='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--dim)">ยังไม่มี Parts — เลือก Part ด้านบนเพื่อเพิ่ม</td></tr>';
+  }else{
+    parts.forEach(function(p){
+      var d=wipData[p];
+      html+='<tr><td class="lbl">'+p+'</td><td>'+d.min+'</td><td>'+d.max+'</td><td>'+d.current+'</td><td>'+(d.leadTime||0)+' d</td>'+
+        '<td><button onclick="editPart(\''+p+'\')" style="background:var(--accent);border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px">✏️ Edit</button> '+
+        '<button onclick="delPart(\''+p+'\')" style="background:var(--red);border:none;color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px">🗑️</button></td></tr>';
+    });
+  }
+  html+='</tbody>';
+  document.getElementById('setupTable').innerHTML=html;
+}
+
+function editPart(p){document.getElementById('setupPart').value=p;loadPartForSetup();}
+function delPart(p){if(!confirm('ลบ '+p+'?'))return;delete wipData[p];saveToStorage();renderSetupTable();renderWIPTable();renderAlerts();}
+
+// ==================== TAB 4: IN/OUT MOVEMENT ====================
+function saveMovement(){
+  var p=document.getElementById('movPart').value;
+  var qty=Number(document.getElementById('movQty').value)||0;
+  if(!p){alert('เลือก Part');return;}
+  if(qty<=0){alert('ใส่จำนวน');return;}
+  
+  var mov={
+    id:Date.now(),
+    date:document.getElementById('movDate').value,
+    type:document.getElementById('movType').value,
+    part:p,
+    qty:qty,
+    dest:document.getElementById('movDest').value,
+    user:document.getElementById('movUser').value,
+    note:document.getElementById('movNote').value,
+    source:'manual'
+  };
+  movements.push(mov);
+  
+  // Update WIP balance
+  if(!wipData[p])wipData[p]={min:0,max:1000,current:0,leadTime:3,safety:100};
+  if(mov.type==='IN')wipData[p].current=(wipData[p].current||0)+qty;
+  else if(mov.type==='OUT')wipData[p].current=Math.max(0,(wipData[p].current||0)-qty);
+  else if(mov.type==='ADJ')wipData[p].current=qty;
+  wipData[p].lastUpdate=new Date().toISOString();
+  
+  saveToStorage();
+  toast('✅ บันทึก '+mov.type+' '+qty+' pcs');
+  document.getElementById('movQty').value=0;
+  document.getElementById('movNote').value='';
+  renderMovTable();
+}
+
+function renderMovTable(){
+  var html='<thead><tr><th>Date</th><th>Type</th><th>Part</th><th>Qty</th><th>Dest</th><th>User</th></tr></thead><tbody>';
+  if(movements.length===0){
+    html+='<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--dim)">ยังไม่มี Movement</td></tr>';
+  }else{
+    movements.slice(-10).reverse().forEach(function(m){
+      var col=m.type==='IN'?'var(--green)':m.type==='OUT'?'var(--red)':'var(--yellow)';
+      html+='<tr><td style="font-size:11px">'+m.date+'</td>'+
+        '<td><span style="color:'+col+';font-weight:700">'+m.type+'</span></td>'+
+        '<td class="lbl">'+m.part+'</td>'+
+        '<td style="font-weight:700">'+m.qty+'</td>'+
+        '<td style="font-size:11px">'+m.dest+'</td>'+
+        '<td style="font-size:11px;color:var(--dim)">'+(m.user||'—')+'</td></tr>';
+    });
+  }
+  html+='</tbody>';
+  document.getElementById('movTable').innerHTML=html;
+}
+
+// ==================== TAB 5: ALERTS ====================
+function renderAlerts(){
+  var crits=[],lows=[],highs=[];
+  Object.keys(wipData).forEach(function(p){
+    var st=getPartStatus(p);
+    var d=wipData[p];
+    var info=PARTS[p]||{n:'—'};
+    if(st.status==='crit')crits.push({p:p,d:d,n:info.n});
+    else if(st.status==='low')lows.push({p:p,d:d,n:info.n});
+    else if(st.status==='high')highs.push({p:p,d:d,n:info.n});
+  });
+  
+  var html='';
+  if(crits.length+lows.length+highs.length===0){
+    html='<div class="alert-banner ok"><div class="alert-title">✅ All OK!</div><div style="font-size:12px">Stock ทุก Part อยู่ในเกณฑ์ปกติ — ไม่มี Alert</div></div>';
+  }else{
+    if(crits.length>0){
+      html+='<div class="alert-banner"><div class="alert-title">🔴 CRITICAL — ต้องผลิตด่วน! ('+crits.length+' parts)</div>';
+      crits.forEach(function(x){
+        var pct=x.d.min>0?((x.d.current/x.d.min)*100).toFixed(0):0;
+        html+='<div style="background:#ef444415;border-radius:6px;padding:8px;margin-top:6px;font-size:12px">'+
+          '<div style="font-weight:700;color:var(--red)">'+x.p+'</div>'+
+          '<div style="color:var(--dim);font-size:11px">'+x.n+'</div>'+
+          '<div style="margin-top:4px">Current: <b style="color:var(--red)">'+x.d.current+'</b> / Min: '+x.d.min+' ('+pct+'% of Min) — ต้องเติม <b>'+(x.d.max-x.d.current)+' pcs</b></div></div>';
+      });
+      html+='</div>';
+    }
+    if(lows.length>0){
+      html+='<div class="alert-banner warn"><div class="alert-title">🟡 LOW STOCK — ใกล้หมด ('+lows.length+' parts)</div>';
+      lows.forEach(function(x){
+        html+='<div style="background:#f59e0b15;border-radius:6px;padding:8px;margin-top:6px;font-size:12px">'+
+          '<div style="font-weight:700;color:var(--yellow)">'+x.p+'</div>'+
+          '<div style="color:var(--dim);font-size:11px">'+x.n+'</div>'+
+          '<div style="margin-top:4px">Current: <b>'+x.d.current+'</b> / Min: '+x.d.min+' — แนะนำเติม '+(x.d.max-x.d.current)+' pcs</div></div>';
+      });
+      html+='</div>';
+    }
+    if(highs.length>0){
+      html+='<div class="alert-banner" style="border-color:var(--accent);background:linear-gradient(135deg,#2d7ff920,#2d7ff910)"><div class="alert-title" style="color:var(--accent2)">🔵 HIGH STOCK — เกิน Max ('+highs.length+' parts)</div>';
+      highs.forEach(function(x){
+        html+='<div style="background:#2d7ff915;border-radius:6px;padding:8px;margin-top:6px;font-size:12px">'+
+          '<div style="font-weight:700;color:var(--accent2)">'+x.p+'</div>'+
+          '<div style="color:var(--dim);font-size:11px">'+x.n+'</div>'+
+          '<div style="margin-top:4px">Current: <b>'+x.d.current+'</b> / Max: '+x.d.max+' — เกิน <b>'+(x.d.current-x.d.max)+' pcs</b> ควรชะลอการผลิต</div></div>';
+      });
+      html+='</div>';
+    }
+  }
+  document.getElementById('alertContent').innerHTML=html;
+}
+
+// ==================== TAB 6: EXPORT ====================
+function exportWIPStatus(){
+  var csv='Part_No,Part_Name,Customer,Model,Min,Current,Max,Status,Last_Update\n';
+  Object.keys(wipData).forEach(function(p){
+    var d=wipData[p];
+    var info=PARTS[p]||{n:'',c:'',d:''};
+    var st=getPartStatus(p);
+    csv+=p+',"'+info.n+'",'+info.c+','+info.d+','+d.min+','+d.current+','+d.max+','+st.label+','+(d.lastUpdate||'')+'\n';
+  });
+  downloadCSV(csv,'Step5_WIP_Status_'+new Date().toISOString().split('T')[0]+'.csv');
+}
+function exportMovements(){
+  var csv='Date,Type,Part_No,Part_Name,Qty,Destination,User,Note,Source\n';
+  movements.forEach(function(m){
+    var info=PARTS[m.part]||{n:''};
+    csv+=m.date+','+m.type+','+m.part+',"'+info.n+'",'+m.qty+','+m.dest+','+(m.user||'')+',"'+(m.note||'')+'",'+m.source+'\n';
+  });
+  downloadCSV(csv,'Step5_Movements_'+new Date().toISOString().split('T')[0]+'.csv');
+}
+function exportForStep6(){
+  // Generate Step 6 input: WIP Finishing OK → ready for routing
+  var csv='Part_No,Part_Name,WIP_Available,Route_Type,Customer,Model\n';
+  Object.keys(wipData).forEach(function(p){
+    var d=wipData[p];
+    if(d.current>0){
+      var info=PARTS[p]||{n:'',c:'',d:''};
+      csv+=p+',"'+info.n+'",'+d.current+',PENDING,'+info.c+','+info.d+'\n';
+    }
+  });
+  downloadCSV(csv,'Step5_to_Step6_RouteDistribution_'+new Date().toISOString().split('T')[0]+'.csv');
+}
+function exportPowerBI(){
+  // All data combined for Power BI
+  var data={
+    exportDate:new Date().toISOString(),
+    wipStatus:wipData,
+    movements:movements,
+    imports:importedRecords,
+    parts:PARTS
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='Step5_PowerBI_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Export Power BI สำเร็จ');
+}
+function downloadCSV(csv,name){
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=name;a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ Export '+name);
+}
+function updateExportSummary(){
+  document.getElementById('exportSummary').innerHTML=
+    '📦 Parts setup: <b>'+Object.keys(wipData).length+'</b><br>'+
+    '📝 Movements: <b>'+movements.length+'</b><br>'+
+    '📥 Imports from Step 4: <b>'+importedRecords.length+'</b><br>'+
+    '🔴 Critical alerts: <b>'+Object.keys(wipData).filter(function(p){return getPartStatus(p).status==='crit';}).length+'</b>';
+}
+function clearAllData(){
+  if(!confirm('ล้างข้อมูลทั้งหมด? (ไม่สามารถ undo ได้)'))return;
+  wipData={};movements=[];importedRecords=[];
+  saveToStorage();
+  renderWIPTable();renderSetupTable();renderMovTable();renderAlerts();updateExportSummary();
+  toast('🗑️ ล้างข้อมูลแล้ว');
+}
+function saveAllData(){saveToStorage();toast('💾 บันทึกแล้ว');}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+
+// ==================== AUTO-BRIDGE FROM STEP 4 ====================
+function checkAutoBridge(){
+  try{
+    var bridge=JSON.parse(localStorage.getItem('mes_bridge_step4_to_5')||'[]');
+    var pending=bridge.filter(function(b){return !b.consumed;});
+    var el=document.getElementById('bridgeCount');
+    var wait=document.getElementById('bridgeWaiting');
+    if(el)el.textContent=pending.length;
+    if(wait){
+      if(pending.length>0){
+        wait.textContent='✅ มีข้อมูลใหม่ '+pending.length+' รายการ — กดปุ่ม "รับข้อมูล" ด้านล่าง';
+        wait.style.color='#10b981';
+      }else{
+        wait.textContent='⏳ รอ Step 4 บันทึก... (เปิด Step 4 ใน tab อื่นแล้วกด Save)';
+        wait.style.color='var(--accent2)';
+      }
+    }
+  }catch(e){console.error(e);}
+}
+
+function processAutoBridge(){
+  try{
+    var bridge=JSON.parse(localStorage.getItem('mes_bridge_step4_to_5')||'[]');
+    var pending=bridge.filter(function(b){return !b.consumed;});
+    if(pending.length===0){
+      toast('⏳ ไม่มีข้อมูลใหม่จาก Step 4');
+      return;
+    }
+    
+    var processed=0;
+    var partsUpdated=[];
+    
+    pending.forEach(function(b){
+      // Process Part LH
+      if(b.poLH&&b.goodLH>0){
+        if(!wipData[b.poLH]){
+          wipData[b.poLH]={min:0,max:1000,current:0,leadTime:3,safety:100};
+        }
+        wipData[b.poLH].current=(wipData[b.poLH].current||0)+b.goodLH;
+        wipData[b.poLH].lastUpdate=new Date().toISOString();
+        
+        movements.push({
+          id:Date.now()+Math.random(),
+          date:b.date,
+          type:'IN',
+          part:b.poLH,
+          qty:b.goodLH,
+          dest:'WIP_Finishing',
+          user:'Auto-Bridge Step 4',
+          note:'Mold:'+b.mold+' Shift:'+b.shift+' MC:'+b.machine,
+          source:'auto-step4'
+        });
+        partsUpdated.push(b.poLH+' (+'+b.goodLH+')');
+      }
+      
+      // Process Part RH
+      if(b.poRH&&b.goodRH>0){
+        if(!wipData[b.poRH]){
+          wipData[b.poRH]={min:0,max:1000,current:0,leadTime:3,safety:100};
+        }
+        wipData[b.poRH].current=(wipData[b.poRH].current||0)+b.goodRH;
+        wipData[b.poRH].lastUpdate=new Date().toISOString();
+        
+        movements.push({
+          id:Date.now()+Math.random()+1,
+          date:b.date,
+          type:'IN',
+          part:b.poRH,
+          qty:b.goodRH,
+          dest:'WIP_Finishing',
+          user:'Auto-Bridge Step 4',
+          note:'Mold:'+b.mold+' Shift:'+b.shift+' MC:'+b.machine,
+          source:'auto-step4'
+        });
+        partsUpdated.push(b.poRH+' (+'+b.goodRH+')');
+      }
+      
+      // Mark as consumed
+      b.consumed=true;
+      b.consumedAt=new Date().toISOString();
+      processed++;
+    });
+    
+    localStorage.setItem('mes_bridge_step4_to_5',JSON.stringify(bridge));
+    saveToStorage();
+    
+    // Show result
+    var html='<div class="alert-banner ok"><div class="alert-title">✅ รับข้อมูลจาก Step 4 สำเร็จ!</div>'+
+      '<div style="font-size:12px;line-height:1.7">'+
+      '🔄 Processed: <b style="color:var(--green);font-size:16px">'+processed+' รายการ</b><br>'+
+      '📦 Parts updated: <b>'+partsUpdated.length+'</b><br>'+
+      '<div style="max-height:120px;overflow-y:auto;margin-top:8px;font-size:11px;color:var(--dim)">'+
+      partsUpdated.slice(0,20).join('<br>')+
+      (partsUpdated.length>20?'<br>... และอีก '+(partsUpdated.length-20)+' รายการ':'')+
+      '</div>'+
+      '💡 ไป Tab "📊 WIP Status" เพื่อดูสต็อค</div></div>';
+    document.getElementById('importResult').innerHTML=html;
+    
+    toast('✅ รับ '+processed+' รายการเข้า WIP สำเร็จ!');
+    checkAutoBridge();
+    renderWIPTable();
+    renderAlerts();
+  }catch(e){
+    toast('❌ Error: '+e.message);
+    console.error(e);
+  }
+}
+
+function clearBridge(){
+  if(!confirm('ล้าง Bridge ทั้งหมด? (Step 4 ต้องบันทึกใหม่)'))return;
+  localStorage.setItem('mes_bridge_step4_to_5','[]');
+  checkAutoBridge();
+  toast('🗑️ ล้าง Bridge แล้ว');
+}
+
+// Listen for Step 4 saves (cross-tab)
+window.addEventListener('storage',function(e){
+  if(e.key==='mes_bridge_step4_to_5'){
+    checkAutoBridge();
+    toast('🔔 Step 4 มีข้อมูลใหม่! กดปุ่ม "รับข้อมูล"');
+  }
+});
+
+// Check every 3 seconds for new data
+setInterval(checkAutoBridge,3000);
+
+
+init();
+checkAutoBridge();
+</script>
+</body>
+</html>
+<script>
+// ==================== CLOUD IMPORT FUNCTIONS (R2 - iPad Compatible) ====================
+
+// iPad/Safari-compatible fetch helper (uses XMLHttpRequest for max compatibility)
+function cloudGET(url, callback, errback, _retry){
+  try{
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 45000; // 45s — รองรับ Cold Start ของ Apps Script
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 400){
+          try{ callback(JSON.parse(xhr.responseText)); }
+          catch(e){ errback('Parse error: ' + e.message); }
+        }else{
+          errback('HTTP ' + xhr.status);
+        }
+      }
+    };
+    xhr.ontimeout = function(){
+      if(!_retry){ setTimeout(function(){ cloudGET(url, callback, errback, true); }, 3000); }
+      else{ errback('Timeout — Apps Script ไม่ตอบสนอง กรุณาลองอีกครั้ง'); }
+    };
+    xhr.onerror = function(){
+      if(!_retry){ setTimeout(function(){ cloudGET(url, callback, errback, true); }, 3000); }
+      else{ errback('Network error - ตรวจสอบ internet'); }
+    };
+    xhr.send();
+  }catch(e){ errback(e.message); }
+}
+
+function cloudPOST(url, payload, callback, errback){
+  try{
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.timeout = 20000;
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 400){
+          try{ callback(JSON.parse(xhr.responseText)); }
+          catch(e){ errback('Parse error: ' + e.message); }
+        }else{
+          errback('HTTP ' + xhr.status);
+        }
+      }
+    };
+    xhr.ontimeout = function(){ errback('Timeout (20s) - ลองใหม่อีกครั้ง'); };
+    xhr.onerror = function(){ errback('Network error - ตรวจสอบ internet'); };
+    xhr.send(JSON.stringify(payload));
+  }catch(e){ errback(e.message); }
+}
+
+function initCloud5(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(url){
+    var el = document.getElementById('appsScriptURL5');
+    if(el) el.value = url;
+  }
+  var el2 = document.getElementById('importDate');
+  if(el2) el2.value = new Date().toISOString().split('T')[0];
+}
+
+function saveCloud5(){
+  var url = document.getElementById('appsScriptURL5').value.trim();
+  // Clean URL - remove zero-width spaces and trailing chars (iPad keyboard issue)
+  url = url.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g,'');
+  if(!url){ alert('กรุณาใส่ URL'); return; }
+  localStorage.setItem('mes_apps_script_url', url);
+  document.getElementById('appsScriptURL5').value = url;
+  var t=document.getElementById('toast');if(t){t.textContent='✅ Cloud config saved!';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+}
+
+function testCloud5(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(!url){ document.getElementById('cloudTest5Result').innerHTML='<div style="color:#ef4444;font-size:12px">❌ Save URL first</div>'; return; }
+  document.getElementById('cloudTest5Result').innerHTML='<div style="color:#f59e0b;font-size:12px">⏳ Testing...</div>';
+  cloudGET(url+'?action=getRecent&limit=1', function(data){
+    if(data.status==='success'){
+      document.getElementById('cloudTest5Result').innerHTML='<div style="color:#10b981;font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ Connected! Records: '+data.count+'</div>';
+      document.getElementById('cloudStatus5').textContent='✅ Connected';
+      document.getElementById('cloudStatus5').style.color='#10b981';
+    }else{
+      document.getElementById('cloudTest5Result').innerHTML='<div style="color:#ef4444;font-size:12px">❌ '+data.message+'</div>';
+    }
+  }, function(err){
+    document.getElementById('cloudTest5Result').innerHTML='<div style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ '+err+'</div>';
+  });
+}
+
+function importFromCloud(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(!url){ alert('Save Cloud config first'); return; }
+  document.getElementById('importResults').innerHTML='<div style="color:#f59e0b;font-size:12px;padding:8px">⏳ Importing...</div>';
+  cloudGET(url+'?action=getAll', function(data){
+    if(data.status==='success'){
+      document.getElementById('importedCount').textContent=data.count;
+      document.getElementById('lastImportTime').textContent=new Date().toLocaleString('th-TH');
+      document.getElementById('importResults').innerHTML='<div style="color:#10b981;font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ Imported '+data.count+' records from all machines</div>';
+    }else{
+      document.getElementById('importResults').innerHTML='<div style="color:#ef4444;font-size:12px">❌ '+data.message+'</div>';
+    }
+  }, function(err){
+    document.getElementById('importResults').innerHTML='<div style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ '+err+'</div>';
+  });
+}
+
+function importByDate(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  var date = document.getElementById('importDate').value;
+  if(!url||!date){ alert('Configure URL and select date'); return; }
+  // Normalize date to YYYY-MM-DD
+  if(date.indexOf('/')>-1){
+    var p=date.split('/'); date=p[2]+'-'+('0'+p[0]).slice(-2)+'-'+('0'+p[1]).slice(-2);
+  }
+  document.getElementById('importResults').innerHTML='<div style="color:#f59e0b;font-size:12px;padding:8px">⏳ Importing '+date+'...</div>';
+  cloudGET(url+'?action=getDate&date='+encodeURIComponent(date), function(data){
+    if(data.status==='success'){
+      document.getElementById('importResults').innerHTML='<div style="color:#10b981;font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ '+data.count+' records for '+date+'</div>';
+    }else{
+      document.getElementById('importResults').innerHTML='<div style="color:#ef4444;font-size:12px">❌ '+data.message+'</div>';
+    }
+  }, function(err){
+    document.getElementById('importResults').innerHTML='<div style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ '+err+'</div>';
+  });
+}
+
+// ==================== WIP BACKUP TO CLOUD ====================
+function backupWIPToCloud(){
+  var url = localStorage.getItem('mes_apps_script_url');
+  if(!url){ alert('กรุณา Save Cloud config ก่อน'); return; }
+  
+  // Collect WIP data from localStorage
+  var wipData = [];
+  try{ wipData = JSON.parse(localStorage.getItem('mes_step5_wip') || '[]'); }catch(e){}
+  
+  var movData = [];
+  try{ movData = JSON.parse(localStorage.getItem('mes_step5_mov') || '[]'); }catch(e){}
+  
+  if(wipData.length === 0 && movData.length === 0){
+    alert('📭 ไม่มีข้อมูล WIP ให้ Backup\n(ตั้งค่า Max-Min ก่อน)');
+    return;
+  }
+  
+  document.getElementById('wipBackupResult').innerHTML='<div style="color:#f59e0b;font-size:12px;padding:8px">⏳ Backing up WIP data...</div>';
+  
+  var payload = {
+    type: 'WIP_DATA',
+    machineID: localStorage.getItem('mes_machine_id_cloud') || 'Supervisor',
+    timestamp: new Date().toISOString(),
+    wipSettings: wipData,
+    movements: movData
+  };
+  
+  cloudPOST(url, payload, function(result){
+    if(result.status==='success'){
+      document.getElementById('wipBackupResult').innerHTML='<div style="color:#10b981;font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ Backed up '+(result.count||wipData.length)+' WIP records to Google Sheets!</div>';
+      localStorage.setItem('mes_wip_last_backup', new Date().toISOString());
+      var lb=document.getElementById('wipLastBackup'); if(lb) lb.textContent=new Date().toLocaleString('th-TH');
+    }else{
+      document.getElementById('wipBackupResult').innerHTML='<div style="color:#ef4444;font-size:12px">❌ '+result.message+'</div>';
+    }
+  }, function(err){
+    document.getElementById('wipBackupResult').innerHTML='<div style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ '+err+'</div>';
+  });
+}
+
+// ==================== MASTER DATA (Step 5) ====================
+function saveMasterConfig5(){
+  var url = document.getElementById('masterScriptURL5').value.trim().replace(/[​-‍﻿]/g,'').replace(/\s+/g,'');
+  if(!url){ alert('กรุณาใส่ Master Script URL'); return; }
+  localStorage.setItem('mes_master_script_url', url);
+  document.getElementById('masterScriptURL5').value = url;
+  var t=document.getElementById('toast'); if(t){t.textContent='✅ Master URL saved!';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2000);}
+}
+
+function loadMasterData5(manual){
+  var url = localStorage.getItem('mes_master_script_url');
+  var resultEl = document.getElementById('masterResult5');
+  if(!url){
+    if(manual && resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">⚠️ กรุณาใส่ Master Script URL ก่อน แล้วกด Save</div>';
+    updateMasterStatus5('ไม่ได้ตั้งค่า (ใช้ข้อมูล default)', false);
+    return;
+  }
+  if(resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">⏳ กำลังโหลด Master Data...</div>';
+  cloudGET(url + '?action=getMasterData', function(data){
+    if(data.status === 'success'){
+      applyMasterData5(data);
+      var countEl = document.getElementById('masterMoldCount5');
+      if(countEl && data.molds) countEl.textContent = data.molds.length;
+      if(resultEl) resultEl.innerHTML='<div style="color:var(--green);font-size:11px;padding:6px;background:rgba(16,185,129,.1);border-radius:6px">✅ โหลดสำเร็จ — Molds: '+(data.molds?data.molds.length:0)+' รายการ — '+new Date().toLocaleTimeString('th-TH')+'</div>';
+      updateMasterStatus5('✅ โหลดสำเร็จ จาก Cloud', true);
+      localStorage.setItem('mes_master5_cache', JSON.stringify(data));
+      localStorage.setItem('mes_master5_cache_time', new Date().toISOString());
+    } else {
+      if(resultEl) resultEl.innerHTML='<div style="color:var(--red);font-size:11px">❌ Error: '+(data.message||'Unknown')+'</div>';
+      updateMasterStatus5('❌ โหลดไม่ได้ (ใช้ข้อมูล default)', false);
+    }
+  }, function(err){
+    // Try cache
+    var cached = localStorage.getItem('mes_master5_cache');
+    if(!cached) cached = localStorage.getItem('mes_master_cache'); // fallback to Step 4 cache
+    if(cached){
+      try{
+        var data = JSON.parse(cached);
+        applyMasterData5(data);
+        var ct = localStorage.getItem('mes_master5_cache_time') || localStorage.getItem('mes_master_cache_time');
+        if(resultEl) resultEl.innerHTML='<div style="color:var(--yellow);font-size:11px">📦 ใช้ Cache (offline) — บันทึกล่าสุด: '+(ct?new Date(ct).toLocaleString('th-TH'):'—')+'</div>';
+        updateMasterStatus5('📦 ใช้ Cache (offline)', false);
+        return;
+      }catch(e){}
+    }
+    if(manual && resultEl) resultEl.innerHTML='<div style="color:var(--red);font-size:11px">❌ ไม่สามารถเชื่อมต่อ: '+err+'<br>ใช้ข้อมูล PARTS default ใน code แทน</div>';
+    updateMasterStatus5('⚠️ Offline — ใช้ข้อมูล default', false);
+  });
+}
+
+function applyMasterData5(data){
+  if(data.molds && data.molds.length > 0){
+    data.molds.forEach(function(m){
+      var pNo = m.PartNo || '';
+      if(!pNo) return;
+      PARTS[pNo] = {
+        n: m.PartName || '',
+        c: m.Customer || '',
+        d: m.Model || '',
+        m: m.MoldNo || ''
+      };
+    });
+    buildPartSelect5();
+    var countEl = document.getElementById('masterMoldCount5');
+    if(countEl) countEl.textContent = data.molds.length;
+  }
+}
+
+function buildPartSelect5(){
+  var sel = document.getElementById('setupPart');
+  if(!sel) return;
+  var cur = sel.value;
+  var keys = Object.keys(PARTS).sort();
+  var html = '<option value="">— เลือก Part —</option>';
+  keys.forEach(function(k){
+    var p = PARTS[k];
+    html += '<option value="'+k+'">'+k+' — '+p.n+'</option>';
+  });
+  sel.innerHTML = html;
+  if(cur) sel.value = cur;
+}
+
+function updateMasterStatus5(msg, ok){
+  var el = document.getElementById('masterStatus5');
+  if(el){ el.textContent = msg; el.style.color = ok ? 'var(--green)' : 'var(--dim)'; }
+}
+
+initCloud5();
+// Restore saved Master URL
+(function(){
+  var savedMasterURL = localStorage.getItem('mes_master_script_url');
+  if(savedMasterURL){ var el = document.getElementById('masterScriptURL5'); if(el) el.value = savedMasterURL; }
+  setTimeout(function(){ loadMasterData5(false); }, 1200);
+})();
+
+var _wlb=localStorage.getItem('mes_wip_last_backup');
+if(_wlb){var _e=document.getElementById('wipLastBackup');if(_e)_e.textContent=new Date(_wlb).toLocaleString('th-TH');}
+</script>

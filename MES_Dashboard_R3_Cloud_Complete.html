@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MES Phase 1 — Smart Dashboard R2 Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<style>
+:root{--bg:#0a0f1f;--card:#141d2f;--card2:#1a2540;--accent:#2d7ff9;--accent2:#5b9cff;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;--text:#e8edf5;--dim:#7b8ca8;--border:#253350;--inp:#0d1428;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+
+/* ===== TOPBAR ===== */
+.topbar{background:linear-gradient(135deg,#141d2f,#1a2540);padding:12px 14px;border-bottom:2px solid #2d7ff9;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+.topbar-title{font-size:18px;font-weight:800;color:#60a5fa}
+.topbar-sub{font-size:11px;color:var(--dim)}
+.topbar-right{text-align:right}
+
+/* ===== NAV TABS ===== */
+.nav{display:flex;overflow-x:auto;gap:4px;padding:8px 10px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:54px;z-index:99}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:0 0 auto;padding:8px 12px;border:none;border-radius:8px;background:transparent;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .2s}
+.nav-btn.active{background:#2d7ff9;color:#fff;font-weight:700}
+.nav-btn:hover{background:rgba(45,127,249,.2)}
+
+/* ===== CARDS & LAYOUT ===== */
+.container{max-width:1400px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.card-title{font-size:16px;font-weight:800;color:#60a5fa;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-sub{font-size:11px;color:var(--dim);margin-bottom:10px}
+
+/* ===== GRID ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+@media(max-width:768px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+/* ===== KPI BOXES ===== */
+.kpi{background:var(--inp);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.kpi-label{font-size:11px;color:var(--dim);margin-bottom:4px;font-weight:600}
+.kpi-value{font-size:24px;font-weight:900;color:#60a5fa;margin-bottom:4px}
+.kpi-sub{font-size:10px;color:var(--dim)}
+.kpi-ok{border-left:4px solid var(--green)!important}.kpi-ok .kpi-value{color:var(--green)}
+.kpi-warn{border-left:4px solid var(--yellow)!important}.kpi-warn .kpi-value{color:var(--yellow)}
+.kpi-crit{border-left:4px solid var(--red)!important}.kpi-crit .kpi-value{color:var(--red)}
+.kpi-info{border-left:4px solid var(--accent)!important}.kpi-info .kpi-value{color:var(--accent2)}
+
+/* ===== ALERTS ===== */
+.alert-box{background:linear-gradient(135deg,#ef444415,#ef444410);border:2px solid #ef4444;border-radius:var(--r);padding:12px;margin-bottom:10px}
+.alert-box.warn{background:linear-gradient(135deg,#f59e0b15,#f59e0b10);border-color:var(--yellow)}
+.alert-box.ok{background:linear-gradient(135deg,#10b98120,#10b98110);border-color:var(--green)}
+.alert-box.info{background:linear-gradient(135deg,#2d7ff915,#2d7ff910);border-color:var(--accent)}
+.alert-title{font-weight:800;font-size:14px;margin-bottom:6px}
+.alert-box.crit .alert-title{color:var(--red)}
+.alert-box.warn .alert-title{color:var(--yellow)}
+.alert-box.ok .alert-title{color:var(--green)}
+.alert-box.info .alert-title{color:var(--accent2)}
+.alert-detail{font-size:12px;color:var(--dim);line-height:1.6}
+.alert-action{margin-top:8px;display:flex;gap:6px}
+.alert-btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit}
+.alert-btn-ok{background:var(--green);color:#fff}.alert-btn-ok:hover{opacity:.8}
+.alert-btn-skip{background:var(--border);color:var(--dim)}.alert-btn-skip:hover{opacity:.7}
+
+/* ===== RECOMMENDATIONS ===== */
+.rec-item{background:var(--inp);border-left:4px solid var(--accent);border-radius:6px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.rec-item.urgent{border-left-color:var(--red);background:rgba(239,68,68,.08)}
+.rec-item.high{border-left-color:var(--orange)}
+.rec-item.normal{border-left-color:var(--accent)}
+.rec-text{font-size:12px;color:var(--text);flex:1}
+.rec-priority{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;background:var(--border);color:var(--dim)}
+.rec-item.urgent .rec-priority{background:var(--red);color:#fff}
+.rec-item.high .rec-priority{background:var(--orange);color:#fff}
+.rec-btn{background:var(--accent);color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;font-weight:600;margin-left:6px}
+.rec-btn:hover{opacity:.8}
+
+/* ===== TABLES ===== */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{padding:8px 6px;text-align:left;font-weight:700;background:rgba(45,127,249,.1);color:var(--accent2);border-bottom:1px solid var(--border)}
+.tbl td{padding:6px;border-bottom:1px solid var(--border)}
+.tbl tr:hover{background:rgba(45,127,249,.05)}
+.tbl .lbl{font-weight:600;color:var(--accent2)}
+.tbl .stat-ok{color:var(--green);font-weight:600}
+.tbl .stat-warn{color:var(--yellow);font-weight:600}
+.tbl .stat-crit{color:var(--red);font-weight:600}
+
+/* ===== TABS CONTENT ===== */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ===== BOTTOM NAV ===== */
+.bn{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:8px 10px;display:flex;gap:6px;z-index:99}
+.bn-btn{flex:1;padding:12px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px}
+.bn-btn:active{transform:scale(.97)}
+
+/* ===== CHARTS ===== */
+.chart-container{position:relative;height:250px;margin:10px 0}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 24px;border-radius:10px;font-weight:700;z-index:200;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast.show{display:block;animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateX(-50%) translateY(-20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  .kpi-value{font-size:18px}
+  .topbar{padding:10px 10px}
+  .topbar-title{font-size:14px}
+  .nav-btn{font-size:10px;padding:6px 10px}
+  .card{padding:10px}
+  .tbl{font-size:10px}
+  .tbl th,.tbl td{padding:4px}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="topbar">
+<div>
+  <div class="topbar-title">📊 MES Smart Dashboard — Phase 1 R1</div>
+  <div class="topbar-sub">Vandapac Co., Ltd. | 7-Step Manufacturing Process</div>
+</div>
+<div class="topbar-right">
+  <div style="font-weight:700;font-size:13px" id="dateNow"></div>
+  <div style="font-size:11px;color:var(--accent2)">Connected: Step 4-5</div>
+</div>
+</div>
+
+<div class="nav" id="nav">
+<button class="nav-btn active" onclick="showTab(1)">⚠️ Alerts</button>
+<button class="nav-btn" onclick="showTab(2)">💡 Recommendations</button>
+<button class="nav-btn" onclick="showTab(3)">📊 Dashboard</button>
+<button class="nav-btn" onclick="showTab(4)">🏭 Step 0-7 Overview</button>
+<button class="nav-btn" onclick="showTab(5)">⚙️ Settings</button>
+<button class="nav-btn" onclick="showTab(6)" style="background:rgba(16,185,129,.2);color:#10b981">☁️ Cloud Live</button>
+</div>
+
+<div class="container">
+
+<!-- ==================== TAB 1: ALERTS ==================== -->
+<div class="tab-content active" id="tab1">
+<div class="card">
+<div class="card-title">⚠️ Intelligent Alerts — แจ้งเตือนฉลาด</div>
+<div class="card-sub">ระบบมอนิเตอร์อัตโนมัติ 8 categories ก่อนเกิด Problem</div>
+
+<div id="alertsList" style="margin-top:10px"></div>
+
+<div style="margin-top:10px;padding:10px;background:var(--inp);border-radius:8px;border-left:4px solid var(--accent);font-size:11px;color:var(--dim);line-height:1.7">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:4px">📋 Alert Categories:</div>
+1️⃣ WIP Below Min | 2️⃣ WIP Above Max | 3️⃣ Defect Rate High<br>
+4️⃣ Yield Low | 5️⃣ Mold Maintenance | 6️⃣ Material Depleted<br>
+7️⃣ Manpower Short | 8️⃣ Equipment Downtime
+</div>
+</div>
+</div>
+
+<!-- ==================== TAB 2: RECOMMENDATIONS ==================== -->
+<div class="tab-content" id="tab2">
+<div class="card">
+<div class="card-title">💡 Smart Recommendations — แนะนำ Action ถัดไป</div>
+<div class="card-sub">ระบบแนะนำสิ่งที่ต้องทำเพื่อให้ Production ประสิทธิภาพสูง</div>
+
+<div style="margin-top:10px;padding:10px;background:linear-gradient(135deg,#2d7ff915,#2d7ff910);border:1px solid var(--accent);border-radius:8px;margin-bottom:10px">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:8px">🎯 Recommendation Sources:</div>
+<div style="font-size:12px;color:var(--dim);line-height:1.8">
+📦 <b>WIP Level</b>: Auto-suggest Part to produce<br>
+👥 <b>Manpower</b>: Shift optimization (balanced workload)<br>
+🔧 <b>Mold</b>: Maintenance schedule + changeover optimization<br>
+📊 <b>Defects</b>: Correlation with Machine/Material/Mold<br>
+⚡ <b>Performance</b>: Equipment utilization suggestions
+</div>
+</div>
+
+<div id="recQueue" style="margin-top:10px"></div>
+</div>
+</div>
+
+<!-- ==================== TAB 3: DASHBOARD ==================== -->
+<div class="tab-content" id="tab3">
+<div class="card">
+<div class="card-title">📊 Real-time KPI Dashboard</div>
+
+<div class="grid4" id="kpiCards"></div>
+
+<div class="grid2">
+<div style="background:var(--inp);border-radius:8px;padding:10px">
+<div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px">📈 Production Trend (7 days)</div>
+<div class="chart-container"><canvas id="prodChart"></canvas></div>
+</div>
+
+<div style="background:var(--inp);border-radius:8px;padding:10px">
+<div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px">🎯 WIP Status</div>
+<div class="chart-container"><canvas id="wipChart"></canvas></div>
+</div>
+</div>
+
+<div style="background:var(--inp);border-radius:8px;padding:10px">
+<div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px">🔴 Defect Distribution</div>
+<div class="chart-container"><canvas id="defectChart"></canvas></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TAB 4: STEP 0-7 OVERVIEW ==================== -->
+<div class="tab-content" id="tab4">
+<div class="card">
+<div class="card-title">🏭 7-Step Manufacturing Process Overview</div>
+
+<div style="display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;padding:8px;background:var(--inp);border-radius:8px">
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">0️⃣ Plan</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">1️⃣ Raw In</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">2️⃣ WIP Raw</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">3️⃣ Readiness</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--green);color:#fff;border-radius:6px;font-size:11px;font-weight:700">4️⃣ Production ✓</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--green);color:#fff;border-radius:6px;font-size:11px;font-weight:700">5️⃣ WIP Max-Min ✓</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">6️⃣ Route</div>
+<div style="flex:0 0 auto;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;font-size:11px;font-weight:700">7️⃣ Rollup</div>
+</div>
+
+<div class="grid2">
+<div class="card" style="margin-bottom:0">
+<div style="font-weight:700;color:var(--green);margin-bottom:8px">✅ Live Now (Phase 1)</div>
+<div style="font-size:12px;color:var(--text);line-height:1.8">
+<div>📊 Step 4: Production Record</div>
+<div>└─ Hourly production tracking</div>
+<div>└─ Defect logging</div>
+<div>└─ Downtime recording</div>
+<br>
+<div>📦 Step 5: WIP Max-Min</div>
+<div>└─ Stock monitoring</div>
+<div>└─ Auto-bridge from Step 4</div>
+<div>└─ Smart alerts + recommendations</div>
+</div>
+</div>
+
+<div class="card" style="margin-bottom:0">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:8px">🚧 Coming Soon (Phase 2-3)</div>
+<div style="font-size:12px;color:var(--text);line-height:1.8">
+<div>📋 Step 0: Production Planning</div>
+<div>📥 Step 1: Raw Material In</div>
+<div>📦 Step 2: WIP Raw Material</div>
+<div>⚙️ Step 3: Production Readiness</div>
+<div>🚚 Step 6: Route Distribution</div>
+<div>📊 Step 7: WIP & WHL Rollup</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:8px">📊 Data Flow Integration</div>
+<div style="font-size:11px;color:var(--dim);line-height:1.8;background:var(--inp);padding:10px;border-radius:8px">
+<div>Step 4 (Production) → Auto-bridge → localStorage</div>
+<div>Step 5 (WIP) ← Auto-read ← localStorage</div>
+<div>Alerts Generated ← Data in localStorage</div>
+<div>Recommendations ← Business Rules + Historical Data</div>
+<div>Dashboard KPIs ← Real-time Calculations</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TAB 5: SETTINGS ==================== -->
+<div class="tab-content" id="tab5">
+<div class="card">
+<div class="card-title">⚙️ Settings & Configuration</div>
+
+<div style="margin-bottom:10px">
+<label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:8px;background:var(--inp);border-radius:8px">
+<input type="checkbox" id="notifSoundCheck" checked onchange="toggleNotificationSound()">
+🔔 Sound Notifications (Critical Alerts)
+</label>
+</div>
+
+<div style="margin-bottom:10px">
+<label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:8px;background:var(--inp);border-radius:8px">
+<input type="checkbox" id="autoAlertCheck" checked>
+⚠️ Auto-dismiss Resolved Alerts
+</label>
+</div>
+
+<div style="margin-bottom:10px">
+<label style="font-size:12px;padding:8px;background:var(--inp);border-radius:8px;display:block">
+🎯 Alert Sensitivity (Threshold Multiplier):
+<div style="margin-top:6px;display:flex;gap:6px;align-items:center">
+<input type="range" min="0.5" max="2" step="0.1" value="1" id="alertSensitivity" style="flex:1" oninput="updateAlertSensitivity()">
+<span id="sensitivityLabel" style="min-width:30px;font-weight:700">1.0x</span>
+</div>
+</label>
+</div>
+
+<button onclick="exportAllData()" style="width:100%;padding:10px;margin:10px 0;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">
+📥 Export Data (CSV)
+</button>
+
+<button onclick="clearAllData()" style="width:100%;padding:10px;margin:10px 0;background:var(--red);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">
+🗑️ Clear All Data
+</button>
+
+<div style="margin-top:10px;padding:10px;background:var(--inp);border-radius:8px;font-size:11px;color:var(--dim);line-height:1.8">
+<div style="font-weight:700;color:var(--accent2);margin-bottom:6px">ℹ️ Information:</div>
+Version: 1.0 (Phase 1 MVP)<br>
+Build Date: 2026-05-17<br>
+Status: <span style="color:var(--green);font-weight:700">Live & Production Ready</span><br>
+Next Update: Phase 2 (Analytics) — Day 15
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="bn">
+<button class="bn-btn" onclick="prevTab()">◀ ย้อนกลับ</button>
+<button class="bn-btn" onclick="nextTab()">ถัดไป ▶</button>
+<button class="bn-btn" onclick="saveSystemState()" style="background:var(--green)">💾 Save Data</button>
+</div>
+
+<!-- ==================== TAB 6: CLOUD LIVE ==================== -->
+<div class="tc" id="tab6"><div class="card">
+<div class="card-title">☁️ Cloud Live Dashboard</div>
+<div class="card-sub">Real-time data from all machines via Google Sheets</div>
+
+<div style="background:rgba(45,127,249,.1);border:1px solid rgba(45,127,249,.3);border-radius:8px;padding:12px;margin-bottom:10px">
+<div style="font-size:12px;color:#60a5fa;line-height:1.6">
+<b>☁️ Status:</b> <span id="cloudStatusD" style="font-weight:700">Not configured</span><br>
+<b>📊 Cloud Records:</b> <span id="cloudRecordCount" style="font-weight:700">0</span><br>
+<b>🔄 Last Refresh:</b> <span id="lastRefreshD" style="font-weight:700">Never</span>
+</div>
+</div>
+
+<div class="f"><label class="fl">🔗 Apps Script URL</label>
+<input type="text" id="appsScriptURLDash" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+<button class="btn" style="background:#2d7ff9;width:100%" onclick="testCloudDash()">🧪 Test</button>
+<button class="btn" style="background:#10b981;width:100%" onclick="saveCloudDash()">💾 Save</button>
+<button class="btn" style="background:#f59e0b;color:#111;width:100%" onclick="refreshCloudDash()">🔄 Refresh</button>
+</div>
+
+<div id="cloudDashResult" style="margin-bottom:10px"></div>
+
+<div id="cloudMachineCards" style="margin-top:10px">
+<div style="color:var(--dim);text-align:center;padding:20px;font-size:12px">Configure URL and click Refresh to see machine data</div>
+</div>
+</div></div>
+
+<script>
+// ==================== INITIALIZE ====================
+let curTab=1;
+let alerts=[];
+let recommendations=[];
+let wipData={};
+let prodHistory=[];
+
+const ALERT_RULES={
+  WIP_LOW:{name:'WIP Below Min',severity:'critical',icon:'📦'},
+  WIP_HIGH:{name:'WIP Above Max',severity:'warning',icon:'📦'},
+  DEFECT_HIGH:{name:'Defect Rate High',severity:'critical',icon:'❌'},
+  YIELD_LOW:{name:'Yield Low',severity:'warning',icon:'⚠️'},
+  MOLD_MAINT:{name:'Mold Maintenance Due',severity:'info',icon:'🔧'},
+  MATERIAL_LOW:{name:'Material Depleted',severity:'critical',icon:'📥'},
+  MANPOWER_SHORT:{name:'Manpower Short',severity:'warning',icon:'👥'},
+  DOWNTIME:{name:'Equipment Downtime',severity:'critical',icon:'⚡'}
+};
+
+const REC_RULES=[
+  {condition:'WIP_F8277_LOW',action:'Produce F8277BTOGC0 (500 pcs, BM-002)',priority:'urgent'},
+  {condition:'DEFECT_HIGH_IJ04',action:'Inspect Mold IJ04 for wear',priority:'high'},
+  {condition:'SHIFT_IMBALANCE',action:'Rebalance shift A & B manpower',priority:'normal'},
+  {condition:'YIELD_DROP',action:'Review material batch for contamination',priority:'high'},
+  {condition:'MOLD_CHANGEOVER',action:'Optimize production sequence (reduce mold changes)',priority:'normal'}
+];
+
+function init(){
+  document.getElementById('dateNow').textContent=new Date().toLocaleDateString('th-TH',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  loadFromStorage();
+  generateMockData();
+  renderAlerts();
+  renderRecommendations();
+  renderDashboard();
+  initCharts();
+}
+
+function loadFromStorage(){
+  try{alerts=JSON.parse(localStorage.getItem('mes_alerts')||'[]');}catch(e){}
+  try{recommendations=JSON.parse(localStorage.getItem('mes_recs')||'[]');}catch(e){}
+  try{wipData=JSON.parse(localStorage.getItem('mes_wip')||'{}');}catch(e){}
+  try{prodHistory=JSON.parse(localStorage.getItem('mes_prod')||'[]');}catch(e){}
+}
+
+function saveSystemState(){
+  localStorage.setItem('mes_alerts',JSON.stringify(alerts));
+  localStorage.setItem('mes_recs',JSON.stringify(recommendations));
+  localStorage.setItem('mes_wip',JSON.stringify(wipData));
+  localStorage.setItem('mes_prod',JSON.stringify(prodHistory));
+  toast('💾 Data saved successfully');
+}
+
+function generateMockData(){
+  // Mock WIP data
+  wipData={
+    'F8277BTOGC0':{min:100,max:1000,current:85,status:'critical'},
+    'F8278BTOGC0':{min:100,max:1000,current:1200,status:'high'},
+    'F8257ISPAC0':{min:80,max:600,current:320,status:'ok'},
+    'F8258ISPAC0':{min:80,max:600,current:45,status:'warning'},
+    'S8299BLFOR01':{min:150,max:800,current:650,status:'ok'}
+  };
+
+  // Generate alerts
+  alerts=[
+    {id:1,type:'WIP_LOW',severity:'critical',part:'F8277BTOGC0',current:85,min:100,message:'WIP F8277BTOGC0 below minimum (85/100)',ts:new Date()},
+    {id:2,type:'WIP_HIGH',severity:'warning',part:'F8278BTOGC0',current:1200,max:1000,message:'WIP F8278BTOGC0 exceeds max (1200/1000)',ts:new Date()},
+    {id:3,type:'YIELD_LOW',severity:'warning',part:'S8299BRFOR01',yield:78,message:'Yield low on Machine BM3 (78% vs target 85%)',ts:new Date()},
+    {id:4,type:'MOLD_MAINT',severity:'info',part:'BM-002-R-RT50',message:'Mold BM-002 maintenance due (500K cycles)',ts:new Date()}
+  ];
+
+  // Generate recommendations
+  recommendations=[
+    {id:1,action:'Produce F8277BTOGC0 (500 pcs) on IJ01 → BM-002',priority:'urgent',reason:'WIP critical low'},
+    {id:2,action:'Reduce BM3 production of F8278BTOGC0 (high stock)',priority:'high',reason:'WIP exceeds max'},
+    {id:3,action:'Inspect BM-002 Mold (wear check)',priority:'high',reason:'Upcoming maintenance'},
+    {id:4,action:'Review Shift A manpower (unbalanced)',priority:'normal',reason:'ManHour efficiency < 85%'}
+  ];
+
+  // Production history
+  prodHistory=[
+    {date:'2026-05-17',shift:'A',output:2340,defects:45,yield:98.1},
+    {date:'2026-05-16',shift:'B',output:2150,defects:38,yield:98.2},
+    {date:'2026-05-16',shift:'A',output:2280,defects:42,yield:98.3},
+    {date:'2026-05-15',shift:'B',output:2100,defects:40,yield:98.0},
+    {date:'2026-05-15',shift:'A',output:2320,defects:48,yield:97.9},
+    {date:'2026-05-14',shift:'B',output:2200,defects:35,yield:98.4},
+    {date:'2026-05-14',shift:'A',output:2310,defects:46,yield:98.1}
+  ];
+}
+
+function renderAlerts(){
+  var html='';
+  if(alerts.length===0){
+    html='<div class="alert-box ok"><div class="alert-title">✅ All Clear!</div><div class="alert-detail">No active alerts. Keep monitoring production.</div></div>';
+  }else{
+    alerts.forEach(function(a){
+      var cls=a.severity==='critical'?'crit':a.severity==='warning'?'warn':'info';
+      html+='<div class="alert-box '+cls+'">'+
+        '<div class="alert-title">'+ALERT_RULES[a.type].icon+' '+ALERT_RULES[a.type].name+'</div>'+
+        '<div class="alert-detail">'+a.message+'<br><span style="font-size:10px;color:var(--dim)">'+new Date(a.ts).toLocaleTimeString('th-TH')+'</span></div>'+
+        '<div class="alert-action">'+
+        '<button class="alert-btn alert-btn-ok" onclick="acknowledgeAlert('+a.id+')">✓ ACK</button>'+
+        '<button class="alert-btn alert-btn-skip" onclick="dismissAlert('+a.id+')">Skip</button>'+
+        '</div></div>';
+    });
+  }
+  document.getElementById('alertsList').innerHTML=html;
+}
+
+function renderRecommendations(){
+  var html='';
+  if(recommendations.length===0){
+    html='<div class="rec-item normal"><div class="rec-text">📋 No recommendations at this time.</div></div>';
+  }else{
+    recommendations.forEach(function(r){
+      var cls=r.priority==='urgent'?'urgent':r.priority==='high'?'high':'normal';
+      var pri=r.priority==='urgent'?'🔴 URGENT':r.priority==='high'?'🟠 HIGH':'🟢 NORMAL';
+      html+='<div class="rec-item '+cls+'">'+
+        '<div class="rec-text"><b>'+r.action+'</b><br><span style="font-size:10px;color:var(--dim)">Reason: '+r.reason+'</span></div>'+
+        '<div><span class="rec-priority">'+pri+'</span><button class="rec-btn" onclick="executeRec('+r.id+')">✓ Done</button></div></div>';
+    });
+  }
+  document.getElementById('recQueue').innerHTML=html;
+}
+
+function renderDashboard(){
+  var totalProduced=prodHistory.reduce((a,b)=>a+b.output,0);
+  var totalDefects=prodHistory.reduce((a,b)=>a+b.defects,0);
+  var avgYield=(prodHistory.reduce((a,b)=>a+b.yield,0)/prodHistory.length).toFixed(1);
+  var wipCount=Object.keys(wipData).length;
+  var wipCritical=Object.values(wipData).filter(w=>w.status==='critical').length;
+  var wipWarning=Object.values(wipData).filter(w=>w.status==='warning').length;
+
+  var kpiHtml=''+
+    '<div class="kpi kpi-info"><div class="kpi-label">📊 Total Produced</div><div class="kpi-value">'+totalProduced+'</div><div class="kpi-sub">pcs (7 days)</div></div>'+
+    '<div class="kpi kpi-warn"><div class="kpi-label">❌ Defects</div><div class="kpi-value">'+totalDefects+'</div><div class="kpi-sub">pcs ('+((totalDefects/totalProduced)*100).toFixed(1)+'%)</div></div>'+
+    '<div class="kpi kpi-ok"><div class="kpi-label">🎯 Avg Yield</div><div class="kpi-value">'+avgYield+'%</div><div class="kpi-sub">Target: 93%</div></div>'+
+    '<div class="kpi kpi-info"><div class="kpi-label">📦 WIP Parts</div><div class="kpi-value">'+wipCount+'</div><div class="kpi-sub">'+wipCritical+' critical, '+wipWarning+' warning</div></div>';
+
+  document.getElementById('kpiCards').innerHTML=kpiHtml;
+}
+
+function initCharts(){
+  // Production trend
+  var dates=prodHistory.map(p=>p.date);
+  var outputs=prodHistory.map(p=>p.output);
+  var ctx1=document.getElementById('prodChart').getContext('2d');
+  new Chart(ctx1,{type:'line',data:{labels:dates,datasets:[{label:'Output (pcs)',data:outputs,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',tension:.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+
+  // WIP status
+  var wipParts=Object.keys(wipData);
+  var wipLevels=wipParts.map(p=>wipData[p].current);
+  var ctx2=document.getElementById('wipChart').getContext('2d');
+  new Chart(ctx2,{type:'bar',data:{labels:wipParts.map(p=>p.substring(0,7)),datasets:[{label:'Current',data:wipLevels,backgroundColor:wipParts.map(p=>wipData[p].status==='critical'?'#ef4444':wipData[p].status==='warning'?'#f59e0b':'#10b981')}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+
+  // Defect distribution
+  var ctx3=document.getElementById('defectChart').getContext('2d');
+  new Chart(ctx3,{type:'doughnut',data:{labels:['Good','Defect'],datasets:[{data:[98.1,1.9],backgroundColor:['#10b981','#ef4444']}]},options:{responsive:true,maintainAspectRatio:false}});
+}
+
+function acknowledgeAlert(id){
+  alerts=alerts.filter(a=>a.id!==id);
+  toast('✅ Alert acknowledged');
+  renderAlerts();
+}
+
+function dismissAlert(id){
+  alerts=alerts.filter(a=>a.id!==id);
+  renderAlerts();
+}
+
+function executeRec(id){
+  recommendations=recommendations.filter(r=>r.id!==id);
+  toast('✅ Recommendation marked as done');
+  renderRecommendations();
+}
+
+function showTab(n){
+  curTab=n;
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab'+n).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',i===n-1));
+}
+
+function nextTab(){if(curTab<5)showTab(curTab+1);}
+function prevTab(){if(curTab>1)showTab(curTab-1);}
+
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function updateAlertSensitivity(){
+  var v=document.getElementById('alertSensitivity').value;
+  document.getElementById('sensitivityLabel').textContent=parseFloat(v).toFixed(1)+'x';
+}
+
+function toggleNotificationSound(){
+  var enabled=document.getElementById('notifSoundCheck').checked;
+  localStorage.setItem('notif_sound',enabled?'1':'0');
+}
+
+function exportAllData(){
+  var csv='Alert,Severity,Message,Timestamp\n';
+  alerts.forEach(a=>csv+='"'+a.type+'","'+a.severity+'","'+a.message+'","'+new Date(a.ts).toISOString()+'"\n');
+  var blob=new Blob([csv],{type:'text/csv'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='MES_Alerts_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  URL.revokeObjectURL(url);
+  toast('📥 Data exported');
+}
+
+function clearAllData(){
+  if(!confirm('Clear all data? (Cannot undo)'))return;
+  alerts=[];recommendations=[];wipData={};prodHistory=[];
+  localStorage.clear();
+  location.reload();
+}
+
+// ==================== CLOUD DASHBOARD FUNCTIONS (iPad Compatible) ====================
+function cloudGET(url, callback, errback){
+  try{
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 20000;
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        if(xhr.status >= 200 && xhr.status < 400){
+          try{ callback(JSON.parse(xhr.responseText)); }
+          catch(e){ errback('Parse error: ' + e.message); }
+        }else{ errback('HTTP ' + xhr.status); }
+      }
+    };
+    xhr.ontimeout = function(){ errback('Timeout (20s) - ลองใหม่อีกครั้ง'); };
+    xhr.onerror = function(){ errback('Network error - ตรวจสอบ internet'); };
+    xhr.send();
+  }catch(e){ errback(e.message); }
+}
+function initCloudDash(){
+  var url=localStorage.getItem('mes_apps_script_url');
+  if(url){var el=document.getElementById('appsScriptURLDash');if(el)el.value=url;}
+}
+function saveCloudDash(){
+  var url=document.getElementById('appsScriptURLDash').value.trim();
+  url = url.replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g,'');
+  if(!url){alert('กรุณาใส่ URL');return;}
+  localStorage.setItem('mes_apps_script_url',url);
+  document.getElementById('appsScriptURLDash').value=url;
+  toast('✅ Cloud config saved!');
+}
+function testCloudDash(){
+  var url=localStorage.getItem('mes_apps_script_url');
+  if(!url){document.getElementById('cloudDashResult').innerHTML='<div style="color:#ef4444;font-size:12px">❌ Save URL first</div>';return;}
+  document.getElementById('cloudDashResult').innerHTML='<div style="color:#f59e0b;font-size:12px">⏳ Testing...</div>';
+  cloudGET(url+'?action=getRecent&limit=1', function(d){
+    if(d.status==='success'){
+      document.getElementById('cloudDashResult').innerHTML='<div style="color:#10b981;font-size:12px;padding:8px;background:rgba(16,185,129,.1);border-radius:6px">✅ Connected! Records: '+d.count+'</div>';
+      document.getElementById('cloudStatusD').textContent='✅ Connected';
+    }else{
+      document.getElementById('cloudDashResult').innerHTML='<div style="color:#ef4444;font-size:12px">❌ '+d.message+'</div>';
+    }
+  }, function(err){document.getElementById('cloudDashResult').innerHTML='<div style="color:#ef4444;font-size:12px;padding:8px;background:rgba(239,68,68,.1);border-radius:6px">❌ '+err+'</div>';});
+}
+function refreshCloudDash(){
+  var url=localStorage.getItem('mes_apps_script_url');
+  if(!url){alert('Save URL first');return;}
+  document.getElementById('cloudMachineCards').innerHTML='<div style="color:#f59e0b;text-align:center;padding:20px;font-size:12px">⏳ Loading data from all machines...</div>';
+  cloudGET(url+'?action=getAll', function(d){
+    if(d.status==='success'){
+      document.getElementById('cloudRecordCount').textContent=d.count;
+      document.getElementById('lastRefreshD').textContent=new Date().toLocaleString('th-TH');
+      renderCloudMachines(d.data);
+    }else{
+      document.getElementById('cloudMachineCards').innerHTML='<div style="color:#ef4444;text-align:center;padding:20px;font-size:12px">❌ '+d.message+'</div>';
+    }
+  }, function(err){document.getElementById('cloudMachineCards').innerHTML='<div style="color:#ef4444;text-align:center;padding:20px;font-size:12px">❌ '+err+'</div>';});
+}
+function renderCloudMachines(records){
+  if(!records||records.length===0){document.getElementById('cloudMachineCards').innerHTML='<div style="color:var(--dim);text-align:center;padding:20px;font-size:12px">No data from machines yet</div>';return;}
+  var machines={};
+  records.forEach(function(r){var mid=r.machineID||'Unknown';if(!machines[mid])machines[mid]=[];machines[mid].push(r);});
+  var html='';
+  Object.keys(machines).sort().forEach(function(mid){
+    var recs=machines[mid];
+    var last=recs[recs.length-1];
+    var totalActual=recs.reduce(function(s,r){return s+(parseInt(r.actual)||0);},0);
+    var totalGood=recs.reduce(function(s,r){return s+(parseInt(r.goodLH)||0)+(parseInt(r.goodRH)||0);},0);
+    var yield_=totalActual>0?((totalGood/totalActual)*100).toFixed(1):'0';
+    var yColor=Number(yield_)>=93?'#10b981':Number(yield_)>=90?'#f59e0b':'#ef4444';
+    html+='<div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px">';
+    html+='<div style="font-weight:700;color:#60a5fa;margin-bottom:6px">🏭 '+mid+'</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:11px">';
+    html+='<div style="background:var(--bg);padding:6px;border-radius:4px"><div style="color:var(--dim);font-size:10px">Machine</div><div style="font-weight:700;color:#60a5fa">'+(last.machine||'—')+'</div></div>';
+    html+='<div style="background:var(--bg);padding:6px;border-radius:4px"><div style="color:var(--dim);font-size:10px">Output</div><div style="font-weight:700;color:#10b981">'+totalActual+' pcs</div></div>';
+    html+='<div style="background:var(--bg);padding:6px;border-radius:4px"><div style="color:var(--dim);font-size:10px">Yield</div><div style="font-weight:700;color:'+yColor+'">'+yield_+'%</div></div>';
+    html+='</div>';
+    html+='<div style="font-size:10px;color:var(--dim);margin-top:6px">📊 '+recs.length+' records | Last: '+new Date(last.timestamp).toLocaleTimeString('th-TH')+'</div>';
+    html+='</div>';
+  });
+  document.getElementById('cloudMachineCards').innerHTML=html;
+}
+
+init();
+initCloudDash();
+</script>
+</body>
+</html>
